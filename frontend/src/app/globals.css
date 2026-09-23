@@ -1,0 +1,406 @@
+@import "tailwindcss";
+
+/* Lenis Smooth Scroll Core Styles */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+html {
+  scroll-padding-top: 80px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border-color);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-glow: var(--accent-glow);
+  --color-yc: var(--yc-orange);
+  --color-yc-hover: var(--yc-orange-hover);
+  --color-doodle-primary: #49B6E5;
+  --color-doodle-secondary: #263D5B;
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-card: var(--card-bg);
+  --color-card-hover: var(--card-hover);
+  --font-sans: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-jakarta), sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
+}
+
+:root {
+  /* Ultra-Sleek Harmonious Theme Tokens */
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --surface: #FFFFFF;
+  --surface-hover: #F1F5F9;
+  --border-color: #E2E8F0;
+  --muted: #64748B;
+  --accent: #4F46E5;
+  --accent-hover: #4338CA;
+  --accent-glow: rgba(79, 70, 229, 0.2);
+  --doodle-primary: #4F46E5;
+  --doodle-secondary: #0F172A;
+  --yc-orange: #F97316;
+  --yc-orange-hover: #EA580C;
+  
+  /* Platform Ecosystem Colors */
+  --ph-orange: #FF6154;
+  --ph-hover: #E04B3E;
+  --github-dark: #1E293B;
+  --github-blue: #3B82F6;
+  --hn-orange: #F97316;
+  
+  /* Ecosystem Badge Tokens */
+  --badge-ph-bg: #FFF1F2;
+  --badge-ph-border: #E2E8F0;
+  --badge-ph-text: #E11D48;
+  --badge-github-bg: #F1F5F9;
+  --badge-github-border: #E2E8F0;
+  --badge-github-text: #334155;
+  --badge-hn-bg: #FFF7ED;
+  --badge-hn-border: #E2E8F0;
+  --badge-hn-text: #C2410C;
+
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --card-bg: #FFFFFF;
+  --card-hover: #F8FAFC;
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: #E2E8F0;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+  --shadow-glow: 0 0 25px rgba(79, 70, 229, 0.2);
+}
+
+[data-theme="dark"] {
+  --background: #0B0F17;
+  --foreground: #F8FAFC;
+  --surface: #1E293B;
+  --surface-hover: #334155;
+  --border-color: #334155;
+  --muted: #94A3B8;
+  --accent: #818CF8;
+  --accent-hover: #A5B4FC;
+  --accent-glow: rgba(129, 140, 248, 0.3);
+  --doodle-primary: #818CF8;
+  --doodle-secondary: #F8FAFC;
+  --yc-orange: #F97316;
+  --yc-orange-hover: #FB923C;
+  
+  /* Platform Ecosystem Colors */
+  --ph-orange: #FF6154;
+  --ph-hover: #FF7B70;
+  --github-dark: #F0F6FC;
+  --github-blue: #60A5FA;
+  --hn-orange: #F97316;
+
+  /* Ecosystem Badge Tokens (Dark Mode) */
+  --badge-ph-bg: rgba(255, 97, 84, 0.15);
+  --badge-ph-border: #334155;
+  --badge-ph-text: #FF7B70;
+  --badge-github-bg: rgba(240, 246, 252, 0.1);
+  --badge-github-border: #334155;
+  --badge-github-text: #E2E8F0;
+  --badge-hn-bg: rgba(249, 115, 22, 0.15);
+  --badge-hn-border: #334155;
+  --badge-hn-text: #FB923C;
+
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #F87171;
+  --card-bg: #1E293B;
+  --card-hover: #334155;
+  --glass-bg: rgba(30, 41, 59, 0.95);
+  --glass-border: #334155;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 30px rgba(129, 140, 248, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-space-grotesk), var(--font-jakarta), sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Signature Doodle Neobrutalist Utility Classes */
+.doodle-font {
+  font-family: var(--font-space-grotesk), var(--font-jakarta), sans-serif;
+  letter-spacing: -0.015em;
+}
+
+.doodle-card {
+  background-color: var(--surface);
+  border: 2px solid #263D5B;
+  border-radius: 1.25rem;
+  box-shadow: 4px 4px 0px 0px #263D5B;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .doodle-card {
+  border-color: #49B6E5;
+  box-shadow: 4px 4px 0px 0px #49B6E5;
+}
+
+.doodle-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #263D5B;
+}
+
+[data-theme="dark"] .doodle-card:hover {
+  box-shadow: 6px 6px 0px 0px #49B6E5;
+}
+
+.doodle-btn {
+  background-color: #49B6E5;
+  color: #263D5B;
+  border: 2px solid #263D5B;
+  font-family: var(--font-space-grotesk), var(--font-jakarta), sans-serif;
+  font-weight: 800;
+  border-radius: 0.85rem;
+  box-shadow: 3px 3px 0px 0px #263D5B;
+  transition: all 0.15s ease;
+}
+
+[data-theme="dark"] .doodle-btn {
+  border-color: #49B6E5;
+  color: #FFFFFF;
+  box-shadow: 3px 3px 0px 0px #49B6E5;
+}
+
+.doodle-btn:hover {
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 5px 5px 0px 0px #263D5B;
+}
+
+[data-theme="dark"] .doodle-btn:hover {
+  box-shadow: 5px 5px 0px 0px #49B6E5;
+}
+
+.doodle-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px 0px #263D5B;
+}
+
+.doodle-badge {
+  border: 2px solid #263D5B;
+  font-family: var(--font-space-grotesk), var(--font-jakarta), sans-serif;
+  font-weight: 800;
+  padding: 3px 12px;
+  border-radius: 9999px;
+  background-color: #49B6E5;
+  color: #263D5B;
+  box-shadow: 2px 2px 0px 0px #263D5B;
+}
+
+[data-theme="dark"] .doodle-badge {
+  border-color: #49B6E5;
+  color: #FFFFFF;
+  box-shadow: 2px 2px 0px 0px #49B6E5;
+}
+
+code, pre, .font-mono {
+  font-family: var(--font-jetbrains), monospace;
+}
+
+::selection {
+  background: #FF6600;
+  color: #FFFFFF;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 102, 0, 0.25);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 102, 0, 0.6);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 102, 0, 0.5) rgba(255, 255, 255, 0.05);
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 102, 0, 0.5);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 102, 0, 0.9);
+}
+
+/* Glassmorphism Classes */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 102, 0, 0.35);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.glass-nav {
+  background: rgba(7, 10, 17, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradients */
+.gradient-text-indigo {
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-orange {
+  background: linear-gradient(135deg, #FF6600 0%, #FFA043 50%, #FF3D00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-cyber {
+  background: linear-gradient(135deg, #4F46E5 0%, #9333EA 50%, #06B6D4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-bg-yc {
+  background: linear-gradient(135deg, #FF6600 0%, #FF3D00 100%);
+}
+
+.gradient-border-card {
+  position: relative;
+}
+.gradient-border-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 102, 0, 0.4), rgba(168, 85, 247, 0.2), rgba(6, 182, 212, 0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+.gradient-border-card:hover::before {
+  opacity: 1;
+}
+
+/* Mesh Overlay */
+.mesh-glow {
+  position: relative;
+}
+.mesh-glow::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1000px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 102, 0, 0.12) 0%, rgba(168, 85, 247, 0.05) 50%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+}
+
+/* Pulse Animations */
+@keyframes hiring-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.5; }
+}
+
+.pulse-dot {
+  animation: hiring-pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Card flip 3D */
+.perspective { perspective: 1200px; }
+.preserve-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
+
+/* Force Graph */
+.graph-node {
+  cursor: pointer;
+  transition: r 0.2s ease, filter 0.2s ease;
+}
+.graph-node:hover {
+  filter: drop-shadow(0 0 10px #FF6600);
+}
