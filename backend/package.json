@@ -1,0 +1,15 @@
+{
+  "name": "foundry-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "scrape": "node ycscrapping/fetch-master-yc-startups.js",
+    "scrape:deep": "node ycscrapping/scrape-all-yc-deep-data.js",
+    "scrape:clean": "node ycscrapping/clean-scraped-data.js",
+    "scrape:playwright": "node ycscrapping/scrape-yc-playwright.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}
