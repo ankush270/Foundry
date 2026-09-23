@@ -106,6 +106,13 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
 
             {/* Header Action CTAs */}
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <Link
+                href={`/startup/${startup.slug}/ecosystem`}
+                className="doodle-btn px-4 py-2.5 text-xs font-extrabold flex items-center gap-2 bg-emerald-600 text-white shadow-sm hover:bg-emerald-500 transition-colors"
+              >
+                <Code2 className="w-4 h-4" /> Startup + GitHub Connection →
+              </Link>
+
               <GsapMagnetic strength={0.25}>
                 <button
                   onClick={() => setActiveTab("ai-builder")}
@@ -250,21 +257,29 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                 )}
 
                 {/* Build with OSS Banner */}
-                <div className="doodle-card p-5 bg-[#FAF8F5] dark:bg-[#111827] flex items-center justify-between gap-4 flex-wrap">
+                <div className="doodle-card p-5 bg-[#FAF8F5] dark:bg-[#111827] flex items-center justify-between gap-4 flex-wrap border-2 border-emerald-500/40">
                   <div className="space-y-1 max-w-md">
                     <h4 className="doodle-font font-black text-sm text-[#263D5B] dark:text-white flex items-center gap-2">
-                      <Code2 className="w-4 h-4 text-[#16A34A]" /> Open Source Architecture
+                      <Code2 className="w-4 h-4 text-emerald-500" /> Business + GitHub Ecosystem Connection
                     </h4>
                     <p className="text-xs text-[var(--muted)]">
-                      Explore production-ready open source code repos for building {startup.name}.
+                      View officially associated codebases, algorithmically inferred open source projects, and tech stack tree for {startup.name}.
                     </p>
                   </div>
-                  <button
-                    onClick={() => setIsOssModalOpen(true)}
-                    className="doodle-btn px-4 py-2 text-xs font-bold bg-[#16A34A] text-white flex items-center gap-1.5"
-                  >
-                    <Code2 className="w-3.5 h-3.5" /> OSS Explorer
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/startup/${startup.slug}/ecosystem`}
+                      className="doodle-btn px-4 py-2 text-xs font-bold bg-emerald-600 text-white flex items-center gap-1.5 hover:bg-emerald-500"
+                    >
+                      <Code2 className="w-3.5 h-3.5" /> Open Ecosystem Tree →
+                    </Link>
+                    <button
+                      onClick={() => setIsOssModalOpen(true)}
+                      className="doodle-btn px-3 py-2 text-xs font-bold bg-slate-200 dark:bg-slate-800 text-[#263D5B] dark:text-white flex items-center gap-1.5"
+                    >
+                      Stack Modal
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

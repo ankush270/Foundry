@@ -3,7 +3,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { OssRepository, DomainCategory } from "../types";
+import { OssRepository, DomainCategory, TrendingDiscoveryMode } from "../types";
+import { CategoryTaxonomy, SubCategory } from "../category-taxonomy";
 import { GithubService } from "@/services/github";
 import { RepoCard } from "./RepoCard";
 import { RepoExplainerModal } from "./RepoExplainerModal";
@@ -11,6 +12,7 @@ import { SideBySideCompare } from "./SideBySideCompare";
 import { LaunchRadar } from "./LaunchRadar";
 import { BookmarkCollections } from "./BookmarkCollections";
 import { CommunityTagsModal } from "./CommunityTagsModal";
+import { TrendingCategoryBar } from "./TrendingCategoryBar";
 import { 
   Search, Sparkles, Radio, ArrowRightLeft, Bookmark, 
   Filter, Code2, ShieldCheck, Zap, Layers, RefreshCw, Check,
@@ -26,6 +28,8 @@ export const GithubOssExplorer: React.FC = () => {
   const [activeMode, setActiveMode] = useState<"pull" | "push">("pull");
   const [searchQuery, setSearchQuery] = useState(urlSearch || "");
   const [selectedDomain, setSelectedDomain] = useState<DomainCategory | "All">("All");
+  const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategory | null>(null);
+  const [activeTrendingMode, setActiveTrendingMode] = useState<TrendingDiscoveryMode>("all");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("All");
   const [selectedStarRange, setSelectedStarRange] = useState<string>("All");
   const [selectedSortBy, setSelectedSortBy] = useState<"stars" | "forks" | "updated" | "relevance">("stars");
@@ -96,6 +100,8 @@ export const GithubOssExplorer: React.FC = () => {
         const result = await GithubService.fetchLiveRepositories({
           query: searchQuery,
           domain: selectedDomain,
+          subCategoryQuery: selectedSubCategory?.githubQuery || "",
+          discoveryMode: activeTrendingMode,
           language: selectedLanguage,
           starRange: selectedStarRange,
           sortBy: selectedSortBy,
@@ -129,6 +135,8 @@ export const GithubOssExplorer: React.FC = () => {
   }, [
     searchQuery,
     selectedDomain,
+    selectedSubCategory,
+    activeTrendingMode,
     selectedLanguage,
     selectedStarRange,
     selectedSortBy,
@@ -413,6 +421,32 @@ export const GithubOssExplorer: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            {/* Trending & Open Source Discovery Category Bar */}
+            <TrendingCategoryBar
+              activeCategory={selectedDomain}
+              activeSubCategory={selectedSubCategory}
+              activeMode={activeTrendingMode}
+              onSelectCategory={(cat) => {
+                if (!cat) {
+                  setSelectedDomain("All");
+                  setSelectedSubCategory(null);
+                } else {
+                  setSelectedDomain(cat.name as DomainCategory);
+                  setSelectedSubCategory(null);
+                }
+                setCurrentPage(1);
+              }}
+              onSelectSubCategory={(subCat) => {
+                setSelectedSubCategory(subCat);
+                setCurrentPage(1);
+              }}
+              onSelectMode={(mode) => {
+                setActiveTrendingMode(mode);
+                setCurrentPage(1);
+              }}
+              totalResultsCount={totalCount}
+            />
 
             {/* Filter Toggle Button Bar */}
             <div className="flex items-center justify-between gap-3">

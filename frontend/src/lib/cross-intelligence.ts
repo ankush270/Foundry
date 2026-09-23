@@ -7,7 +7,11 @@
 import type { Startup } from "@/data/types";
 import type { OssRepository, DomainCategory } from "@/modules/githuboss/types";
 import type { ProductHuntProduct } from "@/modules/producthunt/types";
-import type { RepoMatch, StackLayer, TechStackRecommendation, IndustryDomainMap, TrifectaMatch, ThreeWayNodeContext } from "@/modules/cross-intelligence/types";
+import type {
+  RepoMatch, StackLayer, TechStackRecommendation, IndustryDomainMap,
+  TrifectaMatch, ThreeWayNodeContext, EcosystemRelationshipType,
+  CompanyEcosystemSummary, EcosystemTreeNode, TechStackItem
+} from "@/modules/cross-intelligence/types";
 
 // ── Problem Domain Fingerprints ──
 
@@ -756,4 +760,228 @@ export function generateTrifectaMatches(
 
   return trifectas.sort((a, b) => b.synergyScore - a.synergyScore);
 }
+
+// ── Startup + GitHub Connection Relationship Engine ──
+
+const KNOWN_OFFICIAL_REPOS: Record<string, string[]> = {
+  "supabase": ["supabase/supabase", "supabase/realtime", "supabase/gotrue", "supabase/postgrest-js"],
+  "posthog": ["PostHog/posthog", "PostHog/posthog-js", "posthog-analytics"],
+  "cal-com": ["calcom/cal.com"],
+  "medusa": ["medusajs/medusa"],
+  "lago": ["getlago/lago"],
+  "twenty": ["twentyhq/twenty"],
+  "sharetribe": ["sharetribe/sharetribe", "sharetribe-marketplace"],
+  "orthanc": ["orthanc-server"],
+  "vanna": ["vanna-ai/vanna"],
+  "crewai": ["crewAIInc/crewAI", "crewAI"],
+  "n8n": ["n8n-io/n8n", "n8n-automation"]
+};
+
+/**
+ * Detect whether a repository is officially created/maintained by a startup or algorithmically inferred
+ */
+export function detectRepositoryRelationship(
+  startup: Startup,
+  repo: OssRepository
+): { isOfficial: boolean; relationshipType: EcosystemRelationshipType; verificationDetails: string } {
+  const sSlug = startup.slug.toLowerCase();
+  const sNameClean = startup.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const repoOwner = repo.owner.toLowerCase();
+  const repoName = repo.name.toLowerCase();
+  const repoFullName = repo.fullName.toLowerCase();
+
+  // 1. Check known verified map
+  if (KNOWN_OFFICIAL_REPOS[sSlug]) {
+    const matched = KNOWN_OFFICIAL_REPOS[sSlug].some(
+      r => repo.id === r || repoFullName === r.toLowerCase() || repoName === r.toLowerCase()
+    );
+    if (matched) {
+      return {
+        isOfficial: true,
+        relationshipType: "officially_associated",
+        verificationDetails: `Verified First-Party Repository maintained directly by ${startup.name} organization (${repo.owner}).`
+      };
+    }
+  }
+
+  // 2. Direct owner/name match
+  if (repoOwner === sSlug || repoOwner === sNameClean || repoName === sSlug || repoName === sNameClean) {
+    return {
+      isOfficial: true,
+      relationshipType: "officially_associated",
+      verificationDetails: `Official GitHub Organization match: '${repo.owner}' matches ${startup.name}.`
+    };
+  }
+
+  // 3. Website domain matching repository owner
+  if (startup.website) {
+    const domainMatch = startup.website.toLowerCase().replace(/https?:\/\/(www\.)?/, "").split("/")[0].split(".")[0];
+    if (domainMatch && domainMatch.length > 3 && repoOwner === domainMatch) {
+      return {
+        isOfficial: true,
+        relationshipType: "officially_associated",
+        verificationDetails: `Official Domain match: Website '${startup.website}' correlates with GitHub account '${repo.owner}'.`
+      };
+    }
+  }
+
+  // Default: Inferred / Possibly Related
+  return {
+    isOfficial: false,
+    relationshipType: "possibly_related",
+    verificationDetails: `Algorithmically Matched: Open source project sharing domain problem space and tech stack components with ${startup.name}.`
+  };
+}
+
+/**
+ * Generate full Business + Technology Ecosystem Connection Summary for a Startup
+ */
+export function generateCompanyEcosystemSummary(
+  startup: Startup,
+  allRepos: OssRepository[]
+): CompanyEcosystemSummary {
+  // 1. Get raw tech stack recommendation matches
+  const rec = generateTechStackRecommendation(startup, allRepos);
+
+  const officialRepos: RepoMatch[] = [];
+  const possiblyRelatedRepos: RepoMatch[] = [];
+  const techMap = new Map<string, { category: TechStackItem["category"]; repos: OssRepository[] }>();
+
+  // Process top & same problem matches
+  const processedSeen = new Set<string>();
+
+  for (const match of [...rec.topRepos, ...rec.sameProblemRepos]) {
+    if (processedSeen.has(match.repo.id)) continue;
+    processedSeen.add(match.repo.id);
+
+    const rel = detectRepositoryRelationship(startup, match.repo);
+    const enrichedMatch: RepoMatch = {
+      ...match,
+      relationshipType: rel.relationshipType,
+      officialVerificationDetails: rel.verificationDetails,
+      techTags: [match.repo.language, ...(match.repo.tags || []), ...(match.repo.sarvamExplainer?.techStack || [])]
+    };
+
+    if (rel.isOfficial) {
+      officialRepos.push(enrichedMatch);
+    } else {
+      possiblyRelatedRepos.push(enrichedMatch);
+    }
+
+    // Register technologies
+    const lang = match.repo.language;
+    if (lang) {
+      if (!techMap.has(lang)) techMap.set(lang, { category: "Language", repos: [] });
+      techMap.get(lang)!.repos.push(match.repo);
+    }
+
+    if (match.repo.sarvamExplainer?.techStack) {
+      for (const tech of match.repo.sarvamExplainer.techStack) {
+        if (!techMap.has(tech)) {
+          let category: TechStackItem["category"] = "Framework";
+          const lower = tech.toLowerCase();
+          if (lower.includes("db") || lower.includes("sql") || lower.includes("postgres") || lower.includes("mongo") || lower.includes("redis")) {
+            category = "Database";
+          } else if (lower.includes("docker") || lower.includes("kubernetes") || lower.includes("aws") || lower.includes("gcp") || lower.includes("deploy")) {
+            category = "Infrastructure";
+          } else if (lower.includes("python") || lower.includes("typescript") || lower.includes("rust") || lower.includes("go") || lower.includes("c++")) {
+            category = "Language";
+          }
+          techMap.set(tech, { category, repos: [] });
+        }
+        if (!techMap.get(tech)!.repos.some(r => r.id === match.repo.id)) {
+          techMap.get(tech)!.repos.push(match.repo);
+        }
+      }
+    }
+  }
+
+  // Sort tech stack by repo count
+  const techStackBreakdown: TechStackItem[] = Array.from(techMap.entries())
+    .map(([name, data]) => ({
+      name,
+      category: data.category,
+      count: data.repos.length,
+      repos: data.repos
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  // Build Visual Tree Nodes
+  const treeNodes: EcosystemTreeNode[] = [
+    {
+      id: "node-root",
+      label: `${startup.name} (${startup.batch || 'YC Company'})`,
+      type: "company",
+      badgeText: startup.status,
+      children: [
+        {
+          id: "node-industry",
+          label: `Industry & Sector: ${startup.industries.join(", ") || 'Developer Tools'}`,
+          type: "industry",
+        },
+        {
+          id: "node-products",
+          label: `Business Value Proposition: "${startup.oneLiner}"`,
+          type: "products",
+        },
+        {
+          id: "node-repos-header",
+          label: `Related Open Source Repositories (${officialRepos.length} Official | ${possiblyRelatedRepos.length} Inferred)`,
+          type: "repos_header",
+          children: [
+            ...officialRepos.map(r => ({
+              id: `tree-off-${r.repo.id}`,
+              label: `├── ${r.repo.fullName} [${r.repo.language}]`,
+              type: "official_repo" as const,
+              relationship: "officially_associated" as const,
+              badgeText: "VERIFIED OFFICIAL",
+              metadata: {
+                language: r.repo.language,
+                stars: r.repo.stars,
+                url: r.repo.repoUrl,
+                description: r.repo.description,
+                repoId: r.repo.id,
+              }
+            })),
+            ...possiblyRelatedRepos.slice(0, 7).map((r, i, arr) => ({
+              id: `tree-rel-${r.repo.id}`,
+              label: `${i === arr.length - 1 ? '└──' : '├──'} ${r.repo.fullName} [${r.repo.language}]`,
+              type: "related_repo" as const,
+              relationship: "possibly_related" as const,
+              badgeText: "INFERRED / RELATED",
+              metadata: {
+                language: r.repo.language,
+                stars: r.repo.stars,
+                url: r.repo.repoUrl,
+                description: r.repo.description,
+                repoId: r.repo.id,
+              }
+            }))
+          ]
+        },
+        {
+          id: "node-tech-header",
+          label: `Technology & Stack Footprint (${techStackBreakdown.length} Technologies Identified)`,
+          type: "tech_stack_header",
+          children: techStackBreakdown.slice(0, 10).map((t, i, arr) => ({
+            id: `tree-tech-${t.name}`,
+            label: `${i === arr.length - 1 ? '└──' : '├──'} ${t.name} (${t.category}) — Referenced in ${t.count} open source component(s)`,
+            type: "tech_item" as const
+          }))
+        }
+      ]
+    }
+  ];
+
+  return {
+    startup,
+    officialRepos,
+    possiblyRelatedRepos,
+    techStackBreakdown,
+    treeNodes,
+    totalOfficialCount: officialRepos.length,
+    totalRelatedCount: possiblyRelatedRepos.length,
+  };
+}
+
 

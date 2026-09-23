@@ -6,6 +6,9 @@ import { GithubApiService } from "./github-api.service";
 
 export interface RepositoryFilterOptions {
   domain?: DomainCategory | "All";
+  subCategory?: string;
+  subCategoryQuery?: string;
+  discoveryMode?: "all" | "trending" | "gems" | "emerging" | "top";
   language?: string;
   starRange?: string;
   sortBy?: "stars" | "forks" | "updated" | "relevance";

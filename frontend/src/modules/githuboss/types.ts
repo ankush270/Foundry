@@ -9,7 +9,18 @@ export type DomainCategory =
   | "Gaming & Graphics"
   | "Data & Analytics"
   | "Productivity & SaaS"
-  | "Web3 & Crypto";
+  | "Web3 & Crypto"
+  | "Frameworks & Libraries"
+  | "Programming Languages"
+  | "Backend Architecture"
+  | "Frontend & UI UX"
+  | "DevOps & Infrastructure"
+  | "Security & Cyber"
+  | "Databases & Storage"
+  | "Data Science & ETL"
+  | "Robotics & Autonomous";
+
+export type TrendingDiscoveryMode = "all" | "trending" | "gems" | "emerging" | "top";
 
 export type MaturityLevel = "Battle-Tested" | "Production Viable" | "Emerging" | "Experimental";
 

@@ -40,6 +40,8 @@ export class GithubApiService {
   public static async fetchLiveRepositories(options: {
     query?: string;
     domain?: DomainCategory | "All";
+    subCategoryQuery?: string;
+    discoveryMode?: "all" | "trending" | "gems" | "emerging" | "top";
     language?: string;
     starRange?: string;
     sortBy?: "stars" | "forks" | "updated" | "relevance";
@@ -52,6 +54,8 @@ export class GithubApiService {
     const {
       query = "",
       domain = "All",
+      subCategoryQuery = "",
+      discoveryMode = "all",
       language = "All",
       starRange = "All",
       sortBy = "stars",
@@ -65,12 +69,16 @@ export class GithubApiService {
     // Build GitHub API Query String
     let searchTerms = query.trim() ? query.trim() : "";
 
+    if (subCategoryQuery.trim()) {
+      searchTerms = searchTerms ? `${searchTerms} ${subCategoryQuery.trim()}` : subCategoryQuery.trim();
+    }
+
     if (onlyAwesome) {
       searchTerms += " topic:awesome OR topic:awesome-list OR awesome";
     }
 
-    if (domain !== "All") {
-      const domainKeywords: Record<DomainCategory, string> = {
+    if (domain !== "All" && !subCategoryQuery) {
+      const domainKeywords: Record<string, string> = {
         "Fintech": "fintech OR trading OR stock-market OR finance OR algorithmic-trading",
         "AI & Machine Learning": "ai OR llm OR machine-learning OR rag OR deep-learning",
         "DevTools & Infrastructure": "devtools OR serverless OR database OR framework OR infrastructure",
@@ -82,6 +90,15 @@ export class GithubApiService {
         "Data & Analytics": "data-analytics OR visualization OR etl OR big-data OR dataframe",
         "Productivity & SaaS": "productivity OR saas OR workflow OR automation OR notes",
         "Web3 & Crypto": "web3 OR blockchain OR ethereum OR solana OR crypto",
+        "Frameworks & Libraries": "topic:framework OR framework",
+        "Programming Languages": "language",
+        "Backend Architecture": "backend OR api OR microservices OR serverless",
+        "Frontend & UI UX": "frontend OR ui-library OR design-system",
+        "DevOps & Infrastructure": "kubernetes OR docker OR devops OR iac",
+        "Security & Cyber": "security OR vulnerability-scanner OR cybersecurity",
+        "Databases & Storage": "database OR vector-database OR postgresql OR redis",
+        "Data Science & ETL": "data-science OR etl OR pandas OR airflow",
+        "Robotics & Autonomous": "robotics OR ros2 OR autonomous-vehicles"
       };
       if (domainKeywords[domain]) {
         searchTerms = searchTerms ? `${searchTerms} ${domainKeywords[domain]}` : domainKeywords[domain];
@@ -95,6 +112,22 @@ export class GithubApiService {
 
     if (license && license !== "All") {
       searchTerms += ` license:${license.toLowerCase()}`;
+    }
+
+    // Discovery Modes & Star Range logic
+    let effectiveSort = sortBy;
+
+    if (discoveryMode === "trending") {
+      effectiveSort = "updated";
+      if (starRange === "All") {
+        searchTerms += " stars:50..50000";
+      }
+    } else if (discoveryMode === "gems") {
+      if (starRange === "All") searchTerms += " stars:100..3000";
+    } else if (discoveryMode === "emerging") {
+      if (starRange === "All") searchTerms += " stars:3000..20000";
+    } else if (discoveryMode === "top") {
+      if (starRange === "All") searchTerms += " stars:>20000";
     }
 
     if (starRange && starRange !== "All") {
@@ -115,12 +148,12 @@ export class GithubApiService {
           searchTerms += " stars:<1000";
           break;
       }
-    } else if (onlyUnderrated) {
+    } else if (onlyUnderrated && discoveryMode === "all") {
       searchTerms += " stars:50..2000";
     }
 
     if (!searchTerms.trim()) {
-      searchTerms = "stars:>200";
+      searchTerms = "stars:>100";
     }
 
     const token = this.getGithubToken();
@@ -135,9 +168,9 @@ export class GithubApiService {
     try {
       let sortParam = "stars";
       const orderParam = "desc";
-      if (sortBy === "forks") sortParam = "forks";
-      else if (sortBy === "updated") sortParam = "updated";
-      else if (sortBy === "relevance") sortParam = "";
+      if (effectiveSort === "forks") sortParam = "forks";
+      else if (effectiveSort === "updated") sortParam = "updated";
+      else if (effectiveSort === "relevance") sortParam = "";
 
       const sortQuery = sortParam ? `&sort=${sortParam}&order=${orderParam}` : "";
       console.log(`[GitHub API] Fetching live data (Page ${page}, perPage ${perPage}) for query: "${searchTerms}"`);
@@ -211,7 +244,16 @@ export class GithubApiService {
       "Gaming & Graphics": ["gamedev", "graphics", "3d", "rendering", "opengl", "vulkan", "unity", "godot", "unreal", "shader", "webgl", "canvas"],
       "Data & Analytics": ["data-analytics", "visualization", "etl", "big-data", "dataframe", "pandas", "spark", "clickhouse", "duckdb", "grafana", "dashboard", "dbt", "posthog"],
       "Productivity & SaaS": ["productivity", "saas", "workflow", "automation", "notes", "calendar", "cal.com", "n8n", "crm", "twenty", "notion", "linear", "task", "management"],
-      "Web3 & Crypto": ["web3", "blockchain", "ethereum", "solana", "crypto", "solidity", "smart-contract", "nft", "defi", "bitcoin", "wallet", "ethers"]
+      "Web3 & Crypto": ["web3", "blockchain", "ethereum", "solana", "crypto", "solidity", "smart-contract", "nft", "defi", "bitcoin", "wallet", "ethers"],
+      "Frameworks & Libraries": ["framework", "react", "vue", "svelte", "nextjs", "fastapi", "django", "express", "pytorch", "tensorflow", "library"],
+      "Programming Languages": ["python", "typescript", "javascript", "rust", "go", "golang", "cpp", "c++", "java", "swift", "kotlin", "php"],
+      "Backend Architecture": ["backend", "api", "microservices", "grpc", "orm", "prisma", "auth", "oauth", "jwt", "queue", "rabbitmq", "kafka", "serverless"],
+      "Frontend & UI UX": ["frontend", "ui", "components", "design-system", "tailwind", "radix", "shadcn", "state-management", "threejs", "canvas", "webgl"],
+      "DevOps & Infrastructure": ["kubernetes", "k8s", "docker", "argocd", "helm", "terraform", "opentofu", "prometheus", "grafana", "opentelemetry", "ci-cd"],
+      "Security & Cyber": ["security", "vulnerability", "scanner", "pentesting", "sast", "cryptography", "vault", "encryption", "cybersecurity"],
+      "Databases & Storage": ["database", "vector-database", "vector", "qdrant", "chroma", "weaviate", "postgresql", "mysql", "mongodb", "redis", "clickhouse", "duckdb"],
+      "Data Science & ETL": ["data-science", "etl", "airflow", "dagster", "dbt", "spark", "polars", "pandas", "jupyter", "arrow", "pipeline"],
+      "Robotics & Autonomous": ["robotics", "ros", "ros2", "autonomous", "drone", "slam", "ardupilot", "px4", "embedded", "hardware"]
     };
 
     // Calculate domain category and keyword match count

@@ -2,12 +2,18 @@ import type { Startup } from "@/data/types";
 import type { OssRepository, DomainCategory } from "@/modules/githuboss/types";
 import type { ProductHuntProduct } from "@/modules/producthunt/types";
 
+/** Relationship type between a startup and a GitHub repository */
+export type EcosystemRelationshipType = "officially_associated" | "possibly_related";
+
 /** A matched OSS repo with relevance context */
 export interface RepoMatch {
   repo: OssRepository;
   relevanceScore: number; // 0-100
   matchReasons: string[];
   matchType: "tech-stack" | "same-problem" | "industry" | "keyword";
+  relationshipType?: EcosystemRelationshipType;
+  officialVerificationDetails?: string;
+  techTags?: string[];
 }
 
 /** Architecture layer for building a startup */
@@ -65,4 +71,41 @@ export interface ThreeWayNodeContext {
   matchedProductHunt: ProductHuntProduct[];
   bestTrifectaPair?: TrifectaMatch;
 }
+
+/** Visual tree hierarchy node for Ecosystem view */
+export interface EcosystemTreeNode {
+  id: string;
+  label: string;
+  type: "company" | "industry" | "products" | "repos_header" | "official_repo" | "related_repo" | "tech_stack_header" | "tech_item";
+  relationship?: EcosystemRelationshipType;
+  children?: EcosystemTreeNode[];
+  badgeText?: string;
+  metadata?: {
+    language?: string;
+    stars?: number;
+    url?: string;
+    description?: string;
+    repoId?: string;
+  };
+}
+
+/** Single tech stack technology item */
+export interface TechStackItem {
+  name: string;
+  category: "Language" | "Framework" | "Infrastructure" | "Database" | "Tool";
+  count: number;
+  repos: OssRepository[];
+}
+
+/** Full Startup + GitHub Ecosystem Connection summary */
+export interface CompanyEcosystemSummary {
+  startup: Startup;
+  officialRepos: RepoMatch[];
+  possiblyRelatedRepos: RepoMatch[];
+  techStackBreakdown: TechStackItem[];
+  treeNodes: EcosystemTreeNode[];
+  totalOfficialCount: number;
+  totalRelatedCount: number;
+}
+
 
