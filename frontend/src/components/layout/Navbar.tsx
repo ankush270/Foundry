@@ -63,6 +63,11 @@ export default function Navbar() {
     return () => ctx.revert();
   }, [pathname]);
 
+  useEffect(() => {
+    setMobileOpen(false);
+    setMoreDropdownOpen(false);
+  }, [pathname]);
+
   const isMoreActive = moreNavLinks.some((link) => pathname === link.href);
 
   return (
@@ -181,7 +186,9 @@ export default function Navbar() {
 
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="lg:hidden p-2 rounded-xl bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-white shadow-[2px_2px_0px_0px_#263D5B]"
+                className="lg:hidden p-2 rounded-xl bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-white shadow-[2px_2px_0px_0px_#263D5B] dark:shadow-[2px_2px_0px_0px_#49B6E5] active:scale-95 transition-transform"
+                aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={mobileOpen}
               >
                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -189,7 +196,11 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
-      <MobileMenu pathname={pathname} onClose={() => setMobileOpen(false)} />
+      <MobileMenu
+        isOpen={mobileOpen}
+        pathname={pathname}
+        onClose={() => setMobileOpen(false)}
+      />
     </>
   );
 }
