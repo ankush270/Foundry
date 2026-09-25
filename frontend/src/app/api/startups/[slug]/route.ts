@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
+export const dynamic = "force-static";
 import { getStartupBySlug, getSimilarStartups } from "@/lib/utils";
+
+export async function generateStaticParams() {
+  return [{ slug: "demo" }];
+}
+
 
 export async function GET(
   req: Request,

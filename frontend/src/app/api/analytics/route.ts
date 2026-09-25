@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+export const dynamic = "force-static";
 import { startups } from "@/data/startups";
+
 import {
   computePerYear, computeIndustryDistribution,
   computeStatusDistribution, computeCountryDistribution, computeAIGrowth
