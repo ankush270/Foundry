@@ -47,58 +47,64 @@ export const RepoCard: React.FC<RepoCardProps> = ({
   return (
     <div className="group relative rounded-2xl glass-card border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 p-5 transition-all duration-300 hover:shadow-xl flex flex-col justify-between overflow-hidden bg-white/70 dark:bg-black/40 backdrop-blur-md">
       <div>
-        {/* Top Header Row: Owner Avatar, Title, Language & Quality Score */}
-        <div className="flex items-start justify-between gap-2.5 mb-3">
-          {/* Avatar & Repo Info */}
-          <div className="flex items-start gap-3 min-w-0 flex-1">
+        {/* Top Meta Bar: Rank, Language & Quality Score */}
+        <div className="flex items-center justify-between gap-2 mb-3">
+          {/* Left Badges: Rank & Language */}
+          <div className="flex items-center gap-2 min-w-0">
             {rank !== undefined && (
-              <span className="px-2 py-0.5 rounded-lg bg-emerald-600/90 text-white text-[10px] font-mono font-extrabold shrink-0 shadow-sm">
+              <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] font-mono font-extrabold shrink-0 shadow-sm">
                 #{rank}
               </span>
             )}
-            <img 
-              src={repo.avatarUrl} 
-              alt={repo.owner} 
-              className="w-10 h-10 rounded-xl border border-slate-200 dark:border-white/10 object-cover bg-slate-100 dark:bg-white/5 shrink-0"
-            />
-            <div className="min-w-0 flex-1">
-              <a 
-                href={repo.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold text-base text-[var(--foreground)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1 truncate"
-                title={repo.fullName}
-              >
-                <span className="truncate">{repo.name}</span>
-                <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-              </a>
-              <p className="text-xs text-[var(--muted)] font-mono truncate">{repo.owner}</p>
-            </div>
-          </div>
-
-          {/* Badges Column: Quality Score, Relevance & Language */}
-          <div className="shrink-0 flex flex-col items-end gap-1.5">
-            {/* Relevance Match Badge */}
-            {repo.relevanceMatchBadge && (
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20 text-[10px] font-mono font-bold whitespace-nowrap">
-                {repo.relevanceMatchBadge}
+            {repo.language && (
+              <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-[10px] font-mono text-[var(--muted)] border border-slate-200 dark:border-white/10 shrink-0">
+                {repo.language}
               </span>
             )}
+          </div>
 
-            {/* Quality Score Badge */}
-            <div 
-              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold font-mono ${badgeStyle.bg} ${badgeStyle.text} border ${badgeStyle.border} whitespace-nowrap shadow-sm`}
-              title="Quality Score calculated from stars, maintainer activity, issue resolution ratio, and velocity"
-            >
-              <span>Score {repo.qualityScore}</span>
-            </div>
-
-            {/* Language Badge */}
-            <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-[11px] font-mono text-[var(--muted)] border border-slate-200 dark:border-white/10 whitespace-nowrap">
-              {repo.language}
-            </span>
+          {/* Right Badges: Quality Score */}
+          <div 
+            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${badgeStyle.bg} ${badgeStyle.text} border ${badgeStyle.border} shrink-0 whitespace-nowrap shadow-sm`}
+            title="Quality Score calculated from stars, maintainer activity, issue resolution ratio, and velocity"
+          >
+            <span>Score {repo.qualityScore}</span>
           </div>
         </div>
+
+        {/* Repository Identity: Owner Avatar + Repo Name + Owner */}
+        <div className="flex items-center gap-3 mb-2.5 min-w-0">
+          <img 
+            src={repo.avatarUrl} 
+            alt={repo.owner} 
+            className="w-10 h-10 rounded-xl border border-slate-200 dark:border-white/10 object-cover bg-slate-100 dark:bg-white/5 shrink-0"
+          />
+          <div className="min-w-0 flex-1">
+            <a 
+              href={repo.repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-base text-[var(--foreground)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1.5"
+              title={repo.fullName}
+            >
+              <span className="truncate">{repo.name}</span>
+              <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+            </a>
+            <p className="text-xs text-[var(--muted)] font-mono truncate">{repo.owner}</p>
+          </div>
+        </div>
+
+        {/* Relevance Match Badge (if present) */}
+        {repo.relevanceMatchBadge && (
+          <div className="mb-3">
+            <span 
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20 text-[10px] font-mono font-bold max-w-full truncate"
+              title={repo.relevanceMatchBadge}
+            >
+              <span className="truncate">{repo.relevanceMatchBadge}</span>
+            </span>
+          </div>
+        )}
 
         {/* Repository Description */}
         <div className="mb-3 font-sans text-xs sm:text-sm text-[var(--foreground)] opacity-85 leading-relaxed break-words min-h-[2.5rem]">
