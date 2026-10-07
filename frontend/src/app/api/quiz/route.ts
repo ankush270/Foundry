@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+export const dynamic = "force-static";
 import { getRandomStartup } from "@/lib/utils";
 import { generateHints } from "@/services/quiz.service";
+
 
 export async function GET() {
   const startup = getRandomStartup();

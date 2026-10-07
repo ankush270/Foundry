@@ -3,7 +3,12 @@ import { getStartupBySlug } from "@/lib/utils";
 import CompanyEcosystemView from "@/modules/cross-intelligence/components/CompanyEcosystemView";
 import Link from "next/link";
 
+export async function generateStaticParams() {
+  return [{ slug: "demo" }];
+}
+
 export default async function StartupEcosystemPage({ params }: { params: Promise<{ slug: string }> }) {
+
   const { slug } = await params;
   const startup = getStartupBySlug(slug);
 
