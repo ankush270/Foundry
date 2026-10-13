@@ -184,7 +184,7 @@ export default function ProductHuntDetailView({ params }: Props) {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center pt-24 pb-16">
-        <Flame className="w-10 h-10 text-rose-500 animate-bounce mb-3" />
+        <Flame className="w-10 h-10 text-rose-500  mb-3" />
         <p className="text-sm font-mono text-[var(--muted)] doodle-font">Loading Product Hunt intelligence detail...</p>
       </div>
     );
@@ -300,7 +300,7 @@ export default function ProductHuntDetailView({ params }: Props) {
                       : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-rose-500/50 hover:bg-rose-500/10 hover:text-rose-500"
                   }`}
                 >
-                  <ChevronUp className={`w-6 h-6 ${hasVoted ? "animate-bounce" : ""}`} />
+                  <ChevronUp className={`w-6 h-6 ${hasVoted ? "" : ""}`} />
                   <div className="text-left">
                     <span className="block text-[10px] uppercase tracking-wider opacity-80 leading-none mb-0.5 font-mono">Product Upvotes</span>
                     <span className="font-extrabold text-base leading-none">
@@ -355,7 +355,7 @@ export default function ProductHuntDetailView({ params }: Props) {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
+                    onClick={() => setActiveTab(tab.id as typeof activeTab)}
                     className={`doodle-font flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                       active
                         ? "bg-rose-600 text-white shadow-md shadow-rose-500/30"
@@ -439,7 +439,7 @@ export default function ProductHuntDetailView({ params }: Props) {
                       </div>
                     </div>
                     <p className="text-xs sm:text-sm text-[var(--foreground)] opacity-90 leading-relaxed italic">
-                      "{product.makerComment.text}"
+                      &quot;{product.makerComment.text}&quot;
                     </p>
                   </div>
                 )}

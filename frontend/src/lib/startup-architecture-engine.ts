@@ -1,3 +1,4 @@
+import { isAIStartup } from "@/lib/startup-classification";
 import type { Startup } from "@/data/types";
 
 export interface StackItem {
@@ -82,7 +83,7 @@ export function getStartupArchitectureContext(startup: Startup): ArchitectureBlu
   const isDevTools = descLower.includes("developer") || descLower.includes("database") || descLower.includes("infrastructure") || descLower.includes("api") || descLower.includes("open source");
 
   // Check if AI / LLM
-  const isAI = descLower.includes("ai") || descLower.includes("llm") || descLower.includes("machine learning") || descLower.includes("gpt");
+  const isAI = isAIStartup(startup);
 
   if (isAirbnb) {
     return {

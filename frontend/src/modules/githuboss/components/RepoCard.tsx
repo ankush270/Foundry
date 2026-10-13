@@ -66,9 +66,9 @@ export const RepoCard: React.FC<RepoCardProps> = ({
           {/* Right Badges: Quality Score */}
           <div 
             className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${badgeStyle.bg} ${badgeStyle.text} border ${badgeStyle.border} shrink-0 whitespace-nowrap shadow-sm`}
-            title="Quality Score calculated from stars, maintainer activity, issue resolution ratio, and velocity"
+            title="Heuristic estimate using stars and open issues; commit velocity and closed issues are not measured"
           >
-            <span>Score {repo.qualityScore}</span>
+            <span>Est. score {repo.qualityScore}</span>
           </div>
         </div>
 
@@ -158,8 +158,8 @@ export const RepoCard: React.FC<RepoCardProps> = ({
             <span className="truncate font-semibold text-[var(--foreground)]">{repo.license}</span>
           </div>
 
-          <div className="flex items-center gap-1 justify-end min-w-0" title="Monthly Commit Velocity">
-            <span className="truncate text-emerald-600 dark:text-emerald-400 font-bold">{repo.monthlyCommitVelocity}/mo</span>
+          <div className="flex items-center gap-1 justify-end min-w-0" title="Estimated monthly commits, not measured activity">
+            <span className="truncate text-emerald-600 dark:text-emerald-400 font-bold">~{repo.monthlyCommitVelocity}/mo</span>
           </div>
         </div>
 

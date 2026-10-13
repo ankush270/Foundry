@@ -23,11 +23,15 @@ export default function TechNewsPage() {
   const [showSyncBanner, setShowSyncBanner] = useState(false);
 
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(15);
-  const [totalItems, setTotalItems] = useState(135);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   const [selectedItem, setSelectedItem] = useState<TechNewsItem | null>(null);
   const [viewMode, setViewMode] = useState<"cards" | "opportunities">("cards");
+
+  const requestId = useRef(0);
+  const [dataSource, setDataSource] = useState("Loading sources");
+  const [error, setError] = useState<string | null>(null);
 
   const gridTopRef = useRef<HTMLDivElement>(null);
 
@@ -40,6 +44,8 @@ export default function TechNewsPage() {
   });
 
   const fetchNews = async (currentPage = page, forceRefresh = false) => {
+    const currentRequest = ++requestId.current;
+    setError(null);
     setLoading(true);
     if (forceRefresh) setIsRefreshing(true);
 
@@ -56,13 +62,16 @@ export default function TechNewsPage() {
       if (forceRefresh) params.set("refresh", "true");
 
       const res = await fetch(`/api/technews?${params.toString()}`);
+      if (!res.ok) throw new Error("News could not be loaded. Please retry.");
       const data = await res.json();
+      if (currentRequest !== requestId.current) return;
 
       if (data.success) {
         setItems(data.data);
-        setStats(data.stats);
-        setTotalPages(data.totalPages || 15);
-        setTotalItems(data.total || 135);
+        setStats(data.stats ?? { totalAnalyzed: 0, criticalImpacts: 0, whiteSpaceOpportunities: 0, topTrendingSkills: [] });
+        setDataSource(data.source ?? "Curated dataset");
+        setTotalPages(data.totalPages ?? 1);
+        setTotalItems(data.total ?? 0);
 
         if (forceRefresh) {
           setShowSyncBanner(true);
@@ -70,15 +79,15 @@ export default function TechNewsPage() {
         }
       }
     } catch (err) {
-      console.error("Failed to load tech news:", err);
+      if (currentRequest === requestId.current) setError(err instanceof Error ? err.message : "News could not be loaded.");
     } finally {
-      setLoading(false);
-      setIsRefreshing(false);
+      if (currentRequest === requestId.current) { setLoading(false); setIsRefreshing(false); }
     }
   };
 
   useEffect(() => {
-    fetchNews(page);
+    const timer = setTimeout(() => { void fetchNews(page); }, 0);
+    return () => { clearTimeout(timer); requestId.current++; };
   }, [filters, page]);
 
   const handleFilterChange = (newFilters: Partial<FilterState>) => {
@@ -134,30 +143,30 @@ export default function TechNewsPage() {
   return (
     <main className="min-h-screen pt-24 pb-16 px-4 sm:px-6 max-w-[1440px] mx-auto font-sans">
       {/* Master Doodle Hero Banner */}
-      <div className="relative rounded-3xl bg-[#FFFDF5] dark:bg-[#1E293B] p-6 sm:p-8 text-[#263D5B] dark:text-white border-4 border-[#263D5B] dark:border-[#49B6E5] shadow-[6px_6px_0px_0px_#263D5B] dark:shadow-[6px_6px_0px_0px_#49B6E5] z-30 mb-8">
+      <div className="relative rounded-3xl bg-[#FFFDF5] dark:bg-[#1E293B] p-6 sm:p-8 text-[var(--foreground)] dark:text-white border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm z-30 mb-8">
         <div className="relative z-10 max-w-4xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#49B6E5] text-[#263D5B] text-xs font-black doodle-font border-2 border-[#263D5B] shadow-[2.5px_2.5px_0px_0px_#263D5B]">
-            <Newspaper className="w-4 h-4 text-[#263D5B]" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#49B6E5] text-[var(--foreground)] text-xs font-black doodle-font border border-[var(--border-color)] shadow-sm">
+            <Newspaper className="w-4 h-4 text-[var(--foreground)]" />
             FOUNDRY — LIVE STRATEGIC IMPACT ENGINE
           </div>
 
-          <h1 className="doodle-font font-black text-3xl sm:text-5xl tracking-tight leading-tight text-[#263D5B] dark:text-white">
-            Tech News <span className="text-[#49B6E5] underline decoration-[#F97316] underline-offset-4">— Strategic Impact Feed</span>
+          <h1 className="doodle-font font-black text-3xl sm:text-5xl tracking-tight leading-tight text-[var(--foreground)] dark:text-white">
+            Tech News <span className="text-[var(--accent)] underline decoration-[#F97316] underline-offset-4">— Strategic Impact Feed</span>
           </h1>
 
           <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200 font-bold leading-relaxed max-w-3xl">
-            Live technical reports fetched directly from{" "}
-            <strong className="text-[#263D5B] dark:text-[#49B6E5] underline decoration-[#49B6E5]">TechCrunch</strong>,{" "}
+            Technical reports and analysis from{" "}
+            <strong className="text-[var(--foreground)] dark:text-[var(--accent)] underline decoration-[#49B6E5]">TechCrunch</strong>,{" "}
             <strong className="text-[#F97316]">InfoQ</strong>, and{" "}
             <strong className="text-[#16A34A]">AWS Tech Blog</strong> into 8-dimensional strategic insight models:{" "}
-            <span className="font-black text-[#263D5B] dark:text-white bg-[#49B6E5]/20 dark:bg-[#49B6E5]/30 px-2 py-0.5 rounded border border-[#263D5B]">
+            <span className="font-black text-[var(--foreground)] dark:text-white bg-[#49B6E5]/20 dark:bg-[#49B6E5]/30 px-2 py-0.5 rounded border border-[#263D5B]">
               What Happened → Why It Matters → Who Is Affected → Startup Ideas
             </span>.
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs font-black doodle-font text-slate-600 dark:text-slate-300 pt-3 border-t-2 border-dashed border-[#263D5B]/30 dark:border-[#49B6E5]/30">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-black doodle-font text-slate-600 dark:text-slate-300 pt-3 border-t-2 border-dashed border-[#263D5B]/30 dark:border-[var(--border-color)]/30">
             <div>
-              <strong className="text-[#49B6E5]">Live Feeds:</strong> TechCrunch, InfoQ, AWS Blog
+              <strong className="text-[var(--accent)]">Sources:</strong> Hacker News, TechCrunch, Dev.to
             </div>
             <span className="text-slate-400">•</span>
             <div>
@@ -165,18 +174,20 @@ export default function TechNewsPage() {
             </div>
             <span className="text-slate-400">•</span>
             <div>
-              <strong className="text-[#16A34A]">Coverage:</strong> 15+ Pages Live
+              <strong className="text-[#16A34A]">Coverage:</strong> {totalPages} Pages
             </div>
           </div>
         </div>
       </div>
 
+      <p className="mb-4 text-sm" role="status">Source: {dataSource}. Analysis and opportunities are generated suggestions; verify with the linked source.</p>
+      {error && <p role="alert">{error}</p>}
       {/* Sync Success Banner */}
       {showSyncBanner && (
-        <div className="doodle-card max-w-xl mx-auto mb-6 p-4 bg-[#16A34A]/20 border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-white flex items-center justify-between text-xs font-black doodle-font shadow-[3px_3px_0px_0px_#263D5B]">
+        <div className="doodle-card max-w-xl mx-auto mb-6 p-4 bg-[#16A34A]/20 border border-[var(--border-color)] dark:border-[var(--border-color)] text-[var(--foreground)] dark:text-white flex items-center justify-between text-xs font-black doodle-font shadow-sm">
           <span className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-            Latest live breaking news synced from TechCrunch, InfoQ, and AWS Blog!
+            News refreshed. Source: {dataSource}.
           </span>
           <Sparkles className="w-4 h-4 text-[#F97316] shrink-0" />
         </div>
@@ -210,19 +221,19 @@ export default function TechNewsPage() {
               key={n}
               className="doodle-card h-80 bg-white dark:bg-[#1E293B] flex flex-col items-center justify-center space-y-3"
             >
-              <Loader2 className="w-8 h-8 text-[#49B6E5] animate-spin" />
-              <span className="doodle-font font-black text-xs text-slate-500">Loading Live Feed...</span>
+              <Loader2 className="w-8 h-8 text-[var(--accent)] animate-spin" />
+              <span className="doodle-font font-black text-xs text-slate-500">Loading News...</span>
             </div>
           ))}
         </div>
       ) : items.length === 0 ? (
         <div className="doodle-card text-center py-20 bg-white dark:bg-[#1E293B]">
           <SearchX className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="doodle-font font-black text-xl text-[#263D5B] dark:text-white">
+          <h3 className="doodle-font font-black text-xl text-[var(--foreground)] dark:text-white">
             No Tech News Matches Found
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-6 font-medium">
-            We couldn't find any news items matching your current filters or search query.
+            We couldn&apos;t find any news items matching your current filters or search query.
           </p>
           <button
             onClick={() =>
@@ -234,7 +245,7 @@ export default function TechNewsPage() {
                 sortBy: "latest",
               })
             }
-            className="doodle-btn px-5 py-2.5 text-xs font-black bg-[#49B6E5] text-[#263D5B] border-2 border-[#263D5B]"
+            className="doodle-btn px-5 py-2.5 text-xs font-black bg-[#49B6E5] text-[var(--foreground)] border border-[var(--border-color)]"
           >
             Reset Filters
           </button>
@@ -259,9 +270,9 @@ export default function TechNewsPage() {
       {/* Doodle Pagination Bar */}
       {!loading && totalItems > 0 && (
         <div className="mt-12 pt-6 border-t-2 border-dashed border-[#263D5B]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="doodle-font text-xs font-black text-[#263D5B] dark:text-slate-300">
-            Page <strong className="text-[#49B6E5]">{page}</strong> of{" "}
-            <strong className="text-[#263D5B] dark:text-white">{totalPages}</strong> • Multi-Page Live Feed
+          <div className="doodle-font text-xs font-black text-[var(--foreground)] dark:text-slate-300">
+            Page <strong className="text-[var(--accent)]">{page}</strong> of{" "}
+            <strong className="text-[var(--foreground)] dark:text-white">{totalPages}</strong> • News Feed
           </div>
 
           <div className="flex items-center gap-1.5 flex-wrap justify-center">
@@ -269,7 +280,7 @@ export default function TechNewsPage() {
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page === 1}
-              className="doodle-btn px-3 py-2 text-xs font-black flex items-center gap-1 text-[#263D5B] bg-white dark:bg-[#1E293B] dark:text-white border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[2px_2px_0px_0px_#263D5B] disabled:opacity-40"
+              className="doodle-btn px-3 py-2 text-xs font-black flex items-center gap-1 text-[var(--foreground)] bg-white dark:bg-[#1E293B] dark:text-white border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm disabled:opacity-40"
             >
               <ChevronLeft className="w-4 h-4" />
               Prev
@@ -291,10 +302,10 @@ export default function TechNewsPage() {
                 <button
                   key={num}
                   onClick={() => handlePageChange(num)}
-                  className={`doodle-font w-9 h-9 rounded-xl text-xs font-black border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[2px_2px_0px_0px_#263D5B] transition-all ${
+                  className={`doodle-font w-9 h-9 rounded-xl text-xs font-black border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm transition-all ${
                     active
-                      ? "bg-[#49B6E5] text-[#263D5B] scale-105"
-                      : "bg-white dark:bg-[#1E293B] text-[#263D5B] dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                      ? "bg-[#49B6E5] text-[var(--foreground)] scale-105"
+                      : "bg-white dark:bg-[#1E293B] text-[var(--foreground)] dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                 >
                   {num}
@@ -306,7 +317,7 @@ export default function TechNewsPage() {
             <button
               onClick={() => handlePageChange(page + 1)}
               disabled={page === totalPages}
-              className="doodle-btn px-3 py-2 text-xs font-black flex items-center gap-1 text-[#263D5B] bg-white dark:bg-[#1E293B] dark:text-white border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[2px_2px_0px_0px_#263D5B] disabled:opacity-40"
+              className="doodle-btn px-3 py-2 text-xs font-black flex items-center gap-1 text-[var(--foreground)] bg-white dark:bg-[#1E293B] dark:text-white border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm disabled:opacity-40"
             >
               Next
               <ChevronRight className="w-4 h-4" />

@@ -1,3 +1,4 @@
+import { isAIStartup } from "@/lib/startup-classification";
 // ── Analytics computation service ──
 
 import type { Startup } from "@/data/types";
@@ -53,7 +54,7 @@ export function computeAIGrowth(data: Startup[]) {
   data.forEach((s) => {
     if (!map[s.year]) map[s.year] = { total: 0, ai: 0 };
     map[s.year].total++;
-    const isAI = s.industries?.some((i) => i.toLowerCase().includes("ai")) || s.tags?.some((t) => t.toLowerCase().includes("ai"));
+    const isAI = isAIStartup(s);
     if (isAI) map[s.year].ai++;
   });
   return Object.entries(map)

@@ -47,16 +47,16 @@ export default function SarvamIndicTranslator({
   };
 
   return (
-    <div className="p-4 rounded-2xl bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[3px_3px_0px_0px_#263D5B] space-y-3">
+    <div className="p-4 rounded-2xl bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Globe className="w-4 h-4 text-[#49B6E5]" />
-          <span className="doodle-font text-xs font-black text-[#263D5B] dark:text-white flex items-center gap-1.5">
+          <Globe className="w-4 h-4 text-[var(--accent)]" />
+          <span className="doodle-font text-xs font-black text-[var(--foreground)] dark:text-white flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[#F97316]" /> Sarvam Indic AI Live Translator
           </span>
         </div>
         {loading && (
-          <span className="text-[11px] font-bold text-[#49B6E5] flex items-center gap-1">
+          <span className="text-[11px] font-bold text-[var(--accent)] flex items-center gap-1">
             <Loader2 className="w-3.5 h-3.5 animate-spin" /> Translating...
           </span>
         )}
@@ -71,7 +71,7 @@ export default function SarvamIndicTranslator({
             disabled={loading}
             className={`doodle-font text-xs font-black px-3 py-1 rounded-xl border-2 transition-all flex items-center gap-1 ${
               selectedLang === lang.code
-                ? "bg-[#49B6E5] text-[#263D5B] border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B]"
+                ? "bg-[#49B6E5] text-[var(--foreground)] border-[#263D5B] shadow-sm"
                 : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-[#263D5B]/20 hover:bg-slate-100"
             }`}
           >
@@ -84,7 +84,7 @@ export default function SarvamIndicTranslator({
       {/* Translated Box Output */}
       {selectedLang !== "en" && translatedText && (
         <div className="p-3.5 rounded-xl bg-[#49B6E5]/10 border border-[#263D5B]/30 font-bold text-xs text-slate-800 dark:text-slate-100 leading-relaxed">
-          <span className="doodle-badge text-[9px] bg-[#49B6E5] text-[#263D5B] px-1.5 py-0.2 rounded font-black mb-1 inline-block">
+          <span className="doodle-badge text-[9px] bg-[#49B6E5] text-[var(--foreground)] px-1.5 py-0.2 rounded font-black mb-1 inline-block">
             Sarvam Indic AI ({selectedLang.toUpperCase()})
           </span>
           <p>{translatedText}</p>

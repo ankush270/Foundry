@@ -52,7 +52,7 @@ export default function StartupBuilderChatbot({ startup }: Props) {
     if (!text) return;
 
     const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
+      id: `user-${crypto.randomUUID()}`,
       sender: "user",
       text,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -66,7 +66,7 @@ export default function StartupBuilderChatbot({ startup }: Props) {
     setTimeout(() => {
       const responseText = generateChatResponse(startup, text, messages);
       const botMsg: ChatMessage = {
-        id: `bot-${Date.now()}`,
+        id: `bot-${crypto.randomUUID()}`,
         sender: "bot",
         text: responseText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -265,9 +265,9 @@ export default function StartupBuilderChatbot({ startup }: Props) {
                   <Bot className="w-4 h-4" />
                 </div>
                 <div className="p-3 rounded-2xl bg-slate-900/80 border border-white/10 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" />
-                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.4s]" />
+                  <span className="w-2 h-2 rounded-full bg-indigo-400 " />
+                  <span className="w-2 h-2 rounded-full bg-indigo-400  [animation-delay:0.2s]" />
+                  <span className="w-2 h-2 rounded-full bg-indigo-400  [animation-delay:0.4s]" />
                   <span className="text-xs text-slate-400 font-medium ml-1">Analyzing architecture...</span>
                 </div>
               </div>

@@ -42,11 +42,7 @@ export default function FilterPanel({ filters, onChange, totalFilteredCount }: P
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("industries");
   const [searchTerm, setSearchTerm] = useState("");
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Lock body scroll and pause Lenis when modal is open
   useEffect(() => {
@@ -146,7 +142,7 @@ export default function FilterPanel({ filters, onChange, totalFilteredCount }: P
   ];
 
   // Render Portal Modal content
-  const modalContent = open && mounted ? (
+  const modalContent = open ? (
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
       onClick={() => setOpen(false)}
@@ -544,7 +540,7 @@ export default function FilterPanel({ filters, onChange, totalFilteredCount }: P
             <ArrowUpDown className="w-3.5 h-3.5 text-[#FF6600]" />
             <select
               value={filters.sortBy || "relevance"}
-              onChange={(e) => onChange({ ...filters, sortBy: e.target.value as any })}
+              onChange={(e) => onChange({ ...filters, sortBy: e.target.value as Filters["sortBy"] })}
               className="bg-transparent text-xs font-bold text-[var(--foreground)] border-none focus:outline-none cursor-pointer pr-1"
             >
               <option value="relevance" className="bg-[#0F1626] text-white">Sort: Relevance</option>
@@ -560,7 +556,7 @@ export default function FilterPanel({ filters, onChange, totalFilteredCount }: P
       </div>
 
       {/* Render Modal via React Portal */}
-      {mounted && modalContent && createPortal(modalContent, document.body)}
+      {modalContent && createPortal(modalContent, document.body)}
     </div>
   );
 }

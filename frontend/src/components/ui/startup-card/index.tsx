@@ -1,46 +1,19 @@
 "use client";
-
-import { motion } from "framer-motion";
-import { useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight, Bookmark, Check, GitCompareArrows, MapPin, Users } from "lucide-react";
 import type { Startup } from "@/data/types";
-import CardFront from "./CardFront";
-import CardBack from "./CardBack";
-
-interface Props {
-  startup: Startup;
-  index?: number;
-}
-
-export default function StartupCard({ startup, index = 0 }: Props) {
-  const [flipped, setFlipped] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 25, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      whileHover={{ y: -6, transition: { duration: 0.25, ease: "easeOut" } }}
-      transition={{ duration: 0.4, delay: Math.min(index * 0.03, 0.3), ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="perspective group h-[425px] cursor-pointer"
-      onClick={() => setFlipped(!flipped)}
-      onMouseEnter={() => setFlipped(true)}
-      onMouseLeave={() => setFlipped(false)}
-    >
-      <div
-        className="relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d]"
-        style={{
-          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-        }}
-      >
-        {/* Front side */}
-        <div className="absolute inset-0 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]">
-          <CardFront startup={startup} />
-        </div>
-
-        {/* Back side */}
-        <div className="absolute inset-0 [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <CardBack startup={startup} />
-        </div>
-      </div>
-    </motion.div>
-  );
+import { useWatchlistStore } from "@/store/watchlist.store";
+import { useCompareStore } from "@/store/compare.store";
+export default function StartupCard({ startup }: { startup: Startup; index?: number }) {
+  const { ids, toggle } = useWatchlistStore();
+  const { selected, add, remove } = useCompareStore();
+  const saved = ids.includes(startup.id);
+  const comparing = selected.some(item => item.id === startup.id);
+  return <article className="saas-explorer-card">
+    <div className="saas-explorer-card-top"><Link href={`/startup/${startup.slug}`} className="saas-explorer-logo"><img src={startup.logo} alt="" loading="lazy" onError={event=>{event.currentTarget.src="/founder-placeholder.svg";}}/></Link><span className="saas-batch">YC {startup.batch}</span><button className="saas-icon-button" aria-label={`${saved?"Unsave":"Save"} ${startup.name}`} aria-pressed={saved} onClick={()=>toggle(startup.id)}><Bookmark size={16} fill={saved?"currentColor":"none"}/></button></div>
+    <h3><Link href={`/startup/${startup.slug}`}>{startup.name}<ArrowUpRight size={16}/></Link></h3><p>{startup.oneLiner}</p>
+    <div className="saas-explorer-tags">{startup.industries.slice(0,2).map(industry=><span key={industry}>{industry}</span>)}</div>
+    <div className="saas-explorer-meta"><span><MapPin size={12}/>{startup.location || startup.country}</span><span><Users size={12}/>{startup.teamSize || "—"}</span></div>
+    <div className="saas-explorer-card-actions"><Link href={`/startup/${startup.slug}`}>View company <ArrowUpRight size={14}/></Link><button onClick={()=>comparing?remove(startup.id):add(startup)} disabled={!comparing&&selected.length>=3} aria-pressed={comparing} aria-label={`${comparing?"Remove":"Compare"} ${startup.name}`}>{comparing?<Check size={14}/>:<GitCompareArrows size={14}/>} {comparing?"Added":"Compare"}</button></div>
+  </article>;
 }

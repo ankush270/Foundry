@@ -28,24 +28,30 @@ export default function CompanyEcosystemView({ startup }: Props) {
 
   // Fetch live repos from GitHub for deep coverage
   useEffect(() => {
-    setIsLoading(true);
-    const domains = getDomainsForStartup(startup);
-    const primaryDomain = domains[0] || "DevTools & Infrastructure";
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      setIsLoading(true);
+      const domains = getDomainsForStartup(startup);
+      const primaryDomain = domains[0] || "DevTools & Infrastructure";
 
-    GithubService.fetchLiveRepositories({
-      query: buildGithubSearchQuery(startup),
-      domain: primaryDomain,
-      page: 1,
-      perPage: 30,
-    })
-      .then((result) => {
-        setLiveRepos(result.repos || []);
-        setIsLoading(false);
+      GithubService.fetchLiveRepositories({
+        query: buildGithubSearchQuery(startup),
+        domain: primaryDomain,
+        page: 1,
+        perPage: 30,
       })
-      .catch(() => {
+        .then((result) => {
+          if (cancelled) return;
+        setLiveRepos(result.repos || []);
+          setIsLoading(false);
+        })
+        .catch(() => {
+          if (cancelled) return;
         setLiveRepos([]);
-        setIsLoading(false);
-      });
+          setIsLoading(false);
+        });
+    }, 0);
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [startup]);
 
   // Combine live + sample repositories and generate summary
@@ -98,20 +104,20 @@ export default function CompanyEcosystemView({ startup }: Props) {
         </div>
 
         {/* Company Overview Header Banner */}
-        <div className="doodle-card p-6 bg-[#FAF8F5] dark:bg-[#111827] space-y-5">
+        <div className="doodle-card p-6 bg-[var(--surface)] dark:bg-[#111827] space-y-5">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 border-b-2 border-dashed border-[#263D5B]/20 pb-5">
             <div className="flex items-start gap-4">
               <img
                 src={startup.logo}
                 alt={startup.name}
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-[#263D5B] dark:border-[#49B6E5] object-contain p-2 bg-white shrink-0 shadow-[3px_3px_0px_0px_#263D5B]"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-[var(--border-color)] dark:border-[var(--border-color)] object-contain p-2 bg-white shrink-0 shadow-sm"
               />
               <div className="space-y-1.5">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="text-2xl sm:text-4xl font-black doodle-font text-[#263D5B] dark:text-white">
+                  <h1 className="text-2xl sm:text-4xl font-black doodle-font text-[var(--foreground)] dark:text-white">
                     {startup.name}
                   </h1>
-                  <span className="doodle-badge text-xs bg-[#49B6E5] text-[#263D5B]">
+                  <span className="doodle-badge text-xs bg-[#49B6E5] text-[var(--foreground)]">
                     {startup.batch} ({startup.year})
                   </span>
                   <span className="doodle-badge text-xs bg-emerald-500 text-white flex items-center gap-1">
@@ -123,17 +129,17 @@ export default function CompanyEcosystemView({ startup }: Props) {
                 </p>
                 <div className="flex items-center gap-4 text-xs font-mono text-[var(--muted)] flex-wrap pt-1">
                   <span className="flex items-center gap-1">
-                    <Building2 className="w-3.5 h-3.5 text-[#49B6E5]" /> {startup.industries.join(", ")}
+                    <Building2 className="w-3.5 h-3.5 text-[var(--accent)]" /> {startup.industries.join(", ")}
                   </span>
                   <span className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#49B6E5]" /> {startup.location}
+                    <MapPin className="w-3.5 h-3.5 text-[var(--accent)]" /> {startup.location}
                   </span>
                   {startup.website && (
                     <a
                       href={startup.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-[#49B6E5] hover:underline"
+                      className="flex items-center gap-1 text-[var(--accent)] hover:underline"
                     >
                       <Globe className="w-3.5 h-3.5" /> Website <ExternalLink className="w-3 h-3" />
                     </a>
@@ -205,7 +211,7 @@ export default function CompanyEcosystemView({ startup }: Props) {
               onClick={() => setRelationshipFilter("all")}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 relationshipFilter === "all"
-                  ? "bg-[#263D5B] text-white dark:bg-[#49B6E5] dark:text-[#263D5B]"
+                  ? "bg-[#263D5B] text-white dark:bg-[#49B6E5] dark:text-[var(--foreground)]"
                   : "bg-slate-100 dark:bg-slate-800 text-[var(--muted)] hover:bg-slate-200"
               }`}
             >
@@ -264,8 +270,8 @@ export default function CompanyEcosystemView({ startup }: Props) {
         {summary.techStackBreakdown.length > 0 && (
           <div className="bg-white dark:bg-[#111827] p-4 doodle-card space-y-2">
             <div className="flex items-center justify-between">
-              <span className="doodle-font font-bold text-xs text-[#263D5B] dark:text-white flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-[#49B6E5]" /> Technology Stack Filter:
+              <span className="doodle-font font-bold text-xs text-[var(--foreground)] dark:text-white flex items-center gap-1.5">
+                <Cpu className="w-3.5 h-3.5 text-[var(--accent)]" /> Technology Stack Filter:
               </span>
               {selectedTech && (
                 <button
@@ -304,13 +310,13 @@ export default function CompanyEcosystemView({ startup }: Props) {
         {isLoading ? (
           <div className="p-12 text-center doodle-card bg-white dark:bg-[#111827]">
             <div className="animate-spin w-8 h-8 border-4 border-[#49B6E5] border-t-transparent rounded-full mx-auto mb-3" />
-            <p className="doodle-font text-sm font-bold text-[#263D5B] dark:text-white">
+            <p className="doodle-font text-sm font-bold text-[var(--foreground)] dark:text-white">
               Analyzing {startup.name} open-source technology ecosystem...
             </p>
           </div>
         ) : viewMode === "tree" ? (
           /* TREE VIEW MODE */
-          <div className="p-6 bg-slate-950 text-emerald-400 rounded-2xl border-2 border-[#263D5B] font-mono text-xs shadow-xl space-y-3 overflow-x-auto">
+          <div className="p-6 bg-slate-950 text-emerald-400 rounded-2xl border border-[var(--border-color)] font-mono text-xs shadow-xl space-y-3 overflow-x-auto">
             <div className="flex items-center justify-between border-b border-emerald-900 pb-3 text-emerald-500">
               <span className="font-bold flex items-center gap-2">
                 <Terminal className="w-4 h-4" /> Visual Ecosystem Tree Hierarchy
@@ -343,7 +349,7 @@ ${summary.techStackBreakdown.map((t, i, arr) => `${i === arr.length - 1 ? '    â
             {displayedRepos.length === 0 ? (
               <div className="text-center py-12 doodle-card bg-white dark:bg-[#111827]">
                 <AlertCircle className="w-10 h-10 text-[var(--muted)] mx-auto mb-2" />
-                <h3 className="doodle-font text-base font-bold text-[#263D5B] dark:text-white">
+                <h3 className="doodle-font text-base font-bold text-[var(--foreground)] dark:text-white">
                   No repositories match your current filter criteria
                 </h3>
                 <p className="text-xs text-[var(--muted)] mt-1">
@@ -369,8 +375,8 @@ ${summary.techStackBreakdown.map((t, i, arr) => `${i === arr.length - 1 ? '    â
                       key={item.repo.id}
                       className={`doodle-card p-5 bg-white dark:bg-[#111827] flex flex-col justify-between space-y-4 transition-all hover:shadow-md ${
                         isOfficial
-                          ? "border-2 border-emerald-500/60 shadow-[3px_3px_0px_0px_#10B981]"
-                          : "border-2 border-[#263D5B] dark:border-slate-700"
+                          ? "border-2 border-emerald-500/60 shadow-sm"
+                          : "border border-[var(--border-color)] dark:border-slate-700"
                       }`}
                     >
                       <div className="space-y-3">
@@ -395,12 +401,12 @@ ${summary.techStackBreakdown.map((t, i, arr) => `${i === arr.length - 1 ? '    â
                               )}
                             </span>
 
-                            <h3 className="doodle-font font-black text-base text-[#263D5B] dark:text-white flex items-center gap-2">
+                            <h3 className="doodle-font font-black text-base text-[var(--foreground)] dark:text-white flex items-center gap-2">
                               <a
                                 href={item.repo.repoUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="hover:text-[#49B6E5] hover:underline transition-colors"
+                                className="hover:text-[var(--accent)] hover:underline transition-colors"
                               >
                                 {item.repo.fullName}
                               </a>
@@ -454,14 +460,14 @@ ${summary.techStackBreakdown.map((t, i, arr) => `${i === arr.length - 1 ? '    â
                       {/* Card Footer Actions */}
                       <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
                         <span className="text-[10px] text-[var(--muted)] font-mono">
-                          Updated: {new Date(item.repo.lastCommitDate || Date.now()).toLocaleDateString()}
+                          Updated: {item.repo.lastCommitDate ? new Date(item.repo.lastCommitDate).toLocaleDateString() : "Unknown"}
                         </span>
 
                         <a
                           href={item.repo.repoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="doodle-btn px-3 py-1 text-xs font-bold flex items-center gap-1 text-[#263D5B] dark:text-white hover:text-[#49B6E5]"
+                          className="doodle-btn px-3 py-1 text-xs font-bold flex items-center gap-1 text-[var(--foreground)] dark:text-white hover:text-[var(--accent)]"
                         >
                           GitHub Repo <ExternalLink className="w-3 h-3" />
                         </a>

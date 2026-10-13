@@ -14,10 +14,10 @@ interface Props {
 }
 
 export default function CardBack({ startup }: Props) {
-  const { add, remove, isSelected } = useCompareStore();
-  const { toggle, isWatched } = useWatchlistStore();
-  const comparing = isSelected(startup.id);
-  const watched = isWatched(startup.id);
+  const { add, remove, selected } = useCompareStore();
+  const { toggle, ids } = useWatchlistStore();
+  const comparing = selected.some((item) => item.id === startup.id);
+  const watched = ids.includes(startup.id);
   const [isOssOpen, setIsOssOpen] = useState(false);
 
   return (
@@ -97,7 +97,7 @@ export default function CardBack({ startup }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {startup.founders.slice(0, 2).map((f, i) => (
                 <div key={i} className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 p-1.5 rounded-xl border border-slate-200/60 dark:border-slate-800">
-                  {f.avatar ? (
+                  {f.avatar && !f.avatar.includes("X-Amz-") ? (
                     <img src={f.avatar} alt={f.name} loading="lazy" decoding="async" className="w-5 h-5 rounded-full object-cover shrink-0 border border-slate-300 dark:border-slate-700" />
                   ) : (
                     <div className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">

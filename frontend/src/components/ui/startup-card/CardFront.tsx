@@ -96,7 +96,7 @@ export default function CardFront({ startup }: Props) {
           <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar">
             {startup.founders.slice(0, 2).map((f, idx) => (
               <div key={idx} className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900/60 px-2 py-1 rounded-lg border border-slate-200/60 dark:border-slate-800 min-w-0">
-                {f.avatar ? (
+                {f.avatar && !f.avatar.includes("X-Amz-") ? (
                   <img src={f.avatar} alt={f.name} className="w-4 h-4 rounded-full object-cover border border-slate-300 dark:border-slate-700 shrink-0" />
                 ) : (
                   <div className="w-4 h-4 rounded-full bg-indigo-600 text-white text-[8px] font-bold flex items-center justify-center shrink-0">

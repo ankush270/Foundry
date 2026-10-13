@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Flame,
@@ -28,6 +28,8 @@ import {
   PricingModel,
   ProductHuntFilterOptions,
 } from "@/modules/producthunt/types";
+import { readStored, writeStored } from "@/lib/browser-storage";
+import { SAMPLE_PRODUCTHUNT_PRODUCTS } from "@/data/producthunt-products";
 import { ProductHuntApiService } from "@/services/producthunt/producthunt-api.service";
 import { ProductCard } from "./ProductCard";
 import { ProductDetailModal } from "./ProductDetailModal";
@@ -78,30 +80,26 @@ export const ProductHuntExplorer: React.FC = () => {
   const [bookmarkedProducts, setBookmarkedProducts] = useState<ProductHuntProduct[]>([]);
   const [showBookmarksDrawer, setShowBookmarksDrawer] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
-  const [tokenInput, setTokenInput] = useState("");
+  const latestRequest = useRef(0);
 
   // Load Bookmarks & Token from LocalStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("PH_BOOKMARKS");
-        if (saved) {
-          setBookmarkedProducts(JSON.parse(saved));
+    const timer = setTimeout(() => {
+      if (typeof window !== "undefined") {
+        try {
+          const saved = readStored("PH_BOOKMARKS", (value): value is { id: string }[] => Array.isArray(value) && value.every((item) => item && typeof item.id === "string"), []);
+          if (saved) {
+            setBookmarkedProducts(SAMPLE_PRODUCTHUNT_PRODUCTS.filter((product) => saved.some((item) => item.id === product.id)));
+          }
+
+        } catch (err) {
+          console.error("Failed to parse bookmarks", err);
         }
-        const existingToken = ProductHuntApiService.getProductHuntToken();
-        if (existingToken) setTokenInput(existingToken);
-      } catch (err) {
-        console.error("Failed to parse bookmarks", err);
       }
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
-  const handleSaveToken = (e: React.FormEvent) => {
-    e.preventDefault();
-    ProductHuntApiService.setProductHuntToken(tokenInput);
-    setShowTokenModal(false);
-    loadProducts();
-  };
 
   // Save Bookmarks to LocalStorage
   const handleToggleBookmark = (product: ProductHuntProduct) => {
@@ -113,7 +111,7 @@ export const ProductHuntExplorer: React.FC = () => {
     }
     setBookmarkedProducts(updated);
     if (typeof window !== "undefined") {
-      localStorage.setItem("PH_BOOKMARKS", JSON.stringify(updated));
+      writeStored("PH_BOOKMARKS", updated);
     }
   };
 
@@ -147,6 +145,7 @@ export const ProductHuntExplorer: React.FC = () => {
 
   // Fetch Products Effect
   const loadProducts = async (forceRefresh: boolean = false) => {
+    const request = ++latestRequest.current;
     setLoading(true);
     const options: ProductHuntFilterOptions = {
       query: searchQuery,
@@ -158,6 +157,7 @@ export const ProductHuntExplorer: React.FC = () => {
       refresh: forceRefresh,
     };
     const res = await ProductHuntApiService.fetchProducts(options);
+    if (request !== latestRequest.current) return;
     const seen = new Set<string>();
     const unique = res.products.filter((p) => {
       if (!p.id || seen.has(p.id)) return false;
@@ -256,13 +256,14 @@ export const ProductHuntExplorer: React.FC = () => {
   };
 
   useEffect(() => {
-    loadProducts();
+    const timer = setTimeout(() => { void loadProducts(); }, 0);
+    return () => { clearTimeout(timer); latestRequest.current++; };
   }, [searchQuery, selectedCategory, selectedPricing, timeframe, sortBy]);
 
   return (
     <div className="min-h-screen bg-[var(--background)] pt-24 pb-20 px-3 sm:px-6 max-w-[1440px] mx-auto text-[var(--foreground)] transition-colors duration-300">
       {/* Hero Banner Section (Product Hunt Theme) */}
-      <div className="relative rounded-3xl bg-[#FF6154] text-white p-6 sm:p-10 border-2 border-[#DA552F] shadow-[6px_6px_0px_0px_#DA552F] overflow-hidden mb-8">
+      <div className="relative rounded-3xl bg-[#FF6154] text-white p-6 sm:p-10 border-2 border-[#DA552F] shadow-sm overflow-hidden mb-8">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-3xl">
@@ -406,7 +407,7 @@ export const ProductHuntExplorer: React.FC = () => {
           <div className="flex items-center gap-2">
             <select
               value={selectedPricing}
-              onChange={(e) => setSelectedPricing(e.target.value as any)}
+              onChange={(e) => setSelectedPricing(e.target.value as PricingModel | "All")}
               className="px-3 py-1.5 rounded-xl bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-semibold text-[var(--foreground)] focus:outline-none focus:border-rose-500"
             >
               <option value="All">All Pricing Models</option>
@@ -418,7 +419,7 @@ export const ProductHuntExplorer: React.FC = () => {
 
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               className="px-3 py-1.5 rounded-xl bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-semibold text-[var(--foreground)] focus:outline-none focus:border-rose-500"
             >
               <option value="votes">Most Upvoted</option>
@@ -584,67 +585,11 @@ export const ProductHuntExplorer: React.FC = () => {
 
       {/* Modal: API Token Settings */}
       {showTokenModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-md bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Key className="w-5 h-5 text-rose-500" />
-                <h3 className="font-bold text-base text-[var(--foreground)]">
-                  Product Hunt API Settings
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowTokenModal(false)}
-                className="text-[var(--muted)] hover:text-[var(--foreground)]"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-2 text-xs text-[var(--muted)] leading-relaxed">
-              <p>
-                <strong>Automatic Mode:</strong> Real-time live products are fetched automatically via Product Hunt's public RSS feed.
-              </p>
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-[var(--foreground)] space-y-1">
-                <span className="font-bold text-rose-500 block">How to get official Developer Access Token:</span>
-                <ol className="list-decimal list-inside space-y-1 text-[11px]">
-                  <li>Go to Product Hunt OAuth Applications: <a href="https://www.producthunt.com/v2/oauth/applications" target="_blank" rel="noopener noreferrer" className="text-rose-500 hover:underline font-bold">producthunt.com/v2/oauth/applications</a></li>
-                  <li>Click <strong>"Add an Application"</strong></li>
-                  <li>Enter App Name (e.g. <em>Foundry</em>) & Redirect URI (<em>http://localhost:3000</em>)</li>
-                  <li>Copy your <strong>Developer Access Token</strong> and paste below:</li>
-                </ol>
-              </div>
-            </div>
-
-            <form onSubmit={handleSaveToken} className="space-y-3">
-              <input
-                type="text"
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value)}
-                placeholder="Paste Product Hunt Developer Access Token (e.g. user_token_...)..."
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-mono text-[var(--foreground)] focus:outline-none focus:border-rose-500"
-              />
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTokenInput("");
-                    ProductHuntApiService.setProductHuntToken("");
-                    setShowTokenModal(false);
-                    loadProducts();
-                  }}
-                  className="px-3 py-2 rounded-xl text-xs font-bold text-rose-500 hover:bg-rose-500/10 transition-colors"
-                >
-                  Clear Token
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold text-xs shadow-md shadow-rose-500/20"
-                >
-                  Save & Fetch Live Data
-                </button>
-              </div>
-            </form>
+        <div role="dialog" aria-label="Product Hunt data source" className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="rounded-2xl bg-[var(--surface)] p-6 max-w-md">
+            <h2 className="font-bold">Curated Product Hunt dataset</h2>
+            <p className="my-4">This deployment uses a curated snapshot. API tokens and refresh do not enable a live feed.</p>
+            <button onClick={() => setShowTokenModal(false)}>Close</button>
           </div>
         </div>
       )}

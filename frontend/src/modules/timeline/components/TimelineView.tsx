@@ -202,11 +202,13 @@ export default function TimelineView() {
   }, [isPlaying, playbackSpeed, years]);
 
   // Reset filters when year changes
-  useEffect(() => {
+  const [previousYear, setPreviousYear] = useState(selectedYear);
+  if (previousYear !== selectedYear) {
+    setPreviousYear(selectedYear);
     setSelectedIndustry("All");
     setSelectedStatus("All");
     setSearchQuery("");
-  }, [selectedYear]);
+  }
 
   // Helper stats for compare mode
   const getCompareStats = (year: number) => {

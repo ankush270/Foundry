@@ -49,42 +49,39 @@ export default function TechNewsDetailClient({ params }: PageProps) {
   >("all");
 
   useEffect(() => {
+    let cancelled = false;
     async function loadItem() {
       setLoading(true);
+      setItem(null);
       try {
         const res = await fetch(`/api/technews?slug=${encodeURIComponent(rawSlug)}`);
         const data = await res.json();
+        if (cancelled) return;
         let foundItem: TechNewsItem | null = null;
         if (data.success && (data.item || (data.data && data.data.length > 0))) {
           foundItem = data.item || data.data[0];
-        } else {
-          const fallbackRes = await fetch(`/api/technews?q=${encodeURIComponent(rawSlug.slice(0, 30))}`);
-          const fallbackData = await fallbackRes.json();
-          if (fallbackData.success && fallbackData.data && fallbackData.data.length > 0) {
-            foundItem = fallbackData.data[0];
-          }
         }
 
         if (foundItem) {
           const cacheKey = `sarvam_foundry_breakdown_${foundItem.id || foundItem.slug}`;
-          if (typeof window !== "undefined" && localStorage.getItem(cacheKey)) {
-            setIsCachedBreakdown(true);
-          }
+          try { setIsCachedBreakdown(Boolean(localStorage.getItem(cacheKey))); } catch { setIsCachedBreakdown(false); }
           
           setItem(foundItem);
+          setLoading(false);
 
           const sarvamBreakdown = await SarvamTechNewsService.generateFoundryBreakdown(foundItem, false);
-          if (sarvamBreakdown) {
+          if (sarvamBreakdown && !cancelled) {
             setItem((prev) => (prev ? { ...prev, breakdown: sarvamBreakdown } : prev));
           }
         }
       } catch (err) {
         console.error("Failed to load item:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     loadItem();
+    return () => { cancelled = true; };
   }, [rawSlug]);
 
   const handleRegenerateSarvamBreakdown = async () => {
@@ -106,7 +103,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
   if (loading) {
     return (
       <div className="min-h-screen pt-28 pb-16 px-4 sm:px-6 max-w-5xl mx-auto flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-10 h-10 text-[#49B6E5] animate-spin" />
+        <Loader2 className="w-10 h-10 text-[var(--accent)] animate-spin" />
         <p className="doodle-font text-xs font-black text-slate-500">Loading Sarvam AI Foundry Breakdown Page...</p>
       </div>
     );
@@ -116,7 +113,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
     return (
       <div className="min-h-screen pt-28 pb-16 px-4 sm:px-6 max-w-3xl mx-auto text-center">
         <div className="doodle-card p-10 bg-white dark:bg-[#1E293B]">
-          <h1 className="doodle-font font-black text-2xl text-[#263D5B] dark:text-white mb-4">
+          <h1 className="doodle-font font-black text-2xl text-[var(--foreground)] dark:text-white mb-4">
             Tech News Item Not Found
           </h1>
           <p className="text-xs text-slate-500 mb-6 font-medium">
@@ -124,7 +121,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
           </p>
           <Link
             href="/tech-news"
-            className="doodle-btn inline-flex items-center gap-2 px-5 py-2.5 bg-[#49B6E5] text-[#263D5B] border-2 border-[#263D5B]"
+            className="doodle-btn inline-flex items-center gap-2 px-5 py-2.5 bg-[#49B6E5] text-[var(--foreground)] border border-[var(--border-color)]"
           >
             <ArrowLeft className="w-4 h-4" /> Return to Tech News Hub
           </Link>
@@ -152,7 +149,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
       <div className="flex items-center justify-between gap-4">
         <Link
           href="/tech-news"
-          className="doodle-btn inline-flex items-center gap-2 text-xs font-black px-4 py-2 bg-white dark:bg-[#1E293B] text-[#263D5B] dark:text-white border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[3px_3px_0px_0px_#263D5B] dark:shadow-[3px_3px_0px_0px_#49B6E5]"
+          className="doodle-btn inline-flex items-center gap-2 text-xs font-black px-4 py-2 bg-white dark:bg-[#1E293B] text-[var(--foreground)] dark:text-white border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Tech News Hub
         </Link>
@@ -161,7 +158,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
           href={item.source.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="doodle-badge inline-flex items-center gap-1.5 text-xs font-black bg-[#16A34A] text-white px-3.5 py-2 rounded-xl border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B]"
+          className="doodle-badge inline-flex items-center gap-1.5 text-xs font-black bg-[#16A34A] text-white px-3.5 py-2 rounded-xl border border-[var(--border-color)] shadow-sm"
         >
           <ShieldCheck className="w-4 h-4 text-white" />
           Verify Source: {getSourceDomain(item.source.url)} ↗
@@ -169,21 +166,21 @@ export default function TechNewsDetailClient({ params }: PageProps) {
       </div>
 
       {/* Main Page Header */}
-      <div className="doodle-card p-6 sm:p-8 bg-white dark:bg-[#1E293B] space-y-5 border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[5px_5px_0px_0px_#263D5B] dark:shadow-[5px_5px_0px_0px_#49B6E5]">
+      <div className="doodle-card p-6 sm:p-8 bg-white dark:bg-[#1E293B] space-y-5 border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="doodle-font font-black text-xs px-3.5 py-1 rounded-full border-2 border-[#263D5B] dark:border-[#49B6E5] bg-[#49B6E5] text-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B]">
+          <span className="doodle-font font-black text-xs px-3.5 py-1 rounded-full border border-[var(--border-color)] dark:border-[var(--border-color)] bg-[#49B6E5] text-[var(--foreground)] shadow-sm">
             {item.category}
           </span>
-          <span className="doodle-font font-black text-xs px-3 py-1 rounded-full border-2 border-[#263D5B] dark:border-[#49B6E5] bg-[#F97316] text-white shadow-[2px_2px_0px_0px_#263D5B] flex items-center gap-1">
+          <span className="doodle-font font-black text-xs px-3 py-1 rounded-full border border-[var(--border-color)] dark:border-[var(--border-color)] bg-[#F97316] text-white shadow-sm flex items-center gap-1">
             <Flame className="w-3.5 h-3.5" /> {item.impactLevel} Impact
           </span>
-          <span className="doodle-badge text-xs font-black bg-[#1E293B] text-white dark:bg-[#49B6E5] dark:text-[#263D5B] px-3 py-1 rounded-full border-2 border-[#263D5B] flex items-center gap-1">
+          <span className="doodle-badge text-xs font-black bg-[#1E293B] text-white dark:bg-[#49B6E5] dark:text-[var(--foreground)] px-3 py-1 rounded-full border border-[var(--border-color)] flex items-center gap-1">
             <Bot className="w-3.5 h-3.5 text-[#F97316]" /> Sarvam AI Enhanced
           </span>
           <button
             onClick={handleRegenerateSarvamBreakdown}
             disabled={generatingSarvam}
-            className="doodle-btn text-xs font-black bg-[#FFE569] text-[#263D5B] px-3 py-1 rounded-full border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B] flex items-center gap-1.5 hover:bg-[#ffd836] transition-all disabled:opacity-50"
+            className="doodle-btn text-xs font-black bg-[#FFE569] text-[var(--foreground)] px-3 py-1 rounded-full border border-[var(--border-color)] shadow-sm flex items-center gap-1.5 hover:bg-[#ffd836] transition-all disabled:opacity-50"
             title="Clear cache and re-analyze this article with Sarvam AI 105B"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${generatingSarvam ? "animate-spin" : ""}`} />
@@ -194,12 +191,12 @@ export default function TechNewsDetailClient({ params }: PageProps) {
           </span>
         </div>
 
-        <h1 className="doodle-font font-black text-2xl sm:text-4xl text-[#263D5B] dark:text-white leading-tight">
+        <h1 className="doodle-font font-black text-2xl sm:text-4xl text-[var(--foreground)] dark:text-white leading-tight">
           {item.title}
         </h1>
 
-        <div className="p-5 rounded-2xl bg-[#49B6E5]/10 border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[3px_3px_0px_0px_#263D5B]">
-          <h4 className="doodle-font text-xs font-black uppercase text-[#263D5B] dark:text-[#49B6E5] mb-1.5 flex items-center gap-1.5">
+        <div className="p-5 rounded-2xl bg-[#49B6E5]/10 border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm">
+          <h4 className="doodle-font text-xs font-black uppercase text-[var(--foreground)] dark:text-[var(--accent)] mb-1.5 flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-[#F97316]" /> Strategic Premise / Core Thesis
           </h4>
           <p className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 leading-relaxed">
@@ -211,7 +208,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
       </div>
 
       {/* Interactive Strategic Tab Navigation Bar */}
-      <div className="doodle-card p-3 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B]">
+      <div className="doodle-card p-3 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm">
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-none p-1">
           {[
             { id: "all", label: "All Sections", icon: Layers },
@@ -230,10 +227,10 @@ export default function TechNewsDetailClient({ params }: PageProps) {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`doodle-btn flex items-center gap-2 px-4 py-2.5 text-xs font-black whitespace-nowrap transition-all border-2 border-[#263D5B] dark:border-[#49B6E5] ${
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`doodle-btn flex items-center gap-2 px-4 py-2.5 text-xs font-black whitespace-nowrap transition-all border border-[var(--border-color)] dark:border-[var(--border-color)] ${
                   active
-                    ? "bg-[#49B6E5] text-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B]"
+                    ? "bg-[#49B6E5] text-[var(--foreground)] shadow-sm"
                     : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
                 }`}
               >
@@ -259,13 +256,13 @@ export default function TechNewsDetailClient({ params }: PageProps) {
           )}
 
           {(activeTab === "all" || activeTab === "breakdown") && (
-            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-4">
-              <h3 className="doodle-font font-black text-xl text-[#263D5B] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
-                <BookOpen className="w-6 h-6 text-[#49B6E5]" />
+            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-4">
+              <h3 className="doodle-font font-black text-xl text-[var(--foreground)] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
+                <BookOpen className="w-6 h-6 text-[var(--accent)]" />
                 1. What Happened (Technical Context)
               </h3>
               
-              <div className="bg-slate-50 dark:bg-slate-800/80 p-5 rounded-2xl border-2 border-[#263D5B]/20 space-y-3">
+              <div className="bg-slate-50 dark:bg-slate-800/80 p-5 rounded-2xl border border-[var(--border-color)]/20 space-y-3">
                 {isExpanded ? (
                   <div className="space-y-4 text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed font-bold">
                     {breakdown.whatHappened.split("\n\n").map((para, idx) => (
@@ -283,7 +280,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                 {breakdown.whatHappened.length > 450 && (
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="doodle-btn px-4 py-2 bg-[#49B6E5] text-[#263D5B] font-black text-xs border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B] flex items-center gap-1.5 hover:bg-[#3ca0cb] transition-colors mt-2"
+                    className="doodle-btn px-4 py-2 bg-[#49B6E5] text-[var(--foreground)] font-black text-xs border border-[var(--border-color)] shadow-sm flex items-center gap-1.5 hover:bg-[#3ca0cb] transition-colors mt-2"
                   >
                     {isExpanded ? (
                       <>
@@ -306,7 +303,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                   {breakdown.companiesInvolved.map((company) => (
                     <span
                       key={company}
-                      className="doodle-font text-xs font-black bg-[#49B6E5]/15 text-[#263D5B] dark:text-white px-3.5 py-1.5 rounded-xl border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[2px_2px_0px_0px_#263D5B]"
+                      className="doodle-font text-xs font-black bg-[#49B6E5]/15 text-[var(--foreground)] dark:text-white px-3.5 py-1.5 rounded-xl border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm"
                     >
                       🏢 {company}
                     </span>
@@ -317,17 +314,17 @@ export default function TechNewsDetailClient({ params }: PageProps) {
           )}
 
           {(activeTab === "all" || activeTab === "technology") && (
-            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-4">
-              <h3 className="doodle-font font-black text-xl text-[#263D5B] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
-                <Cpu className="w-6 h-6 text-[#49B6E5]" />
+            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-4">
+              <h3 className="doodle-font font-black text-xl text-[var(--foreground)] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
+                <Cpu className="w-6 h-6 text-[var(--accent)]" />
                 2. Technology & Architecture Breakdown
               </h3>
               
               <div>
-                <h4 className="doodle-font text-sm sm:text-base font-black text-[#263D5B] dark:text-[#49B6E5]">
+                <h4 className="doodle-font text-sm sm:text-base font-black text-[var(--foreground)] dark:text-[var(--accent)]">
                   {breakdown.newTechnology.title}
                 </h4>
-                <p className="text-xs sm:text-sm font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border-2 border-[#263D5B]/20 mt-2 font-bold leading-relaxed">
+                <p className="text-xs sm:text-sm font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-[var(--border-color)]/20 mt-2 font-bold leading-relaxed">
                   {breakdown.newTechnology.architecture}
                 </p>
               </div>
@@ -340,7 +337,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                   {breakdown.newTechnology.keyFeatures.map((feat, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start gap-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 p-3.5 rounded-xl border-2 border-[#263D5B]/20"
+                      className="flex items-start gap-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 p-3.5 rounded-xl border border-[var(--border-color)]/20"
                     >
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                       <span>{feat}</span>
@@ -352,15 +349,15 @@ export default function TechNewsDetailClient({ params }: PageProps) {
           )}
 
           {(activeTab === "all" || activeTab === "impact") && (
-            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-5">
-              <h3 className="doodle-font font-black text-xl text-[#263D5B] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
+            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-5">
+              <h3 className="doodle-font font-black text-xl text-[var(--foreground)] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
                 <TrendingUp className="w-6 h-6 text-[#F97316]" />
                 3. Market & Developer DX Impact
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl bg-[#F97316]/10 border-2 border-[#263D5B] space-y-3">
-                  <h4 className="doodle-font text-sm font-black text-[#263D5B] dark:text-[#F97316]">
+                <div className="p-5 rounded-2xl bg-[#F97316]/10 border border-[var(--border-color)] space-y-3">
+                  <h4 className="doodle-font text-sm font-black text-[var(--foreground)] dark:text-[#F97316]">
                     Market Disruption Summary
                   </h4>
                   <p className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 leading-relaxed">
@@ -376,18 +373,18 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#49B6E5]/10 border-2 border-[#263D5B] space-y-3">
-                  <h4 className="doodle-font text-sm font-black text-[#263D5B] dark:text-[#49B6E5]">
+                <div className="p-5 rounded-2xl bg-[#49B6E5]/10 border border-[var(--border-color)] space-y-3">
+                  <h4 className="doodle-font text-sm font-black text-[var(--foreground)] dark:text-[var(--accent)]">
                     Developer Paradigm Shift
                   </h4>
                   <p className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 leading-relaxed">
                     {breakdown.developerImpact.summary}
                   </p>
                   <div className="pt-2 border-t border-[#263D5B]/20">
-                    <span className="doodle-font text-[10px] font-black uppercase text-[#263D5B] dark:text-[#49B6E5] block">
+                    <span className="doodle-font text-[10px] font-black uppercase text-[var(--foreground)] dark:text-[var(--accent)] block">
                       Paradigm Shift:
                     </span>
-                    <span className="doodle-font text-xs font-black text-[#263D5B] bg-[#49B6E5] px-2.5 py-1 rounded-lg border border-[#263D5B] inline-block mt-1">
+                    <span className="doodle-font text-xs font-black text-[var(--foreground)] bg-[#49B6E5] px-2.5 py-1 rounded-lg border border-[#263D5B] inline-block mt-1">
                       {breakdown.developerImpact.paradigmShift}
                     </span>
                   </div>
@@ -397,12 +394,12 @@ export default function TechNewsDetailClient({ params }: PageProps) {
           )}
 
           {activeTab === "opportunities" && (
-            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-4">
-              <h3 className="doodle-font font-black text-xl text-[#263D5B] dark:text-white flex items-center justify-between border-b-2 border-dashed border-[#263D5B]/20 pb-3">
+            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-4">
+              <h3 className="doodle-font font-black text-xl text-[var(--foreground)] dark:text-white flex items-center justify-between border-b-2 border-dashed border-[#263D5B]/20 pb-3">
                 <span className="flex items-center gap-2">
                   <Lightbulb className="w-6 h-6 text-emerald-500" /> White-Space Startup Vectors & SaaS Opportunities
                 </span>
-                <span className="doodle-badge text-xs bg-[#16A34A] text-white px-3 py-1 rounded-full border-2 border-[#263D5B]">
+                <span className="doodle-badge text-xs bg-[#16A34A] text-white px-3 py-1 rounded-full border border-[var(--border-color)]">
                   {breakdown.startupOpportunities.length} Validated Ideas
                 </span>
               </h3>
@@ -411,10 +408,10 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                 {breakdown.startupOpportunities.map((opp, idx) => (
                   <div
                     key={idx}
-                    className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 border-[#263D5B]/20 space-y-2.5"
+                    className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-[var(--border-color)]/20 space-y-2.5"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h4 className="doodle-font text-base font-black text-[#263D5B] dark:text-white">
+                      <h4 className="doodle-font text-base font-black text-[var(--foreground)] dark:text-white">
                         {opp.title}
                       </h4>
                       <span className="doodle-badge text-xs bg-[#16A34A] text-white px-2.5 py-0.5 rounded-full border border-[#263D5B]">
@@ -426,7 +423,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                     </p>
                     <div className="pt-1 flex items-center gap-2">
                       <span className="doodle-font text-xs font-black text-slate-500">Target Market:</span>
-                      <span className="doodle-badge text-xs bg-[#49B6E5] text-[#263D5B] px-2.5 py-0.5 rounded-lg border border-[#263D5B]">
+                      <span className="doodle-badge text-xs bg-[#49B6E5] text-[var(--foreground)] px-2.5 py-0.5 rounded-lg border border-[#263D5B]">
                         {opp.targetMarket}
                       </span>
                     </div>
@@ -437,8 +434,8 @@ export default function TechNewsDetailClient({ params }: PageProps) {
           )}
 
           {activeTab === "repos" && hasRepos && (
-            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-4">
-              <h3 className="doodle-font font-black text-xl text-[#263D5B] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
+            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-4">
+              <h3 className="doodle-font font-black text-xl text-[var(--foreground)] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
                 <Code2 className="w-6 h-6 text-purple-600" /> Open Source Repositories & Frameworks
               </h3>
 
@@ -449,7 +446,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                     href={repo.repoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 border-[#263D5B]/20 hover:bg-[#49B6E5]/10 transition-all group block"
+                    className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-[var(--border-color)]/20 hover:bg-[#49B6E5]/10 transition-all group block"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="doodle-font text-sm font-black text-purple-600 dark:text-purple-400 group-hover:underline flex items-center gap-1.5">
@@ -471,9 +468,9 @@ export default function TechNewsDetailClient({ params }: PageProps) {
           )}
 
           {activeTab === "skills" && (
-            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-6">
-              <h3 className="doodle-font font-black text-xl text-[#263D5B] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
-                <Briefcase className="w-6 h-6 text-[#49B6E5]" /> Emerging Roles & Technical Competencies
+            <div className="doodle-card p-6 sm:p-7 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-6">
+              <h3 className="doodle-font font-black text-xl text-[var(--foreground)] dark:text-white flex items-center gap-2 border-b-2 border-dashed border-[#263D5B]/20 pb-3">
+                <Briefcase className="w-6 h-6 text-[var(--accent)]" /> Emerging Roles & Technical Competencies
               </h3>
 
               <div className="space-y-4">
@@ -481,7 +478,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                   <h4 className="doodle-font text-xs font-black uppercase text-slate-500 mb-2">Target Job Roles</h4>
                   <div className="flex flex-wrap gap-2">
                     {breakdown.skillsAndJobs.roles.map((role) => (
-                      <span key={role} className="doodle-badge text-xs font-black bg-[#49B6E5] text-[#263D5B] px-3.5 py-1.5 rounded-xl border border-[#263D5B]">
+                      <span key={role} className="doodle-badge text-xs font-black bg-[#49B6E5] text-[var(--foreground)] px-3.5 py-1.5 rounded-xl border border-[#263D5B]">
                         {role}
                       </span>
                     ))}
@@ -492,7 +489,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                   <h4 className="doodle-font text-xs font-black uppercase text-slate-500 mb-2">Technical Competencies</h4>
                   <div className="flex flex-wrap gap-2">
                     {breakdown.skillsAndJobs.skills.map((skill) => (
-                      <span key={skill} className="doodle-badge text-xs font-black bg-slate-100 dark:bg-slate-800 text-[#263D5B] dark:text-slate-200 px-3.5 py-1.5 rounded-xl border border-[#263D5B]">
+                      <span key={skill} className="doodle-badge text-xs font-black bg-slate-100 dark:bg-slate-800 text-[var(--foreground)] dark:text-slate-200 px-3.5 py-1.5 rounded-xl border border-[#263D5B]">
                         {skill}
                       </span>
                     ))}
@@ -505,11 +502,11 @@ export default function TechNewsDetailClient({ params }: PageProps) {
 
         {activeTab === "all" && (
           <div className="lg:col-span-4 space-y-6">
-            <div className="doodle-card p-5 bg-[#16A34A]/10 border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-3">
+            <div className="doodle-card p-5 bg-[#16A34A]/10 border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-3">
               <div className="flex items-center gap-2.5">
                 <ShieldCheck className="w-6 h-6 text-[#16A34A] shrink-0" />
                 <div>
-                  <h4 className="doodle-font text-sm font-black text-[#263D5B] dark:text-emerald-400">
+                  <h4 className="doodle-font text-sm font-black text-[var(--foreground)] dark:text-emerald-400">
                     Live Source Verified
                   </h4>
                   <p className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
@@ -521,14 +518,14 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                 href={item.source.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="doodle-btn w-full py-2.5 px-4 bg-[#16A34A] text-white text-xs font-black flex items-center justify-center gap-2 border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B]"
+                className="doodle-btn w-full py-2.5 px-4 bg-[#16A34A] text-white text-xs font-black flex items-center justify-center gap-2 border border-[var(--border-color)] shadow-sm"
               >
                 Open Live Source <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
 
-            <div className="doodle-card p-5 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-4">
-              <h4 className="doodle-font font-black text-base text-[#263D5B] dark:text-white flex items-center justify-between border-b-2 border-dashed border-[#263D5B]/20 pb-2.5">
+            <div className="doodle-card p-5 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-4">
+              <h4 className="doodle-font font-black text-base text-[var(--foreground)] dark:text-white flex items-center justify-between border-b-2 border-dashed border-[#263D5B]/20 pb-2.5">
                 <span className="flex items-center gap-1.5">
                   <Lightbulb className="w-4 h-4 text-emerald-500" /> Startup Vectors
                 </span>
@@ -541,10 +538,10 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                 {breakdown.startupOpportunities.map((opp, idx) => (
                   <div
                     key={idx}
-                    className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border-2 border-[#263D5B]/20 space-y-2"
+                    className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-[var(--border-color)]/20 space-y-2"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h5 className="doodle-font text-xs font-black text-[#263D5B] dark:text-white leading-snug">
+                      <h5 className="doodle-font text-xs font-black text-[var(--foreground)] dark:text-white leading-snug">
                         {opp.title}
                       </h5>
                       <span className="doodle-badge text-[9px] bg-[#16A34A] text-white px-1.5 py-0.2 rounded-full shrink-0">
@@ -560,8 +557,8 @@ export default function TechNewsDetailClient({ params }: PageProps) {
             </div>
 
             {hasRepos && (
-              <div className="doodle-card p-5 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-4">
-                <h4 className="doodle-font font-black text-base text-[#263D5B] dark:text-white flex items-center gap-1.5 border-b-2 border-dashed border-[#263D5B]/20 pb-2.5">
+              <div className="doodle-card p-5 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-4">
+                <h4 className="doodle-font font-black text-base text-[var(--foreground)] dark:text-white flex items-center gap-1.5 border-b-2 border-dashed border-[#263D5B]/20 pb-2.5">
                   <Code2 className="w-4 h-4 text-purple-600" /> Open Source Repos
                 </h4>
 
@@ -572,7 +569,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                       href={repo.repoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border-2 border-[#263D5B]/20 hover:bg-[#49B6E5]/10 transition-all group"
+                      className="block p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-[var(--border-color)]/20 hover:bg-[#49B6E5]/10 transition-all group"
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="doodle-font text-xs font-black text-purple-600 dark:text-purple-400 group-hover:underline flex items-center gap-1">
@@ -593,9 +590,9 @@ export default function TechNewsDetailClient({ params }: PageProps) {
               </div>
             )}
 
-            <div className="doodle-card p-5 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] space-y-3">
-              <h4 className="doodle-font font-black text-base text-[#263D5B] dark:text-white flex items-center gap-1.5 border-b-2 border-dashed border-[#263D5B]/20 pb-2.5">
-                <Briefcase className="w-4 h-4 text-[#49B6E5]" /> Roles & Skills
+            <div className="doodle-card p-5 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-3">
+              <h4 className="doodle-font font-black text-base text-[var(--foreground)] dark:text-white flex items-center gap-1.5 border-b-2 border-dashed border-[#263D5B]/20 pb-2.5">
+                <Briefcase className="w-4 h-4 text-[var(--accent)]" /> Roles & Skills
               </h4>
 
               <div className="space-y-2">
@@ -606,7 +603,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                   {breakdown.skillsAndJobs.roles.map((role) => (
                     <span
                       key={role}
-                      className="doodle-font text-[10px] font-black bg-[#49B6E5] text-[#263D5B] px-2.5 py-0.5 rounded-lg border border-[#263D5B]"
+                      className="doodle-font text-[10px] font-black bg-[#49B6E5] text-[var(--foreground)] px-2.5 py-0.5 rounded-lg border border-[#263D5B]"
                     >
                       {role}
                     </span>
@@ -622,7 +619,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
                   {breakdown.skillsAndJobs.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="doodle-font text-[10px] font-black bg-slate-100 dark:bg-slate-800 text-[#263D5B] dark:text-slate-200 px-2.5 py-0.5 rounded-lg border border-[#263D5B]"
+                      className="doodle-font text-[10px] font-black bg-slate-100 dark:bg-slate-800 text-[var(--foreground)] dark:text-slate-200 px-2.5 py-0.5 rounded-lg border border-[#263D5B]"
                     >
                       {skill}
                     </span>
@@ -637,7 +634,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
       <div className="pt-6 border-t-2 border-dashed border-[#263D5B]/30 flex items-center justify-between">
         <Link
           href="/tech-news"
-          className="doodle-font text-xs font-black text-[#263D5B] dark:text-[#49B6E5] flex items-center gap-2 hover:underline"
+          className="doodle-font text-xs font-black text-[var(--foreground)] dark:text-[var(--accent)] flex items-center gap-2 hover:underline"
         >
           <ArrowLeft className="w-4 h-4" /> Return to Tech News Feed
         </Link>

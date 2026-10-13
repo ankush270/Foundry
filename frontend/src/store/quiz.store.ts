@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { readStored, writeStored } from "@/lib/browser-storage";
 
 interface QuizStore {
   totalCorrect: number;
@@ -24,13 +25,19 @@ export const useQuizStore = create<QuizStore>((set) => ({
         streak: correct ? state.streak + 1 : 0,
         bestStreak: correct ? Math.max(state.bestStreak, state.streak + 1) : state.bestStreak,
       };
-      if (typeof window !== "undefined") localStorage.setItem("yc-quiz", JSON.stringify(next));
+      writeStored("yc-quiz", next);
       return next;
     }),
   load: () => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("yc-quiz");
-      if (saved) set(JSON.parse(saved));
+      type Stats = Pick<QuizStore, "totalCorrect" | "totalAttempts" | "streak" | "bestStreak">;
+      const saved = readStored("yc-quiz", (value): value is Stats => {
+        if (!value || typeof value !== "object") return false;
+        const stats = value as Stats;
+        return [stats.totalCorrect, stats.totalAttempts, stats.streak, stats.bestStreak].every((n) => Number.isSafeInteger(n) && n >= 0)
+          && stats.totalCorrect <= stats.totalAttempts && stats.streak <= stats.bestStreak && stats.bestStreak <= stats.totalCorrect;
+      }, { totalCorrect: 0, totalAttempts: 0, streak: 0, bestStreak: 0 });
+      set({ totalCorrect: saved.totalCorrect, totalAttempts: saved.totalAttempts, streak: saved.streak, bestStreak: saved.bestStreak });
     }
   },
 }));

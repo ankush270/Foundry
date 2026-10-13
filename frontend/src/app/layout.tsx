@@ -56,10 +56,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${fontSans.variable} ${fontInter.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontDelius.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] selection:bg-[#FF6600] selection:text-white">
+      <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] selection:bg-violet-200 selection:text-white">
         <Providers>
           <Navbar />
-          <main className="flex-1 pt-20 sm:pt-24">
+          <main className="flex-1 pt-[68px] sm:pt-20">
             {children}
           </main>
         </Providers>

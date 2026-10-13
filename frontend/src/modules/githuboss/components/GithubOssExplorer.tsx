@@ -38,11 +38,11 @@ export const GithubOssExplorer: React.FC = () => {
   const [onlyAwesome, setOnlyAwesome] = useState(false);
   const [repos, setRepos] = useState<OssRepository[]>([]);
 
-  useEffect(() => {
-    if (urlSearch) {
-      setSearchQuery(urlSearch);
-    }
-  }, [urlSearch]);
+  const [previousSearch, setPreviousSearch] = useState(urlSearch);
+  if (previousSearch !== urlSearch) {
+    setPreviousSearch(urlSearch);
+    setSearchQuery(urlSearch || "");
+  }
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,7 +55,7 @@ export const GithubOssExplorer: React.FC = () => {
   const [isLiveApi, setIsLiveApi] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
-  const [githubToken, setGithubToken] = useState<string>(() => GithubService.getGithubToken() || "");
+  const [githubToken, setGithubToken] = useState<string>("");
 
   // Modal State
   const [activeModalRepo, setActiveModalRepo] = useState<OssRepository | null>(null);
@@ -82,20 +82,22 @@ export const GithubOssExplorer: React.FC = () => {
 
   // Sync Token on initial mount
   useEffect(() => {
-    const activeToken = GithubService.getGithubToken();
-    if (activeToken) {
-      GithubService.setGithubToken(activeToken);
-      setGithubToken(activeToken);
-    }
+    const timer = setTimeout(() => {
+      const activeToken = GithubService.getGithubToken();
+      if (activeToken) {
+        GithubService.setGithubToken(activeToken);
+        setGithubToken(activeToken);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Fetch Live GitHub REST API Data
   useEffect(() => {
     let isMounted = true;
-    setIsLoadingLive(true);
-    setApiError(null);
-
     const timer = setTimeout(async () => {
+      setIsLoadingLive(true);
+      setApiError(null);
       try {
         const result = await GithubService.fetchLiveRepositories({
           query: searchQuery,
@@ -300,7 +302,7 @@ export const GithubOssExplorer: React.FC = () => {
     <div className="min-h-screen text-[var(--foreground)] font-sans pb-24 space-y-8">
       {/* Top Banner & Header (In-page Hero Section) */}
       <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl p-6 sm:p-8 bg-[#0D1117] text-white border-2 border-[#30363D] shadow-[6px_6px_0px_0px_#1F6FEB] space-y-6">
+        <div className="rounded-3xl p-6 sm:p-8 bg-[#0D1117] text-white border-2 border-[#30363D] shadow-sm space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#30363D] pb-6">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-[#1F6FEB] p-0.5 shadow-lg shadow-[#1F6FEB]/30 shrink-0 flex items-center justify-center">
@@ -318,7 +320,7 @@ export const GithubOssExplorer: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-400 font-mono mt-0.5">
-                  Use-case matching engine & real-time analytics for GitHub repositories
+                  Live repository metadata with heuristic quality and activity estimates
                 </p>
               </div>
             </div>
@@ -416,7 +418,7 @@ export const GithubOssExplorer: React.FC = () => {
                     onClick={() => setSearchQuery(prompt)}
                     className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-300 border border-slate-200 dark:border-white/10 transition text-[11px] font-mono"
                   >
-                    "{prompt}"
+                    &quot;{prompt}&quot;
                   </button>
                 ))}
               </div>
@@ -613,7 +615,7 @@ export const GithubOssExplorer: React.FC = () => {
                         ].map((s) => (
                           <button
                             key={s.id}
-                            onClick={() => setSelectedSortBy(s.id as any)}
+                            onClick={() => setSelectedSortBy(s.id as typeof selectedSortBy)}
                             className={`px-2.5 py-1 rounded-lg text-xs font-mono transition ${
                               selectedSortBy === s.id
                                 ? "bg-purple-600 text-white font-bold"
@@ -916,7 +918,7 @@ export const GithubOssExplorer: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed">
-              GitRadar uses <strong>GitHub's official REST API</strong>. Unauthenticated searches are limited to 10 req/min.
+              GitRadar uses <strong>GitHub&apos;s official REST API</strong>. Unauthenticated searches are limited to 10 req/min.
               Add a free <strong>GitHub Personal Access Token (classic or fine-grained)</strong> to unlock <strong>5,000 requests/hour</strong>.
             </p>
 

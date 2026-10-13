@@ -33,7 +33,7 @@ export default function SarvamQaAssistant({ item }: SarvamQaAssistantProps) {
     if (!query || loading) return;
 
     const userMsg: SarvamQaMessage = {
-      id: `user-${Date.now()}`,
+      id: `user-${crypto.randomUUID()}`,
       sender: "user",
       text: query,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -46,7 +46,7 @@ export default function SarvamQaAssistant({ item }: SarvamQaAssistantProps) {
     try {
       const answer = await SarvamTechNewsService.askArticleQuestion(item, query, messages);
       const sarvamMsg: SarvamQaMessage = {
-        id: `sarvam-${Date.now()}`,
+        id: `sarvam-${crypto.randomUUID()}`,
         sender: "sarvam",
         text: answer,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -60,16 +60,16 @@ export default function SarvamQaAssistant({ item }: SarvamQaAssistantProps) {
   };
 
   return (
-    <div className="doodle-card p-6 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[5px_5px_0px_0px_#263D5B] dark:shadow-[5px_5px_0px_0px_#49B6E5] space-y-4">
+    <div className="doodle-card p-6 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm space-y-4">
       <div className="flex items-center justify-between border-b-2 border-dashed border-[#263D5B]/20 pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-[#F97316] text-white border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B]">
+          <div className="p-2 rounded-xl bg-[#F97316] text-white border border-[var(--border-color)] shadow-sm">
             <Bot className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="doodle-font text-lg font-black text-[#263D5B] dark:text-white flex items-center gap-2">
+            <h3 className="doodle-font text-lg font-black text-[var(--foreground)] dark:text-white flex items-center gap-2">
               Sarvam AI Article Intelligence Q&A
-              <span className="doodle-badge text-[10px] bg-[#49B6E5] text-[#263D5B] px-2 py-0.5 rounded-full border border-[#263D5B]">
+              <span className="doodle-badge text-[10px] bg-[#49B6E5] text-[var(--foreground)] px-2 py-0.5 rounded-full border border-[#263D5B]">
                 Live Sarvam 105B
               </span>
             </h3>
@@ -87,7 +87,7 @@ export default function SarvamQaAssistant({ item }: SarvamQaAssistantProps) {
             key={idx}
             onClick={() => handleSend(q)}
             disabled={loading}
-            className="doodle-btn text-xs font-black bg-slate-100 dark:bg-slate-800 text-[#263D5B] dark:text-slate-200 px-3 py-1.5 rounded-xl border border-[#263D5B]/30 hover:bg-[#49B6E5]/20 transition-all text-left"
+            className="doodle-btn text-xs font-black bg-slate-100 dark:bg-slate-800 text-[var(--foreground)] dark:text-slate-200 px-3 py-1.5 rounded-xl border border-[#263D5B]/30 hover:bg-[#49B6E5]/20 transition-all text-left"
           >
             {q}
           </button>
@@ -95,7 +95,7 @@ export default function SarvamQaAssistant({ item }: SarvamQaAssistantProps) {
       </div>
 
       {/* Chat Messages Stream */}
-      <div className="space-y-3 max-h-80 overflow-y-auto p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-2 border-[#263D5B]/20 scrollbar-thin">
+      <div className="space-y-3 max-h-80 overflow-y-auto p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-[var(--border-color)]/20 scrollbar-thin">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -106,7 +106,7 @@ export default function SarvamQaAssistant({ item }: SarvamQaAssistantProps) {
             <div
               className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border border-[#263D5B] text-xs font-black ${
                 msg.sender === "user"
-                  ? "bg-[#49B6E5] text-[#263D5B]"
+                  ? "bg-[#49B6E5] text-[var(--foreground)]"
                   : "bg-[#F97316] text-white"
               }`}
             >
@@ -114,9 +114,9 @@ export default function SarvamQaAssistant({ item }: SarvamQaAssistantProps) {
             </div>
 
             <div
-              className={`p-3.5 rounded-2xl text-xs font-bold leading-relaxed max-w-[85%] border-2 border-[#263D5B]/20 shadow-[2px_2px_0px_0px_#263D5B] ${
+              className={`p-3.5 rounded-2xl text-xs font-bold leading-relaxed max-w-[85%] border border-[var(--border-color)]/20 shadow-sm ${
                 msg.sender === "user"
-                  ? "bg-[#49B6E5]/20 text-[#263D5B] dark:text-white"
+                  ? "bg-[#49B6E5]/20 text-[var(--foreground)] dark:text-white"
                   : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100"
               }`}
             >
@@ -129,7 +129,7 @@ export default function SarvamQaAssistant({ item }: SarvamQaAssistantProps) {
         ))}
 
         {loading && (
-          <div className="flex items-center gap-2 text-xs font-bold text-[#49B6E5] p-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent)] p-2">
             <Loader2 className="w-4 h-4 animate-spin" />
             <span>Sarvam AI is analyzing article context...</span>
           </div>
@@ -150,12 +150,12 @@ export default function SarvamQaAssistant({ item }: SarvamQaAssistantProps) {
           onChange={(e) => setInputQuestion(e.target.value)}
           placeholder="Ask Sarvam AI any question about this article..."
           disabled={loading}
-          className="doodle-card flex-1 px-4 py-2.5 text-xs font-bold bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 border-2 border-[#263D5B] dark:border-[#49B6E5] focus:outline-none"
+          className="doodle-card flex-1 px-4 py-2.5 text-xs font-bold bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-[var(--border-color)] dark:border-[var(--border-color)] focus:outline-none"
         />
         <button
           type="submit"
           disabled={loading || !inputQuestion.trim()}
-          className="doodle-btn px-4 py-2.5 bg-[#F97316] text-white text-xs font-black flex items-center gap-1.5 border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B] disabled:opacity-50"
+          className="doodle-btn px-4 py-2.5 bg-[#F97316] text-white text-xs font-black flex items-center gap-1.5 border border-[var(--border-color)] shadow-sm disabled:opacity-50"
         >
           <span>Ask</span>
           <Send className="w-3.5 h-3.5" />

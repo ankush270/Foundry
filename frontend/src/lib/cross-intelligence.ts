@@ -696,13 +696,19 @@ export function getThreeWayNodeContext({
   }
 
   // Construct best trifecta match
-  const bestYc = ycStartup || matchedYc[0] || allYc[0];
-  const bestGithub = githubRepo || matchedGithub[0] || allGithub[0];
-  const bestPh = productHuntProduct || matchedProductHunt[0] || allPh[0];
+  const bestYc = ycStartup || matchedYc[0];
+  const bestGithub = githubRepo || matchedGithub[0];
+  const bestPh = productHuntProduct || matchedProductHunt[0];
 
+  if (!bestYc || !bestGithub || !bestPh) {
+    return { primaryType, ycStartup, githubRepo, productHuntProduct, matchedYc, matchedGithub, matchedProductHunt };
+  }
   const repoScore = scoreRepoRelevance(bestYc, bestGithub).relevanceScore;
   const phYcScore = scorePhToYc(bestYc, bestPh);
   const phRepoScore = scorePhToRepo(bestGithub, bestPh);
+  if (repoScore < 30 || phYcScore < 25 || phRepoScore < 25) {
+    return { primaryType, ycStartup, githubRepo, productHuntProduct, matchedYc, matchedGithub, matchedProductHunt };
+  }
   const synergyScore = Math.round((repoScore + phYcScore + phRepoScore) / 3);
 
   const bestTrifectaPair: TrifectaMatch = {
@@ -745,7 +751,7 @@ export function generateTrifectaMatches(
 ): TrifectaMatch[] {
   const trifectas: TrifectaMatch[] = [];
 
-  for (const yc of allYc.slice(0, 15)) {
+  for (const yc of allYc) {
     const context = getThreeWayNodeContext({
       primaryType: "yc",
       ycStartup: yc,
@@ -785,42 +791,18 @@ export function detectRepositoryRelationship(
   repo: OssRepository
 ): { isOfficial: boolean; relationshipType: EcosystemRelationshipType; verificationDetails: string } {
   const sSlug = startup.slug.toLowerCase();
-  const sNameClean = startup.name.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const repoOwner = repo.owner.toLowerCase();
-  const repoName = repo.name.toLowerCase();
   const repoFullName = repo.fullName.toLowerCase();
 
   // 1. Check known verified map
   if (KNOWN_OFFICIAL_REPOS[sSlug]) {
     const matched = KNOWN_OFFICIAL_REPOS[sSlug].some(
-      r => repo.id === r || repoFullName === r.toLowerCase() || repoName === r.toLowerCase()
+      r => r.includes("/") && repoFullName === r.toLowerCase()
     );
     if (matched) {
       return {
         isOfficial: true,
         relationshipType: "officially_associated",
         verificationDetails: `Verified First-Party Repository maintained directly by ${startup.name} organization (${repo.owner}).`
-      };
-    }
-  }
-
-  // 2. Direct owner/name match
-  if (repoOwner === sSlug || repoOwner === sNameClean || repoName === sSlug || repoName === sNameClean) {
-    return {
-      isOfficial: true,
-      relationshipType: "officially_associated",
-      verificationDetails: `Official GitHub Organization match: '${repo.owner}' matches ${startup.name}.`
-    };
-  }
-
-  // 3. Website domain matching repository owner
-  if (startup.website) {
-    const domainMatch = startup.website.toLowerCase().replace(/https?:\/\/(www\.)?/, "").split("/")[0].split(".")[0];
-    if (domainMatch && domainMatch.length > 3 && repoOwner === domainMatch) {
-      return {
-        isOfficial: true,
-        relationshipType: "officially_associated",
-        verificationDetails: `Official Domain match: Website '${startup.website}' correlates with GitHub account '${repo.owner}'.`
       };
     }
   }

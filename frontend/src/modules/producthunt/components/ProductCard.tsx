@@ -97,7 +97,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-rose-500/50 hover:bg-rose-500/10 hover:text-rose-500"
             }`}
           >
-            <ChevronUp className={`w-4 h-4 ${hasVoted ? "animate-bounce" : ""}`} />
+            <ChevronUp className={`w-4 h-4 ${hasVoted ? "" : ""}`} />
             <span className="text-xs font-bold font-mono leading-none mt-0.5">
               {votes.toLocaleString()}
             </span>

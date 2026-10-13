@@ -13,7 +13,7 @@ import PageHeader from "@/components/ui/PageHeader";
 
 function GuessTheStartup() {
   const { addResult, totalCorrect, totalAttempts, streak, bestStreak } = useQuizStore();
-  const [current, setCurrent] = useState(() => startups[Math.floor(Math.random() * startups.length)]);
+  const [current, setCurrent] = useState(startups[0]);
   const [hints, setHints] = useState<number[]>([0]);
   const [guess, setGuess] = useState("");
   const [result, setResult] = useState<"correct" | "wrong" | null>(null);
@@ -24,7 +24,7 @@ function GuessTheStartup() {
   const revealHint = () => { if (hints.length < allHints.length) setHints([...hints, hints.length]); };
 
   const submitGuess = () => {
-    if (!guess.trim()) return;
+    if (!guess.trim() || showAnswer) return;
     const correct = checkAnswer(guess, current);
     setResult(correct ? "correct" : "wrong");
     setShowAnswer(true);
@@ -92,7 +92,7 @@ function GuessTheStartup() {
 }
 
 function OnThisDay() {
-  const randomEvents = useMemo(() => [...historyEvents].sort(() => Math.random() - 0.5).slice(0, 3), []);
+  const randomEvents = historyEvents.slice(0, 3);
 
   return (
     <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">

@@ -1,7 +1,6 @@
 import {
   ProductHuntProduct,
   ProductHuntFilterOptions,
-  ProductCategory,
 } from "@/modules/producthunt/types";
 import { SAMPLE_PRODUCTHUNT_PRODUCTS } from "@/data/producthunt-products";
 
@@ -35,117 +34,10 @@ export class ProductHuntApiService {
   }
 
   /**
-   * Scrapes and enriches extra product details (ratings, founder story, pricing tiers, social links, security details)
+   * Preserve source fields without inventing missing product claims.
    */
   public static enrichProductDetails(product: ProductHuntProduct): ProductHuntProduct {
-    const firstMaker =
-      product.makers && product.makers.length > 0
-        ? product.makers[0]
-        : { name: "Product Maker", headline: "Founder", avatar: "", twitterUrl: "" };
-
-    const score = Number((4.7 + (product.votesCount % 4) * 0.08).toFixed(1));
-    const reviewsCount = Math.round(product.votesCount / 16) + 14;
-
-    const rating = product.rating || { score: Math.min(score, 5.0), count: reviewsCount };
-    const badge =
-      product.badge ||
-      (product.votesCount >= 4000
-        ? "#1 Product of the Day"
-        : product.featured
-        ? "Featured Product Hunt Launch"
-        : "#2 Top Product of the Week");
-
-    const makerComment = product.makerComment || {
-      author: firstMaker.name,
-      avatar: firstMaker.avatar,
-      text: `Hey Product Hunt community! 👋 I'm ${firstMaker.name}. We built ${product.name} to solve ${product.aiExplainer.problemSolved.toLowerCase()} Our mission is to make ${product.category} workflows 10x faster and simpler. We'd love to hear your feedback and answer any technical questions!`,
-      date: product.launchedAtFormatted,
-    };
-
-    const pricingTiers = product.pricingTiers || [
-      {
-        name: "Starter / Hobby",
-        price: "$0 / free",
-        description: "Perfect for individual developers & small side projects",
-        features: [
-          "Core feature access",
-          "Community support",
-          "Standard API rate limits",
-          "Basic integrations",
-        ],
-        popular: false,
-      },
-      {
-        name: "Pro / Builder",
-        price: "$19 / mo",
-        description: "For scaling products and active engineering teams",
-        features: [
-          "Unlimited AI generations",
-          "Priority 24/7 support",
-          "Custom webhooks & integrations",
-          "Advanced analytics dashboard",
-          "SOC2 compliance export",
-        ],
-        popular: true,
-      },
-      {
-        name: "Team / Enterprise",
-        price: "$49 / mo",
-        description: "Dedicated infrastructure and enterprise SLAs",
-        features: [
-          "Dedicated database instances",
-          "Custom SLA & SSO/SAML",
-          "Unlimited team seats",
-          "1-on-1 architecture review",
-        ],
-        popular: false,
-      },
-    ];
-
-    const keyFeatures = product.keyFeatures || [
-      {
-        title: "AI-Powered Workflow Automation",
-        description: `Automates key repetitive tasks in ${product.category} with instant language model orchestration.`,
-      },
-      {
-        title: "Real-Time High Velocity Processing",
-        description: "Sub-100ms response latency with edge caching and optimized backend pipeline.",
-      },
-      {
-        title: "Developer-First API & SDKs",
-        description: `Type-safe REST and GraphQL APIs using ${product.techStack.slice(0, 3).join(", ")}.`,
-      },
-      {
-        title: "Enterprise Grade Security",
-        description: "256-bit AES encryption at rest, HTTPS in transit, and GDPR data privacy compliance.",
-      },
-    ];
-
-    const socialLinks = product.socialLinks || {
-      twitter: firstMaker.twitterUrl || `https://twitter.com/${product.slug}`,
-      github: product.githubRepoUrl || `https://github.com/topics/${product.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-      discord: `https://discord.gg/${product.slug}`,
-      youtube: `https://youtube.com/results?search_query=${encodeURIComponent(product.name + " review demo")}`,
-    };
-
-    const techDetails = product.techDetails || {
-      hosting: "Vercel Edge / AWS Multi-Region",
-      framework: product.techStack[0] || "Next.js App Router",
-      database: "PostgreSQL + Redis Cache Layer",
-      aiModels: ["Claude 3.5 Sonnet", "OpenAI GPT-4o API", "Vector Embeddings"],
-      compliance: ["GDPR Compliant", "SOC-2 Type II Certified", "256-bit SSL Encryption"],
-    };
-
-    return {
-      ...product,
-      rating,
-      badge,
-      makerComment,
-      pricingTiers,
-      keyFeatures,
-      socialLinks,
-      techDetails,
-    };
+    return { ...product };
   }
 
   /**
@@ -157,7 +49,7 @@ export class ProductHuntApiService {
 
     // 1. Search in live products list first
     try {
-      const result = await this.fetchProducts({ limit: 150 } as any);
+      const result = await this.fetchProducts({ limit: 150 });
       const foundLive = result.products.find(
         (p) =>
           p.id.toLowerCase() === decoded ||
@@ -166,11 +58,7 @@ export class ProductHuntApiService {
       );
       if (foundLive) return this.enrichProductDetails(foundLive);
 
-      // Partial slug match
-      const partialMatch = result.products.find(
-        (p) => p.slug.toLowerCase().includes(decoded) || decoded.includes(p.slug.toLowerCase())
-      );
-      if (partialMatch) return this.enrichProductDetails(partialMatch);
+
     } catch (e) {
       console.error("[ProductHunt API] Error fetching product by ID from live data:", e);
     }
@@ -198,7 +86,6 @@ export class ProductHuntApiService {
     hasNextPage?: boolean;
     error?: string;
   }> {
-    const customToken = typeof window !== "undefined" ? localStorage.getItem("PRODUCTHUNT_TOKEN") : null;
     const limit = options.limit || 180;
 
     try {
@@ -209,15 +96,13 @@ export class ProductHuntApiService {
       if (options.refresh) {
         apiUrl += `&refresh=true`;
       }
-      if (customToken) {
-        apiUrl += `&token=${encodeURIComponent(customToken)}`;
-      }
+
 
       const response = await fetch(apiUrl, { cache: "no-store" });
       if (response.ok) {
         const json = await response.json();
-        if (Array.isArray(json.data) && json.data.length > 0) {
-          console.log(`[ProductHunt Service] Successfully fetched ${json.data.length} live products`);
+        if (Array.isArray(json.data)) {
+          console.log(`[ProductHunt Service] Fetched ${json.data.length} products`);
           
           // Pure live products - DO NOT mix in sample data!
           const liveProducts: ProductHuntProduct[] = json.data;
@@ -225,7 +110,7 @@ export class ProductHuntApiService {
 
           return {
             products: filtered,
-            isLive: true,
+            isLive: json.isLive === true,
             source: json.source || "Official Product Hunt GraphQL API v2",
             totalCount: filtered.length,
             endCursor: json.endCursor,
@@ -305,9 +190,15 @@ export class ProductHuntApiService {
     } else if (timeframe === "Top Voted") {
       filtered = filtered.filter((p) => p.votesCount >= 100);
     } else if (timeframe === "Today" || timeframe === "This Week") {
-      filtered = filtered.sort(
-        (a, b) => new Date(b.launchDate).getTime() - new Date(a.launchDate).getTime()
-      );
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      if (timeframe === "This Week") start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+      const end = new Date();
+      end.setHours(23, 59, 59, 999);
+      filtered = filtered.filter((product) => {
+        const date = new Date(`${product.launchDate}T00:00:00`).getTime();
+        return date >= start.getTime() && date <= end.getTime();
+      });
     }
 
     if (sortBy === "votes") {

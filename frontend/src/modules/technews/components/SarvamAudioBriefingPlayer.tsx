@@ -13,12 +13,7 @@ export default function SarvamAudioBriefingPlayer({ item }: SarvamAudioBriefingP
   const [isPlaying, setIsPlaying] = useState(false);
   const [speechRate, setSpeechRate] = useState<number>(1);
   const [language, setLanguage] = useState<"en" | "hi" | "hinglish">("en");
-  const [script, setScript] = useState<string>("");
-
-  useEffect(() => {
-    const rawScript = SarvamTechNewsService.generateAudioScript(item);
-    setScript(rawScript);
-  }, [item]);
+  const script = SarvamTechNewsService.generateAudioScript(item);
 
   useEffect(() => {
     return () => {
@@ -58,10 +53,10 @@ export default function SarvamAudioBriefingPlayer({ item }: SarvamAudioBriefingP
   };
 
   return (
-    <div className="doodle-card p-5 bg-gradient-to-r from-[#1E293B] via-[#0F172A] to-[#1E293B] text-white border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[5px_5px_0px_0px_#49B6E5] space-y-4">
+    <div className="doodle-card p-5 bg-gradient-to-r from-[#1E293B] via-[#0F172A] to-[#1E293B] text-white border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700 pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-[#49B6E5] text-[#263D5B] border border-white">
+          <div className="p-2 rounded-xl bg-[#49B6E5] text-[var(--foreground)] border border-white">
             <Radio className="w-5 h-5 animate-pulse" />
           </div>
           <div>
@@ -88,7 +83,7 @@ export default function SarvamAudioBriefingPlayer({ item }: SarvamAudioBriefingP
               }}
               className={`doodle-font text-[10px] font-black px-2.5 py-1 rounded-lg uppercase transition-all ${
                 language === lang
-                  ? "bg-[#49B6E5] text-[#263D5B]"
+                  ? "bg-[#49B6E5] text-[var(--foreground)]"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -103,10 +98,10 @@ export default function SarvamAudioBriefingPlayer({ item }: SarvamAudioBriefingP
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <button
             onClick={togglePlay}
-            className={`doodle-btn p-3.5 rounded-2xl font-black flex items-center justify-center gap-2 border-2 border-white shadow-[3px_3px_0px_0px_#49B6E5] transition-all ${
+            className={`doodle-btn p-3.5 rounded-2xl font-black flex items-center justify-center gap-2 border-2 border-white shadow-sm transition-all ${
               isPlaying
                 ? "bg-[#F97316] text-white"
-                : "bg-[#49B6E5] text-[#263D5B] hover:bg-[#3ca0cb]"
+                : "bg-[#49B6E5] text-[var(--foreground)] hover:bg-[#3ca0cb]"
             }`}
           >
             {isPlaying ? (
@@ -134,7 +129,7 @@ export default function SarvamAudioBriefingPlayer({ item }: SarvamAudioBriefingP
         {/* Speed Multipliers */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <span className="doodle-font text-[10px] font-black text-slate-400 flex items-center gap-1">
-            <Gauge className="w-3.5 h-3.5 text-[#49B6E5]" /> Speed:
+            <Gauge className="w-3.5 h-3.5 text-[var(--accent)]" /> Speed:
           </span>
           {[1, 1.25, 1.5].map((rate) => (
             <button
@@ -148,7 +143,7 @@ export default function SarvamAudioBriefingPlayer({ item }: SarvamAudioBriefingP
               }}
               className={`doodle-font text-xs font-black px-2.5 py-1 rounded-lg border border-slate-600 ${
                 speechRate === rate
-                  ? "bg-[#49B6E5] text-[#263D5B] border-[#49B6E5]"
+                  ? "bg-[#49B6E5] text-[var(--foreground)] border-[#49B6E5]"
                   : "bg-slate-900 text-slate-300 hover:bg-slate-700"
               }`}
             >

@@ -39,7 +39,7 @@ export const LaunchRadar: React.FC<LaunchRadarProps> = ({ onSelectDomain }) => {
           </div>
 
           <h2 className="text-3xl font-extrabold text-[var(--foreground)] tracking-tight mb-3">
-            Don't search for new tools — let high-traction repos find you.
+            Don&apos;t search for new tools — let high-traction repos find you.
           </h2>
 
           <p className="text-sm text-[var(--muted)] leading-relaxed mb-6">
@@ -83,7 +83,7 @@ export const LaunchRadar: React.FC<LaunchRadarProps> = ({ onSelectDomain }) => {
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
               <span className="text-xs text-[var(--muted)]">
-                Receive weekly summary: <strong className="text-[var(--foreground)]">"Top 3 new tools in your domain this week"</strong>
+                Receive weekly summary: <strong className="text-[var(--foreground)]">&quot;Top 3 new tools in your domain this week&quot;</strong>
               </span>
               <button
                 onClick={handleSavePreferences}
@@ -117,7 +117,7 @@ export const LaunchRadar: React.FC<LaunchRadarProps> = ({ onSelectDomain }) => {
                     {item.source}
                   </span>
                   <span className="text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/30 flex items-center gap-1">
-                    <Zap className="w-3 h-3 text-purple-500 animate-bounce" /> {item.tractionSignal}
+                    <Zap className="w-3 h-3 text-purple-500 " /> {item.tractionSignal}
                   </span>
                 </div>
 
@@ -163,7 +163,7 @@ export const LaunchRadar: React.FC<LaunchRadarProps> = ({ onSelectDomain }) => {
             <Clock className="w-4 h-4" /> Weekly Curated Digest
           </div>
           <h4 className="text-base font-bold text-[var(--foreground)]">
-            "3 Notable Fintech Open Source Tools Launching This Week"
+            &quot;3 Notable Fintech Open Source Tools Launching This Week&quot;
           </h4>
           <p className="text-xs text-[var(--muted)] max-w-xl">
             Get an executive email summary every Monday morning with high-signal repo recommendations so you never spend hours searching manually.

@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 
 // SSR-Safe Vector Lottie Animation Scene Component
-const LottieVectorScene = ({ icon: Icon, color }: { icon: any; color: string }) => {
+const LottieVectorScene = ({ icon: Icon, color }: { icon: import("lucide-react").LucideIcon; color: string }) => {
   return (
     <div className="w-full h-full relative flex items-center justify-center">
       {/* Outer Lottie Pulsing Rings */}
@@ -51,10 +51,10 @@ const chapters = [
     id: "yc",
     number: "01",
     title: "Y Combinator Startups Explorer",
-    badge: "3,400+ STARTUPS",
+    badge: "YC STARTUPS",
     icon: Building2,
     color: "#49B6E5",
-    description: "Deep dive into 3,400+ YC startups across batches S05 to W26. Filter by hiring status, AI domain, funding stage, and founder profiles.",
+    description: "Deep dive into the YC startup database across batches S05 to W26. Filter by hiring status, AI domain, funding stage, and founder profiles.",
     highlights: [
       "Filter active hiring roles with 1-click",
       "Full batch history & cohort trends",
@@ -174,20 +174,20 @@ export default function InteractiveVideoWalkthrough() {
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#49B6E5]/15 text-[#263D5B] dark:text-[#49B6E5] border-2 border-[#263D5B] text-xs font-bold doodle-font mb-2">
-            <Sparkles className="w-4 h-4 text-[#49B6E5] animate-spin" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#49B6E5]/15 text-[var(--foreground)] dark:text-[var(--accent)] border border-[var(--border-color)] text-xs font-bold doodle-font mb-2">
+            <Sparkles className="w-4 h-4 text-[var(--accent)] animate-spin" />
             INTERACTIVE ANIMATED VIDEO DEMO
           </div>
-          <h2 className="doodle-font font-black text-2xl sm:text-4xl text-[#263D5B] dark:text-[#49B6E5]">
-            How Foundry Works <span className="text-[#49B6E5]">(Video Tour)</span>
+          <h2 className="doodle-font font-black text-2xl sm:text-4xl text-[var(--foreground)] dark:text-[var(--accent)]">
+            How Foundry Works <span className="text-[var(--accent)]">(Video Tour)</span>
           </h2>
         </div>
 
         {/* Video Scrubber & Playback Controls */}
-        <div className="flex items-center gap-3 bg-[#FAF8F5] dark:bg-[#111827] p-2 rounded-2xl border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[3px_3px_0px_0px_#263D5B]">
+        <div className="flex items-center gap-3 bg-[var(--surface)] dark:bg-[#111827] p-2 rounded-2xl border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="p-2 rounded-xl bg-[#49B6E5] text-[#263D5B] border-2 border-[#263D5B] font-bold shadow-[2px_2px_0px_0px_#263D5B] hover:scale-105 transition-transform"
+            className="p-2 rounded-xl bg-[#49B6E5] text-[var(--foreground)] border border-[var(--border-color)] font-bold shadow-sm hover:scale-105 transition-transform"
             title={isPlaying ? "Pause Video Demo" : "Play Video Demo"}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
@@ -195,17 +195,17 @@ export default function InteractiveVideoWalkthrough() {
 
           <button
             onClick={handleRestart}
-            className="p-2 rounded-xl bg-white dark:bg-[#1F2937] text-[#263D5B] dark:text-[#49B6E5] border-2 border-[#263D5B] dark:border-[#49B6E5] font-bold hover:scale-105 transition-transform"
+            className="p-2 rounded-xl bg-white dark:bg-[#1F2937] text-[var(--foreground)] dark:text-[var(--accent)] border border-[var(--border-color)] dark:border-[var(--border-color)] font-bold hover:scale-105 transition-transform"
             title="Restart Video Tour"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
 
           <div className="flex flex-col min-w-[100px] text-right">
-            <span className="text-[10px] font-mono font-bold text-[#49B6E5]">
+            <span className="text-[10px] font-mono font-bold text-[var(--accent)]">
               CHAPTER {currentChapter.number} / 05
             </span>
-            <span className="text-xs font-bold text-[#263D5B] dark:text-slate-200">
+            <span className="text-xs font-bold text-[var(--foreground)] dark:text-slate-200">
               {isPlaying ? "▶ PLAYING DEMO" : "⏸ PAUSED"}
             </span>
           </div>
@@ -213,7 +213,7 @@ export default function InteractiveVideoWalkthrough() {
       </div>
 
       {/* Main Video Frame Component */}
-      <div className="relative rounded-3xl bg-[#111827] border-4 border-[#263D5B] dark:border-[#49B6E5] shadow-[8px_8px_0px_0px_#263D5B] dark:shadow-[8px_8px_0px_0px_#49B6E5] overflow-hidden text-white">
+      <div className="relative rounded-3xl bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm overflow-hidden text-white">
         {/* Top Video Player Control Bar */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-[#1F2937] border-b-2 border-[#263D5B] text-xs font-mono font-bold text-slate-300">
           <div className="flex items-center gap-2">
@@ -224,10 +224,10 @@ export default function InteractiveVideoWalkthrough() {
           </div>
 
           <div className="flex items-center gap-3 text-[11px]">
-            <span className="px-2 py-0.5 rounded bg-[#49B6E5]/20 text-[#49B6E5] border border-[#49B6E5]/40 font-mono">
+            <span className="px-2 py-0.5 rounded bg-[#49B6E5]/20 text-[var(--accent)] border border-[#49B6E5]/40 font-mono">
               60 FPS LOTTIE
             </span>
-            <span className="text-[#49B6E5] animate-pulse">● LIVE STREAM</span>
+            <span className="text-[var(--accent)] animate-pulse">● LIVE STREAM</span>
           </div>
         </div>
 
@@ -252,7 +252,7 @@ export default function InteractiveVideoWalkthrough() {
                 transition={{ duration: 0.3 }}
                 className="space-y-4"
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#49B6E5] text-[#263D5B] font-bold text-xs doodle-font">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#49B6E5] text-[var(--foreground)] font-bold text-xs doodle-font">
                   {currentChapter.badge}
                 </div>
 
@@ -268,7 +268,7 @@ export default function InteractiveVideoWalkthrough() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
                   {currentChapter.highlights.map((h, i) => (
                     <div key={i} className="flex items-center gap-2 text-xs font-semibold text-slate-200 bg-white/5 p-2 rounded-xl border border-white/10">
-                      <CheckCircle2 className="w-4 h-4 text-[#49B6E5] shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-[var(--accent)] shrink-0" />
                       <span>{h}</span>
                     </div>
                   ))}
@@ -277,7 +277,7 @@ export default function InteractiveVideoWalkthrough() {
                 <div className="pt-4">
                   <a
                     href={currentChapter.ctaLink}
-                    className="doodle-btn inline-flex items-center gap-2 px-6 py-3 text-sm font-bold shadow-[4px_4px_0px_0px_#263D5B]"
+                    className="doodle-btn inline-flex items-center gap-2 px-6 py-3 text-sm font-bold shadow-sm"
                   >
                     <span>{currentChapter.ctaText}</span>
                     <ArrowRight className="w-4 h-4" />
@@ -289,14 +289,14 @@ export default function InteractiveVideoWalkthrough() {
 
           {/* Right Vector Animation Box (Lottie Vector Player) */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center">
-            <div className="w-full max-w-sm aspect-square rounded-3xl bg-slate-900 border-2 border-[#49B6E5] p-6 flex flex-col items-center justify-center relative shadow-[6px_6px_0px_0px_#49B6E5] group">
+            <div className="w-full max-w-sm aspect-square rounded-3xl bg-slate-900 border-2 border-[#49B6E5] p-6 flex flex-col items-center justify-center relative shadow-sm group">
               <div className="w-40 h-40 relative flex items-center justify-center">
                 <LottieVectorScene icon={currentChapter.icon} color={currentChapter.color} />
               </div>
 
               {/* Animated Floating Badges */}
               <div className="w-full mt-4 p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
-                <span className="text-xs font-bold text-[#49B6E5] doodle-font block">
+                <span className="text-xs font-bold text-[var(--accent)] doodle-font block">
                   FEATURE PREVIEW #{currentChapter.number}
                 </span>
                 <span className="text-[11px] text-slate-300 font-mono">
@@ -318,7 +318,7 @@ export default function InteractiveVideoWalkthrough() {
                 onClick={() => handleSelectChapter(idx)}
                 className={`p-3 sm:p-4 text-left transition-all border-r border-[#263D5B] last:border-r-0 flex flex-col justify-between ${
                   active
-                    ? "bg-[#49B6E5] text-[#263D5B] font-bold"
+                    ? "bg-[#49B6E5] text-[var(--foreground)] font-bold"
                     : "text-slate-300 hover:bg-white/10"
                 }`}
               >

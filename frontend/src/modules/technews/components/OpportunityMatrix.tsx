@@ -22,7 +22,7 @@ export default function OpportunityMatrix({ items }: OpportunityMatrixProps) {
     return (
       <div className="doodle-card p-10 text-center bg-white dark:bg-[#1E293B]">
         <Lightbulb className="w-10 h-10 text-amber-500 mx-auto mb-3" />
-        <h3 className="doodle-font font-black text-lg text-[#263D5B] dark:text-white">
+        <h3 className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-white">
           No White-Space Opportunities Found
         </h3>
         <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
@@ -36,7 +36,7 @@ export default function OpportunityMatrix({ items }: OpportunityMatrixProps) {
     <div className="space-y-6">
       <div className="doodle-card p-5 bg-[#16A34A]/10 flex items-center justify-between">
         <div>
-          <h3 className="doodle-font font-black text-lg text-[#263D5B] dark:text-emerald-400 flex items-center gap-2">
+          <h3 className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-emerald-400 flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-emerald-500" />
             White-Space Startup Vector Matrix
           </h3>
@@ -44,7 +44,7 @@ export default function OpportunityMatrix({ items }: OpportunityMatrixProps) {
             Foundry analysis synthesizes market disruption and tech evolution into unbundled SaaS and infrastructure business ideas.
           </p>
         </div>
-        <span className="doodle-badge text-xs font-black bg-[#16A34A] text-white px-3.5 py-1.5 rounded-full border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B]">
+        <span className="doodle-badge text-xs font-black bg-[#16A34A] text-white px-3.5 py-1.5 rounded-full border border-[var(--border-color)] shadow-sm">
           {opportunities.length} Vectors
         </span>
       </div>
@@ -58,17 +58,17 @@ export default function OpportunityMatrix({ items }: OpportunityMatrixProps) {
             <div className="space-y-3">
               {/* Header Badges */}
               <div className="flex items-center justify-between">
-                <span className="doodle-font text-[10px] font-black uppercase tracking-wider bg-[#49B6E5] text-[#263D5B] px-2.5 py-1 rounded-full border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B]">
+                <span className="doodle-font text-[10px] font-black uppercase tracking-wider bg-[#49B6E5] text-[var(--foreground)] px-2.5 py-1 rounded-full border border-[var(--border-color)] shadow-sm">
                   {opp.parentNews.category}
                 </span>
 
-                <span className="doodle-badge text-xs font-black bg-[#16A34A] text-white px-2.5 py-0.5 rounded-full border-2 border-[#263D5B]">
+                <span className="doodle-badge text-xs font-black bg-[#16A34A] text-white px-2.5 py-0.5 rounded-full border border-[var(--border-color)]">
                   {opp.potentialValue} Value
                 </span>
               </div>
 
               {/* Title */}
-              <h4 className="doodle-font font-black text-lg text-[#263D5B] dark:text-white leading-snug">
+              <h4 className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-white leading-snug">
                 {opp.title}
               </h4>
 
@@ -88,7 +88,7 @@ export default function OpportunityMatrix({ items }: OpportunityMatrixProps) {
 
               <Link
                 href={`/tech-news/${opp.parentNews.slug}`}
-                className="doodle-btn w-full py-2 px-3 text-xs font-black flex items-center justify-between text-[#263D5B] bg-[#49B6E5] border-2 border-[#263D5B] shadow-[3px_3px_0px_0px_#263D5B]"
+                className="doodle-btn w-full py-2 px-3 text-xs font-black flex items-center justify-between text-[var(--foreground)] bg-[#49B6E5] border border-[var(--border-color)] shadow-sm"
               >
                 <span className="truncate">Trend Origin: {opp.parentNews.title}</span>
                 <ArrowUpRight className="w-4 h-4 shrink-0" />

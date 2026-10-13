@@ -46,7 +46,7 @@ export const CommunityTagsModal: React.FC<CommunityTagsModalProps> = ({
         </div>
 
         <p className="text-xs text-zinc-300 leading-relaxed">
-          Tag **{repo.name}** with what you actually built in production. Community tags train GitRadar's semantic matching model so other developers find the right repo faster.
+          Tag **{repo.name}** with what you actually built in production. Community tags train GitRadar&apos;s semantic matching model so other developers find the right repo faster.
         </p>
 
         {/* Existing Tags */}

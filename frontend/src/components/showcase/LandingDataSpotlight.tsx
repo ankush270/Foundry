@@ -128,25 +128,25 @@ export default function LandingDataSpotlight() {
     activeTab === "yc" ? sampleYC : activeTab === "ph" ? samplePH : sampleOSS;
 
   return (
-    <div className="space-y-4 doodle-card p-5 sm:p-6 bg-[#FAF8F5] dark:bg-[#111827]">
+    <div className="space-y-4 doodle-card p-5 sm:p-6 bg-[var(--surface)] dark:bg-[#111827]">
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-[#49B6E5] text-[#263D5B] border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B] flex items-center justify-center font-bold">
+          <div className="w-8 h-8 rounded-xl bg-[#49B6E5] text-[var(--foreground)] border border-[var(--border-color)] shadow-sm flex items-center justify-center font-bold">
             <Zap className="w-4 h-4" />
           </div>
-          <h2 className="doodle-font font-black text-xl text-[#263D5B] dark:text-[#49B6E5]">
+          <h2 className="doodle-font font-black text-xl text-[var(--foreground)] dark:text-[var(--accent)]">
             Live Ecosystem Spotlight
           </h2>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white dark:bg-[#1F2937] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[3px_3px_0px_0px_#263D5B] dark:shadow-[3px_3px_0px_0px_#49B6E5]">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white dark:bg-[#1F2937] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm">
           <button
             onClick={() => setActiveTab("yc")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold doodle-font transition-all ${
               activeTab === "yc"
-                ? "bg-[#49B6E5] text-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B]"
+                ? "bg-[#49B6E5] text-[var(--foreground)] shadow-sm"
                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
             }`}
           >
@@ -157,7 +157,7 @@ export default function LandingDataSpotlight() {
             onClick={() => setActiveTab("ph")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold doodle-font transition-all ${
               activeTab === "ph"
-                ? "bg-[#D97706] text-white shadow-[2px_2px_0px_0px_#263D5B]"
+                ? "bg-[#D97706] text-white shadow-sm"
                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
             }`}
           >
@@ -168,7 +168,7 @@ export default function LandingDataSpotlight() {
             onClick={() => setActiveTab("oss")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold doodle-font transition-all ${
               activeTab === "oss"
-                ? "bg-[#16A34A] text-white shadow-[2px_2px_0px_0px_#263D5B]"
+                ? "bg-[#16A34A] text-white shadow-sm"
                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
             }`}
           >
@@ -188,17 +188,17 @@ export default function LandingDataSpotlight() {
           >
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="doodle-badge text-[10px] bg-[#49B6E5]/20 text-[#263D5B] dark:text-[#49B6E5]">
+                <span className="doodle-badge text-[10px] bg-[#49B6E5]/20 text-[var(--foreground)] dark:text-[var(--accent)]">
                   {item.category}
                 </span>
-                <span className="text-[11px] font-extrabold doodle-font text-[#49B6E5] flex items-center gap-1">
+                <span className="text-[11px] font-extrabold doodle-font text-[var(--accent)] flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" />
                   {item.batchOrLang}
                 </span>
               </div>
 
               <div>
-                <h3 className="text-base font-extrabold doodle-font text-[#263D5B] dark:text-white group-hover:text-[#49B6E5] transition-colors">
+                <h3 className="text-base font-extrabold doodle-font text-[var(--foreground)] dark:text-white group-hover:text-[var(--accent)] transition-colors">
                   {item.name}
                 </h3>
                 <p className="text-xs text-[var(--muted)] mt-0.5 line-clamp-1">
@@ -212,11 +212,11 @@ export default function LandingDataSpotlight() {
                 <span className="text-[10px] uppercase font-mono text-[var(--muted)]">
                   {item.metricLabel}:
                 </span>
-                <span className="font-extrabold doodle-font text-[#263D5B] dark:text-white">
+                <span className="font-extrabold doodle-font text-[var(--foreground)] dark:text-white">
                   {item.metricValue}
                 </span>
               </div>
-              <span className="inline-flex items-center gap-1 text-xs font-extrabold text-[#49B6E5] group-hover:translate-x-1 transition-transform">
+              <span className="inline-flex items-center gap-1 text-xs font-extrabold text-[var(--accent)] group-hover:translate-x-1 transition-transform">
                 View <ArrowRight className="w-3 h-3" />
               </span>
             </div>

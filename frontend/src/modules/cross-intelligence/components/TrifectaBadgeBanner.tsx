@@ -45,23 +45,23 @@ export default function TrifectaBadgeBanner({
     <>
       <div
         onClick={() => setModalOpen(true)}
-        className="group relative cursor-pointer overflow-hidden rounded-2xl border-2 border-[#263D5B] dark:border-[#49B6E5] bg-gradient-to-r from-[#FAF8F5] via-white to-[#EBF7FC] dark:from-[#111827] dark:via-[#1F2937] dark:to-[#0F172A] p-4 shadow-[4px_4px_0px_0px_#263D5B] dark:shadow-[4px_4px_0px_0px_#49B6E5] hover:-translate-y-0.5 transition-all duration-200"
+        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--border-color)] dark:border-[var(--border-color)] bg-gradient-to-r from-[#FAF8F5] via-white to-[#EBF7FC] dark:from-[#111827] dark:via-[#1F2937] dark:to-[#0F172A] p-4 shadow-sm shadow-sm hover:-translate-y-0.5 transition-all duration-200"
       >
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-2 border-b border-[#263D5B]/10 dark:border-[#49B6E5]/20 pb-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-2 border-b border-[#263D5B]/10 dark:border-[var(--border-color)]/20 pb-2">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-[#49B6E5] text-[#263D5B] border border-[#263D5B] shadow-[1px_1px_0px_0px_#263D5B]">
+            <span className="p-1.5 rounded-lg bg-[#49B6E5] text-[var(--foreground)] border border-[#263D5B] shadow-sm">
               <Workflow className="w-4 h-4" />
             </span>
-            <span className="doodle-font font-black text-sm uppercase tracking-wide text-[#263D5B] dark:text-[#49B6E5]">
+            <span className="doodle-font font-black text-sm uppercase tracking-wide text-[var(--foreground)] dark:text-[var(--accent)]">
               360° Trifecta Ecosystem Synergy
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-black bg-[#49B6E5]/20 text-[#263D5B] dark:text-[#49B6E5] border border-[#49B6E5]/40">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-black bg-[#49B6E5]/20 text-[var(--foreground)] dark:text-[var(--accent)] border border-[#49B6E5]/40">
               ⚡ {pair.synergyScore}% Synergy Score
             </span>
-            <span className="text-xs font-bold text-[#49B6E5] group-hover:translate-x-1 transition-transform flex items-center gap-1">
+            <span className="text-xs font-bold text-[var(--accent)] group-hover:translate-x-1 transition-transform flex items-center gap-1">
               Explore Flywheel <ArrowRight className="w-3.5 h-3.5" />
             </span>
           </div>
@@ -86,7 +86,7 @@ export default function TrifectaBadgeBanner({
 
           {/* Connection Divider */}
           <div className="hidden md:flex justify-center -mx-3">
-            <Link2 className="w-4 h-4 text-[#49B6E5] animate-pulse" />
+            <Link2 className="w-4 h-4 text-[var(--accent)] animate-pulse" />
           </div>
 
           {/* Node 2: GitHub Open Source */}
@@ -106,7 +106,7 @@ export default function TrifectaBadgeBanner({
 
           {/* Connection Divider */}
           <div className="hidden md:flex justify-center -mx-3">
-            <Link2 className="w-4 h-4 text-[#49B6E5] animate-pulse" />
+            <Link2 className="w-4 h-4 text-[var(--accent)] animate-pulse" />
           </div>
 
           {/* Node 3: Product Hunt Launch */}

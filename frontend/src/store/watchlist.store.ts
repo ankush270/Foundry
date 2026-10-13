@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { readStored, writeStored } from "@/lib/browser-storage";
 
 interface WatchlistStore {
   ids: string[];
@@ -14,14 +15,14 @@ export const useWatchlistStore = create<WatchlistStore>((set, get) => ({
   toggle: (id) =>
     set((state) => {
       const next = state.ids.includes(id) ? state.ids.filter((x) => x !== id) : [...state.ids, id];
-      if (typeof window !== "undefined") localStorage.setItem("yc-watchlist", JSON.stringify(next));
+      writeStored("yc-watchlist", next);
       return { ids: next };
     }),
   isWatched: (id) => get().ids.includes(id),
   load: () => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("yc-watchlist");
-      if (saved) set({ ids: JSON.parse(saved) });
+      const ids = readStored("yc-watchlist", (value): value is string[] => Array.isArray(value) && value.every((id) => typeof id === "string"), []);
+      set({ ids });
     }
   },
 }));

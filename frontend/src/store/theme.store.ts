@@ -22,14 +22,16 @@ export const useThemeStore = create<ThemeStore>((set) => ({
   setTheme: (t) => {
     const resolved = resolveTheme(t);
     if (typeof window !== "undefined") {
-      localStorage.setItem("yc-theme", t);
+      try { localStorage.setItem("yc-theme", t); } catch { /* Storage may be unavailable. */ }
       document.documentElement.setAttribute("data-theme", resolved);
     }
     set({ theme: t, resolved });
   },
   load: () => {
     if (typeof window !== "undefined") {
-      const saved = (localStorage.getItem("yc-theme") as "light" | "dark" | "system") || "light";
+      let stored: string | null = null;
+      try { stored = localStorage.getItem("yc-theme"); } catch { /* Use the default theme. */ }
+      const saved = stored === "dark" || stored === "system" ? stored : "light";
       const resolved = resolveTheme(saved);
       document.documentElement.setAttribute("data-theme", resolved);
       set({ theme: saved, resolved });

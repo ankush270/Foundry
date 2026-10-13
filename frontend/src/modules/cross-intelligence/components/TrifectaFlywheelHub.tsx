@@ -93,20 +93,20 @@ Generated via Foundry Trifecta Engine`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-5xl my-auto rounded-3xl bg-white dark:bg-[#111827] border-4 border-[#263D5B] dark:border-[#49B6E5] shadow-[8px_8px_0px_0px_#263D5B] dark:shadow-[8px_8px_0px_0px_#49B6E5] overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-5xl my-auto rounded-3xl bg-white dark:bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Modal Header */}
-        <div className="p-4 sm:p-6 bg-[#FAF8F5] dark:bg-[#1F2937] border-b-4 border-[#263D5B] dark:border-[#49B6E5] flex items-center justify-between gap-4">
+        <div className="p-4 sm:p-6 bg-[var(--surface)] dark:bg-[#1F2937] border-b-4 border-[#263D5B] dark:border-[var(--border-color)] flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#49B6E5] border-2 border-[#263D5B] shadow-[3px_3px_0px_0px_#263D5B] flex items-center justify-center text-[#263D5B]">
+            <div className="w-12 h-12 rounded-2xl bg-[#49B6E5] border border-[var(--border-color)] shadow-sm flex items-center justify-center text-[var(--foreground)]">
               <Flame className="w-6 h-6 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="doodle-font text-xl sm:text-2xl font-black text-[#263D5B] dark:text-[#49B6E5] tracking-tight">
+                <h2 className="doodle-font text-xl sm:text-2xl font-black text-[var(--foreground)] dark:text-[var(--accent)] tracking-tight">
                   TRIFECTA ECOSYSTEM HUB
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-black bg-[#49B6E5]/20 text-[#263D5B] dark:text-[#49B6E5] border border-[#49B6E5]/40">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-black bg-[#49B6E5]/20 text-[var(--foreground)] dark:text-[var(--accent)] border border-[#49B6E5]/40">
                   YC ↔ GitHub ↔ PH
                 </span>
               </div>
@@ -118,21 +118,21 @@ Generated via Foundry Trifecta Engine`;
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-white dark:bg-[#111827] border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-[#49B6E5] hover:bg-rose-500 hover:text-white transition-all"
+            className="p-2 rounded-xl bg-white dark:bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] text-[var(--foreground)] dark:text-[var(--accent)] hover:bg-rose-500 hover:text-white transition-all"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="px-4 sm:px-6 pt-3 bg-white dark:bg-[#111827] border-b-2 border-[#263D5B]/20 dark:border-[#49B6E5]/20 flex items-center justify-between gap-2 overflow-x-auto">
+        <div className="px-4 sm:px-6 pt-3 bg-white dark:bg-[#111827] border-b-2 border-[#263D5B]/20 dark:border-[var(--border-color)]/20 flex items-center justify-between gap-2 overflow-x-auto">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab("flywheel")}
               className={`doodle-font flex items-center gap-2 px-4 py-2 text-sm font-bold border-t-2 border-x-2 rounded-t-xl transition-all ${
                 activeTab === "flywheel"
-                  ? "bg-[#49B6E5] text-[#263D5B] border-[#263D5B] shadow-[2px_-2px_0px_0px_#263D5B]"
-                  : "border-transparent text-[#263D5B] dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
+                  ? "bg-[#49B6E5] text-[var(--foreground)] border-[#263D5B] shadow-[2px_-2px_0px_0px_#263D5B]"
+                  : "border-transparent text-[var(--foreground)] dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
               }`}
             >
               <Zap className="w-4 h-4" /> 360° Interactive Flywheel
@@ -141,8 +141,8 @@ Generated via Foundry Trifecta Engine`;
               onClick={() => setActiveTab("playbook")}
               className={`doodle-font flex items-center gap-2 px-4 py-2 text-sm font-bold border-t-2 border-x-2 rounded-t-xl transition-all ${
                 activeTab === "playbook"
-                  ? "bg-[#49B6E5] text-[#263D5B] border-[#263D5B] shadow-[2px_-2px_0px_0px_#263D5B]"
-                  : "border-transparent text-[#263D5B] dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
+                  ? "bg-[#49B6E5] text-[var(--foreground)] border-[#263D5B] shadow-[2px_-2px_0px_0px_#263D5B]"
+                  : "border-transparent text-[var(--foreground)] dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
               }`}
             >
               <BookOpen className="w-4 h-4" /> 3-Step Builder Playbook
@@ -151,8 +151,8 @@ Generated via Foundry Trifecta Engine`;
               onClick={() => setActiveTab("matrix")}
               className={`doodle-font flex items-center gap-2 px-4 py-2 text-sm font-bold border-t-2 border-x-2 rounded-t-xl transition-all ${
                 activeTab === "matrix"
-                  ? "bg-[#49B6E5] text-[#263D5B] border-[#263D5B] shadow-[2px_-2px_0px_0px_#263D5B]"
-                  : "border-transparent text-[#263D5B] dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
+                  ? "bg-[#49B6E5] text-[var(--foreground)] border-[#263D5B] shadow-[2px_-2px_0px_0px_#263D5B]"
+                  : "border-transparent text-[var(--foreground)] dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
               }`}
             >
               <Layers className="w-4 h-4" /> Top Ecosystem Trifectas
@@ -161,7 +161,7 @@ Generated via Foundry Trifecta Engine`;
 
           {pair && (
             <div className="hidden sm:flex items-center gap-2 pb-2">
-              <span className="text-xs font-mono font-bold text-[#49B6E5]">
+              <span className="text-xs font-mono font-bold text-[var(--accent)]">
                 Synergy Score: {pair.synergyScore}%
               </span>
             </div>
@@ -176,9 +176,9 @@ Generated via Foundry Trifecta Engine`;
             <div className="space-y-6">
               
               {/* Flywheel Node Selector Bar */}
-              <div className="p-4 rounded-2xl bg-[#FAF8F5] dark:bg-[#1F2937] border-2 border-[#263D5B] dark:border-[#49B6E5] space-y-3">
+              <div className="p-4 rounded-2xl bg-[var(--surface)] dark:bg-[#1F2937] border border-[var(--border-color)] dark:border-[var(--border-color)] space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="doodle-font text-xs font-bold uppercase text-[#263D5B] dark:text-[#49B6E5]">
+                  <span className="doodle-font text-xs font-bold uppercase text-[var(--foreground)] dark:text-[var(--accent)]">
                     📌 Customize Active Ecosystem Trifecta:
                   </span>
                   <span className="text-[10px] text-slate-500 font-mono">
@@ -198,7 +198,7 @@ Generated via Foundry Trifecta Engine`;
                         const found = startups.find((s) => s.id === e.target.value);
                         if (found) setSelectedYc(found);
                       }}
-                      className="w-full text-xs font-bold p-2 rounded-xl bg-white dark:bg-[#111827] border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-white"
+                      className="w-full text-xs font-bold p-2 rounded-xl bg-white dark:bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] text-[var(--foreground)] dark:text-white"
                     >
                       {startups.map((s) => (
                         <option key={s.id} value={s.id}>
@@ -219,7 +219,7 @@ Generated via Foundry Trifecta Engine`;
                         const found = SAMPLE_OSS_REPOSITORIES.find((r) => r.id === e.target.value);
                         if (found) setSelectedGithub(found);
                       }}
-                      className="w-full text-xs font-bold p-2 rounded-xl bg-white dark:bg-[#111827] border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-white"
+                      className="w-full text-xs font-bold p-2 rounded-xl bg-white dark:bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] text-[var(--foreground)] dark:text-white"
                     >
                       {SAMPLE_OSS_REPOSITORIES.map((r) => (
                         <option key={r.id} value={r.id}>
@@ -240,7 +240,7 @@ Generated via Foundry Trifecta Engine`;
                         const found = SAMPLE_PRODUCTHUNT_PRODUCTS.find((p) => p.id === e.target.value);
                         if (found) setSelectedPh(found);
                       }}
-                      className="w-full text-xs font-bold p-2 rounded-xl bg-white dark:bg-[#111827] border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-white"
+                      className="w-full text-xs font-bold p-2 rounded-xl bg-white dark:bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] text-[var(--foreground)] dark:text-white"
                     >
                       {SAMPLE_PRODUCTHUNT_PRODUCTS.map((p) => (
                         <option key={p.id} value={p.id}>
@@ -258,7 +258,7 @@ Generated via Foundry Trifecta Engine`;
                 {/* Pillar 1: YC */}
                 <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-500/40 space-y-3 relative overflow-hidden">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-1 rounded-lg bg-amber-500 text-white font-black text-xs flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#263D5B]">
+                    <span className="px-2.5 py-1 rounded-lg bg-amber-500 text-white font-black text-xs flex items-center gap-1.5 shadow-sm">
                       <Building2 className="w-3.5 h-3.5" /> YC BUSINESS
                     </span>
                     <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">
@@ -267,11 +267,11 @@ Generated via Foundry Trifecta Engine`;
                   </div>
 
                   <div>
-                    <h3 className="doodle-font text-lg font-black text-[#263D5B] dark:text-white">
+                    <h3 className="doodle-font text-lg font-black text-[var(--foreground)] dark:text-white">
                       {pair.ycStartup.name}
                     </h3>
                     <p className="text-xs text-slate-700 dark:text-slate-300 font-medium line-clamp-2 mt-1">
-                      "{pair.ycStartup.oneLiner}"
+                      &quot;{pair.ycStartup.oneLiner}&quot;
                     </p>
                   </div>
 
@@ -301,7 +301,7 @@ Generated via Foundry Trifecta Engine`;
                 {/* Pillar 2: GitHub OSS */}
                 <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border-2 border-emerald-500/40 space-y-3 relative overflow-hidden">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#263D5B]">
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center gap-1.5 shadow-sm">
                       <Code2 className="w-3.5 h-3.5" /> GITHUB CODE
                     </span>
                     <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400">
@@ -310,11 +310,11 @@ Generated via Foundry Trifecta Engine`;
                   </div>
 
                   <div>
-                    <h3 className="doodle-font text-lg font-black text-[#263D5B] dark:text-white">
+                    <h3 className="doodle-font text-lg font-black text-[var(--foreground)] dark:text-white">
                       {pair.githubRepo.name}
                     </h3>
                     <p className="text-xs text-slate-700 dark:text-slate-300 font-medium line-clamp-2 mt-1">
-                      "{pair.githubRepo.description}"
+                      &quot;{pair.githubRepo.description}&quot;
                     </p>
                   </div>
 
@@ -342,7 +342,7 @@ Generated via Foundry Trifecta Engine`;
                 {/* Pillar 3: Product Hunt */}
                 <div className="p-5 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border-2 border-rose-500/40 space-y-3 relative overflow-hidden">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-1 rounded-lg bg-rose-600 text-white font-black text-xs flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#263D5B]">
+                    <span className="px-2.5 py-1 rounded-lg bg-rose-600 text-white font-black text-xs flex items-center gap-1.5 shadow-sm">
                       <Rocket className="w-3.5 h-3.5" /> PRODUCT HUNT GTM
                     </span>
                     <span className="text-xs font-mono font-bold text-rose-700 dark:text-rose-400">
@@ -351,11 +351,11 @@ Generated via Foundry Trifecta Engine`;
                   </div>
 
                   <div>
-                    <h3 className="doodle-font text-lg font-black text-[#263D5B] dark:text-white">
+                    <h3 className="doodle-font text-lg font-black text-[var(--foreground)] dark:text-white">
                       {pair.productHuntProduct.name}
                     </h3>
                     <p className="text-xs text-slate-700 dark:text-slate-300 font-medium line-clamp-2 mt-1">
-                      "{pair.productHuntProduct.tagline}"
+                      &quot;{pair.productHuntProduct.tagline}&quot;
                     </p>
                   </div>
 
@@ -384,10 +384,10 @@ Generated via Foundry Trifecta Engine`;
               {/* Flywheel Synergy Breakdown Box */}
               <div className="p-5 rounded-2xl bg-[#EBF7FC] dark:bg-[#0F172A] border-2 border-[#49B6E5] space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="doodle-font text-sm font-black text-[#263D5B] dark:text-[#49B6E5] uppercase flex items-center gap-2">
+                  <h4 className="doodle-font text-sm font-black text-[var(--foreground)] dark:text-[var(--accent)] uppercase flex items-center gap-2">
                     <Sparkles className="w-4 h-4" /> Why These 3 Reinforce Each Other:
                   </h4>
-                  <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#49B6E5] text-[#263D5B]">
+                  <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#49B6E5] text-[var(--foreground)]">
                     Synergy: {pair.synergyScore}%
                   </span>
                 </div>
@@ -405,11 +405,12 @@ Generated via Foundry Trifecta Engine`;
           )}
 
           {/* TAB 2: 3-STEP BUILDER PLAYBOOK */}
+          {!pair && <p role="status" className="p-6">No suitable three-way match found. Choose another company or repository.</p>}
           {activeTab === "playbook" && pair && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="doodle-font text-lg font-black text-[#263D5B] dark:text-[#49B6E5]">
+                  <h3 className="doodle-font text-lg font-black text-[var(--foreground)] dark:text-[var(--accent)]">
                     3-STEP STARTUP BUILDER PLAYBOOK
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
@@ -477,7 +478,7 @@ Generated via Foundry Trifecta Engine`;
           {activeTab === "matrix" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="doodle-font text-sm font-black text-[#263D5B] dark:text-[#49B6E5] uppercase">
+                <h3 className="doodle-font text-sm font-black text-[var(--foreground)] dark:text-[var(--accent)] uppercase">
                   🔥 Curated High-Synergy Trifectas
                 </h3>
                 <span className="text-xs text-slate-500 font-mono">
@@ -493,10 +494,10 @@ Generated via Foundry Trifecta Engine`;
                       handleSelectTrifecta(tf);
                       setActiveTab("flywheel");
                     }}
-                    className="p-4 rounded-2xl bg-[#FAF8F5] dark:bg-[#1F2937] border-2 border-[#263D5B] dark:border-[#49B6E5] hover:bg-[#EBF7FC] dark:hover:bg-[#0F172A] cursor-pointer transition-all flex flex-wrap items-center justify-between gap-4"
+                    className="p-4 rounded-2xl bg-[var(--surface)] dark:bg-[#1F2937] border border-[var(--border-color)] dark:border-[var(--border-color)] hover:bg-[#EBF7FC] dark:hover:bg-[#0F172A] cursor-pointer transition-all flex flex-wrap items-center justify-between gap-4"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-xl bg-[#49B6E5] text-[#263D5B] font-mono font-black text-xs flex items-center justify-center shrink-0">
+                      <span className="w-8 h-8 rounded-xl bg-[#49B6E5] text-[var(--foreground)] font-mono font-black text-xs flex items-center justify-center shrink-0">
                         {tf.synergyScore}%
                       </span>
 
@@ -515,7 +516,7 @@ Generated via Foundry Trifecta Engine`;
                       </div>
                     </div>
 
-                    <span className="text-xs font-bold text-[#49B6E5] flex items-center gap-1">
+                    <span className="text-xs font-bold text-[var(--accent)] flex items-center gap-1">
                       Load Trifecta <ChevronRight className="w-4 h-4" />
                     </span>
                   </div>
@@ -527,7 +528,7 @@ Generated via Foundry Trifecta Engine`;
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 bg-[#FAF8F5] dark:bg-[#1F2937] border-t-4 border-[#263D5B] dark:border-[#49B6E5] flex items-center justify-between">
+        <div className="p-4 bg-[var(--surface)] dark:bg-[#1F2937] border-t-4 border-[#263D5B] dark:border-[var(--border-color)] flex items-center justify-between">
           <span className="text-xs font-mono text-slate-500">
             ✏️ Foundry • 3-Pillar Cross Intelligence Engine
           </span>

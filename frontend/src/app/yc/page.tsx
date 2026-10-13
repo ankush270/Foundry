@@ -3,7 +3,7 @@ import ExplorerView from "@/modules/explorer/components/ExplorerView";
 
 export const metadata = {
   title: "Foundry | YC Startups",
-  description: "Explore 3,400+ Y Combinator startups, founder details, hiring status, and batch analytics.",
+  description: "Explore Y Combinator startups, founder details, hiring status, and batch analytics.",
 };
 
 export default function YcPage() {

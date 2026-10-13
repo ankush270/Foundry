@@ -35,11 +35,11 @@ export default function SearchBar({ value, onChange, placeholder = "Search start
       <div
         className={`flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all duration-200 ${
           focused
-            ? "border-[#49B6E5] shadow-[5px_5px_0px_0px_#49B6E5] bg-[var(--surface)]"
-            : "border-[#263D5B] dark:border-[#49B6E5] bg-[var(--surface)] shadow-[3px_3px_0px_0px_#263D5B] dark:shadow-[3px_3px_0px_0px_#49B6E5]"
+            ? "border-[#49B6E5] shadow-sm bg-[var(--surface)]"
+            : "border-[#263D5B] dark:border-[var(--border-color)] bg-[var(--surface)] shadow-sm shadow-sm"
         }`}
       >
-        <Search className={`w-5 h-5 shrink-0 transition-colors ${focused ? "text-[#49B6E5]" : "text-[#263D5B] dark:text-[#49B6E5]"}`} />
+        <Search className={`w-5 h-5 shrink-0 transition-colors ${focused ? "text-[var(--accent)]" : "text-[var(--foreground)] dark:text-[var(--accent)]"}`} />
         <input
           type="text"
           value={value}
@@ -55,12 +55,12 @@ export default function SearchBar({ value, onChange, placeholder = "Search start
         {value && (
           <button
             onClick={() => onChange("")}
-            className="p-1 rounded-md hover:bg-[#49B6E5]/20 text-[#263D5B] dark:text-[#49B6E5] transition-colors"
+            className="p-1 rounded-md hover:bg-[#49B6E5]/20 text-[var(--foreground)] dark:text-[var(--accent)] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         )}
-        <kbd className="hidden sm:flex items-center gap-0.5 text-[10px] font-mono font-bold text-[#263D5B] dark:text-[#49B6E5] bg-[#49B6E5]/15 px-2 py-0.5 rounded-lg border-2 border-[#263D5B]">
+        <kbd className="hidden sm:flex items-center gap-0.5 text-[10px] font-mono font-bold text-[var(--foreground)] dark:text-[var(--accent)] bg-[#49B6E5]/15 px-2 py-0.5 rounded-lg border border-[var(--border-color)]">
           ⌘K
         </kbd>
       </div>

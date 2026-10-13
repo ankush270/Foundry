@@ -60,7 +60,7 @@ export default function MobileMenu({ isOpen, pathname, onClose }: Props) {
 
       {/* Drawer / Modal Container */}
       <div
-        className="relative z-10 w-full max-h-[92vh] flex flex-col bg-white dark:bg-[#1E293B] border-b-4 border-[#263D5B] dark:border-[#49B6E5] shadow-[0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden rounded-b-3xl animate-in slide-in-from-top-4 duration-200"
+        className="relative z-10 w-full max-h-[92vh] flex flex-col bg-white dark:bg-[#1E293B] border-b-4 border-[#263D5B] dark:border-[var(--border-color)] shadow-[0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden rounded-b-3xl animate-in slide-in-from-top-4 duration-200"
         onClick={(e) => e.stopPropagation()}
         data-lenis-prevent
       >
@@ -75,7 +75,7 @@ export default function MobileMenu({ isOpen, pathname, onClose }: Props) {
               <Link
                 href="/compare"
                 onClick={onClose}
-                className="doodle-btn flex items-center gap-1.5 px-3 py-1.5 text-xs font-black bg-[#F97316] text-white border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B] rounded-lg"
+                className="doodle-btn flex items-center gap-1.5 px-3 py-1.5 text-xs font-black bg-[#F97316] text-white border border-[var(--border-color)] shadow-sm rounded-lg"
               >
                 <GitCompareArrows className="w-3.5 h-3.5" />
                 <span>({compareCount})</span>
@@ -84,7 +84,7 @@ export default function MobileMenu({ isOpen, pathname, onClose }: Props) {
 
             <button
               onClick={cycleTheme}
-              className="p-2 rounded-xl bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-white shadow-[2px_2px_0px_0px_#263D5B] dark:shadow-[2px_2px_0px_0px_#49B6E5] hover:bg-[#49B6E5] transition-all"
+              className="p-2 rounded-xl bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] text-[var(--foreground)] dark:text-white shadow-sm shadow-sm hover:bg-[#49B6E5] transition-all"
               title={`Theme: ${theme}`}
               aria-label="Toggle theme"
             >
@@ -93,7 +93,7 @@ export default function MobileMenu({ isOpen, pathname, onClose }: Props) {
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-white shadow-[2px_2px_0px_0px_#263D5B] dark:shadow-[2px_2px_0px_0px_#49B6E5] hover:bg-rose-500 hover:text-white transition-all"
+              className="p-2 rounded-xl bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] text-[var(--foreground)] dark:text-white shadow-sm shadow-sm hover:bg-rose-500 hover:text-white transition-all"
               aria-label="Close menu"
             >
               <X className="w-5 h-5" />
@@ -119,11 +119,11 @@ export default function MobileMenu({ isOpen, pathname, onClose }: Props) {
                     onClick={onClose}
                     className={`doodle-font flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-black transition-all ${
                       active
-                        ? "bg-[#49B6E5] text-[#263D5B] border-2 border-[#263D5B] shadow-[3px_3px_0px_0px_#263D5B]"
-                        : "text-[#263D5B] dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                        ? "bg-[#49B6E5] text-[var(--foreground)] border border-[var(--border-color)] shadow-sm"
+                        : "text-[var(--foreground)] dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${active ? "text-[#263D5B]" : "text-[#49B6E5]"}`} />
+                    <Icon className={`w-4 h-4 ${active ? "text-[var(--foreground)]" : "text-[var(--accent)]"}`} />
                     <span>{link.label}</span>
                   </Link>
                 );
@@ -147,11 +147,11 @@ export default function MobileMenu({ isOpen, pathname, onClose }: Props) {
                     onClick={onClose}
                     className={`flex items-start gap-3 p-2.5 rounded-xl transition-all ${
                       active
-                        ? "bg-[#49B6E5]/20 text-[#263D5B] dark:text-[#49B6E5] border-2 border-[#263D5B] dark:border-[#49B6E5]"
+                        ? "bg-[#49B6E5]/20 text-[var(--foreground)] dark:text-[var(--accent)] border border-[var(--border-color)] dark:border-[var(--border-color)]"
                         : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50"
                     }`}
                   >
-                    <div className="p-1.5 rounded-lg bg-[#49B6E5] text-[#263D5B] border-2 border-[#263D5B] shrink-0 mt-0.5 shadow-[1.5px_1.5px_0px_0px_#263D5B]">
+                    <div className="p-1.5 rounded-lg bg-[#49B6E5] text-[var(--foreground)] border border-[var(--border-color)] shrink-0 mt-0.5 shadow-sm">
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="flex flex-col min-w-0">

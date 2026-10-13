@@ -34,19 +34,22 @@ export const RepoExplainerModal: React.FC<RepoExplainerModalProps> = ({
   const [copiedCode, setCopiedCode] = useState(false);
   const chatEndRef = React.useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  const [previousContext, setPreviousContext] = useState("");
+  const context = `${repo?.id ?? ""}:${initialTab}`;
+  if (previousContext !== context) {
+    setPreviousContext(context);
     setActiveTab(initialTab);
-    if (repo && chatMessages.length === 0) {
+    if (repo) {
       setChatMessages([
         {
           id: "welcome-1",
           sender: "sarvam_ai",
           text: `Hi! I am Sarvam AI assistant for **${repo.name}**. Ask me any technical questions about installation, API configuration, performance characteristics, or real-world use cases.`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: "Just now",
         },
       ]);
     }
-  }, [initialTab, repo]);
+  }
 
   // Auto-scroll to bottom of chat when new messages arrive
   React.useEffect(() => {
@@ -174,7 +177,7 @@ export const RepoExplainerModal: React.FC<RepoExplainerModalProps> = ({
             }`}
           >
             <Rocket className="w-4 h-4 text-amber-400" />
-            <span>"Build With This" MVP Pathway</span>
+            <span>&quot;Build With This&quot; MVP Pathway</span>
           </button>
         </div>
 
@@ -193,7 +196,7 @@ export const RepoExplainerModal: React.FC<RepoExplainerModalProps> = ({
                 <div className="rounded-xl bg-cyan-950/30 border border-cyan-800/40 p-4">
                   <div className="flex items-center gap-2 text-xs font-semibold text-cyan-300 mb-1">
                     <Lightbulb className="w-4 h-4 text-cyan-400" />
-                    <span>Why it fits your query: "{userSearchQuery}"</span>
+                    <span>Why it fits your query: &quot;{userSearchQuery}&quot;</span>
                   </div>
                   <p className="text-xs text-zinc-300 leading-relaxed">
                     {repo.sarvamExplainer.whyRelevantToSearch}

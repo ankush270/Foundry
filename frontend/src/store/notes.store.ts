@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import type { Note } from "@/data/types";
+import { readStored, writeStored } from "@/lib/browser-storage";
 
 interface NotesStore {
   notes: Note[];
@@ -13,7 +14,7 @@ interface NotesStore {
 }
 
 const persist = (notes: Note[]) => {
-  if (typeof window !== "undefined") localStorage.setItem("yc-notes", JSON.stringify(notes));
+  writeStored("yc-notes", notes);
 };
 
 export const useNotesStore = create<NotesStore>((set, get) => ({
@@ -48,8 +49,10 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
   getNotesForStartup: (startupId) => get().notes.filter((n) => n.startupId === startupId),
   load: () => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("yc-notes");
-      if (saved) set({ notes: JSON.parse(saved) });
+      const notes = readStored("yc-notes", (value): value is Note[] => Array.isArray(value) && value.every((note) =>
+        note && ["id", "startupId", "content", "createdAt", "updatedAt"].every((key) => typeof note[key] === "string")
+      ), []);
+      set({ notes });
     }
   },
 }));

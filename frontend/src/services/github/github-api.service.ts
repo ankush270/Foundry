@@ -4,6 +4,13 @@ import { SAMPLE_OSS_REPOSITORIES } from "@/data/githuboss-repos";
 
 const GITHUB_SEARCH_API = "https://api.github.com/search/repositories";
 
+interface GitHubItem {
+  id: number; name: string; full_name: string; html_url: string; description?: string; language?: string;
+  stargazers_count?: number; forks_count?: number; open_issues_count?: number; topics?: string[];
+  pushed_at?: string; updated_at?: string; created_at?: string;
+  owner?: { login?: string; avatar_url?: string }; license?: { spdx_id?: string; name?: string };
+}
+
 export class GithubApiService {
   /**
    * Retrieves GitHub API Personal Access Token if configured
@@ -184,7 +191,7 @@ export class GithubApiService {
         console.log(`[GitHub API] Live Success: Received ${data.items?.length || 0} items of ${totalCount} total`);
 
         if (Array.isArray(data.items) && data.items.length > 0) {
-          const mappedRepos: OssRepository[] = data.items.map((item: any) => this.mapGithubItemToRepo(item, domain));
+          const mappedRepos: OssRepository[] = data.items.map((item: GitHubItem) => this.mapGithubItemToRepo(item, domain));
           const hasMore = page * perPage < Math.min(totalCount, 1000);
           return { repos: mappedRepos, isLive: true, totalCount, hasMore };
         }
@@ -210,7 +217,7 @@ export class GithubApiService {
   /**
    * Maps raw GitHub REST API repository object to application OssRepository format
    */
-  private static mapGithubItemToRepo(item: any, selectedDomain: DomainCategory | "All"): OssRepository {
+  private static mapGithubItemToRepo(item: GitHubItem, selectedDomain: DomainCategory | "All"): OssRepository {
     const stars = item.stargazers_count || 0;
     const openIssues = item.open_issues_count || 0;
     const closedIssues = Math.round(openIssues * 4.2);
@@ -228,7 +235,7 @@ export class GithubApiService {
       starGrowthRate,
     });
 
-    const primaryLanguage = item.language || "TypeScript";
+    const primaryLanguage = item.language || "Unknown";
     const topics: string[] = item.topics || [];
     const fullText = (item.name + " " + item.full_name + " " + (item.description || "") + " " + topics.join(" ")).toLowerCase();
 
@@ -288,7 +295,7 @@ export class GithubApiService {
       relevanceMatchBadge = `🎯 Direct ${domainCategory} Fit`;
     } else if (matchCount >= 1) {
       relevanceScore = 92;
-      relevanceMatchBadge = `⚡ Verified ${domainCategory} Tooling`;
+      relevanceMatchBadge = `⚡ Related ${domainCategory} Tooling`;
     } else {
       relevanceScore = 82;
       relevanceMatchBadge = `🧩 Stack Component`;
@@ -310,7 +317,7 @@ export class GithubApiService {
       closedIssues,
       lastCommitDate,
       createdDate: item.created_at || "2022-01-01T00:00:00Z",
-      license: item.license?.spdx_id || item.license?.name || "MIT",
+      license: item.license?.spdx_id || item.license?.name || "Not specified",
       language: primaryLanguage,
       domainCategory,
       tags: topics.length > 0 ? topics.slice(0, 6) : [primaryLanguage.toLowerCase(), "open-source", domainCategory.toLowerCase()],

@@ -74,12 +74,13 @@ export class TechNewsApiService {
     totalPages: number;
     hasMore: boolean;
     stats: TechNewsStatsSummary;
+    source: string;
   }> {
     const page = options?.page && options.page > 0 ? options.page : 1;
     const limit = options?.limit && options.limit > 0 ? options.limit : 9;
     const forceRefresh = options?.forceRefresh || false;
 
-    let pageItems = await this.getPageItems(page, forceRefresh);
+    const pageItems = await this.getPageItems(1, forceRefresh);
     let filtered = [...pageItems];
 
     if (filters) {
@@ -134,24 +135,25 @@ export class TechNewsApiService {
       }
     }
 
-    const totalPages = 15;
-    const total = totalPages * limit;
+    const total = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
     const hasMore = page < totalPages;
 
-    const stats = this.calculateStats(filtered.length > 0 ? filtered : SAMPLE_TECH_NEWS);
+    const stats = this.calculateStats(filtered);
 
     return {
-      items: filtered,
+      items: filtered.slice((page - 1) * limit, page * limit),
       total,
       page,
       totalPages,
       hasMore,
       stats,
+      source: pageItems.some((item) => !item.id.startsWith("tn-")) ? "Live source feeds" : "Curated sample dataset",
     };
   }
 
   public static async getNewsItemBySlug(slug: string): Promise<TechNewsItem | null> {
-    if (!slug) return SAMPLE_TECH_NEWS[0];
+    if (!slug) return null;
 
     const decoded = decodeURIComponent(slug);
     const targetSlug = normalizeSlug(decoded);
@@ -166,8 +168,7 @@ export class TechNewsApiService {
         item.id === slug ||
         itemSlug === targetSlug ||
         itemId === targetSlug ||
-        itemTitle === targetSlug ||
-        (targetSlug.length > 10 && (itemSlug.includes(targetSlug) || targetSlug.includes(itemSlug) || itemTitle.includes(targetSlug) || targetSlug.includes(itemTitle)))
+        itemTitle === targetSlug
       );
     };
 
@@ -182,15 +183,13 @@ export class TechNewsApiService {
     if (sampleMatch) return sampleMatch;
 
     // 3. Scan live items across pages 1 to 5 to locate item by slug
-    for (let page = 1; page <= 5; page++) {
+    for (let page = 1; page <= 1; page++) {
       const pageItems = await this.getPageItems(page, false);
       const match = pageItems.find(isMatch);
       if (match) return match;
     }
 
-    // 4. Robust Fallback: Return first page item if exact match fails
-    const page1Items = await this.getPageItems(1, false);
-    return page1Items[0] || SAMPLE_TECH_NEWS[0];
+    return null;
   }
 
   /**
@@ -277,8 +276,7 @@ export class TechNewsApiService {
       console.warn(`Targeted live fetch error for page ${page}:`, err);
     }
 
-    const startIndex = (page - 1) * 9;
-    return SAMPLE_TECH_NEWS.slice(startIndex, startIndex + 9);
+    return SAMPLE_TECH_NEWS;
   }
 
   /**
@@ -292,12 +290,12 @@ export class TechNewsApiService {
     try {
       const hnRes = await fetch(
         `https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=10&page=${page - 1}`,
-        { cache: "no-store" }
+        { cache: "no-store", signal: AbortSignal.timeout(5000) }
       );
       if (hnRes.ok) {
         const hnData = await hnRes.json();
         if (hnData.hits && Array.isArray(hnData.hits)) {
-          hnData.hits.forEach((hit: any, idx: number) => {
+          hnData.hits.forEach((hit: { title?: string; url?: string; story_url?: string; objectID?: string; points?: number; num_comments?: number; author?: string; created_at?: string }, idx: number) => {
             if (hit.title && (hit.url || hit.story_url)) {
               const articleUrl = hit.url || hit.story_url || `https://news.ycombinator.com/item?id=${hit.objectID}`;
               const points = hit.points || 100;
@@ -330,6 +328,7 @@ export class TechNewsApiService {
         `https://techcrunch.com/wp-json/wp/v2/posts?page=${page}&per_page=8`,
         {
           cache: "no-store",
+          signal: AbortSignal.timeout(5000),
           headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Accept": "application/json",
@@ -340,7 +339,7 @@ export class TechNewsApiService {
       if (tcRes.ok) {
         const tcPosts = await tcRes.json();
         if (Array.isArray(tcPosts)) {
-          tcPosts.forEach((post: any, idx: number) => {
+          tcPosts.forEach((post: { id?: number; title?: { rendered: string }; excerpt?: { rendered: string }; content?: { rendered: string }; link?: string; date?: string }, idx: number) => {
             if (post.title?.rendered && post.link) {
               const cleanTitle = cleanHtmlContent(post.title.rendered);
               const cleanExcerpt = cleanHtmlContent(post.excerpt?.rendered || post.title.rendered);
@@ -370,12 +369,12 @@ export class TechNewsApiService {
     try {
       const devtoRes = await fetch(
         `https://dev.to/api/articles?page=${page}&per_page=6&top=7`,
-        { cache: "no-store" }
+        { cache: "no-store", signal: AbortSignal.timeout(5000) }
       );
       if (devtoRes.ok) {
         const devArticles = await devtoRes.json();
         if (Array.isArray(devArticles)) {
-          devArticles.forEach((art: any, idx: number) => {
+          devArticles.forEach((art: { id?: number; title?: string; url?: string; published_at?: string; description?: string; readable_publish_date?: string; user?: { name?: string }; tag_list?: string[] }, idx: number) => {
             if (art.title && art.url) {
               const item = this.transformArticleToFoundryItem({
                 id: `devto-p${page}-${art.id || idx}`,
@@ -403,15 +402,15 @@ export class TechNewsApiService {
 
     // 4. HackerNews Firebase Top Stories Direct Fallback API
     try {
-      const hnTopRes = await fetch("https://hacker-news.firebaseio.com/v0/topstories.json", { cache: "no-store" });
+      const hnTopRes = await fetch("https://hacker-news.firebaseio.com/v0/topstories.json", { cache: "no-store", signal: AbortSignal.timeout(5000) });
       if (hnTopRes.ok) {
         const ids: number[] = await hnTopRes.json();
         const sliceIds = ids.slice((page - 1) * 9, page * 9);
         const itemPromises = sliceIds.map((id) =>
-          fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then((r) => r.json())
+          fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`, { signal: AbortSignal.timeout(5000) }).then((r) => r.json())
         );
         const hnItemsData = await Promise.all(itemPromises);
-        hnItemsData.forEach((h: any) => {
+        hnItemsData.forEach((h: { id: number; title?: string; url?: string; time: number; score?: number; descendants?: number; by?: string }) => {
           if (h && h.title && h.url) {
             fetchedItems.push(
               this.transformArticleToFoundryItem({
@@ -437,8 +436,7 @@ export class TechNewsApiService {
       return fetchedItems;
     }
 
-    const startIndex = (page - 1) * 9;
-    return SAMPLE_TECH_NEWS.slice(startIndex, startIndex + 9);
+    return SAMPLE_TECH_NEWS;
   }
 
   /**
@@ -501,7 +499,7 @@ export class TechNewsApiService {
           const rawJson = scriptTag.replace(/<script[^>]*>/i, "").replace(/<\/script>/i, "").trim();
           const parsed = JSON.parse(rawJson);
           
-          const processGraphItem = (obj: any) => {
+          const processGraphItem = (obj: { "@type"?: string; "@id"?: string; headline?: string; name?: string; description?: string; articleBody?: string; url?: string; datePublished?: string; publisher?: { name?: string } }) => {
             if (!obj) return;
             if (obj["@type"] === "NewsArticle" || obj["@type"] === "BlogPosting" || obj["@type"] === "Article") {
               const title = cleanHtmlContent(obj.headline || obj.name);
@@ -632,7 +630,7 @@ export class TechNewsApiService {
     // 1. Determine Category
     let category: NewsCategory = "Enterprise & Architecture";
     if (
-      searchText.includes("ai") ||
+      /\bai\b/.test(searchText) ||
       searchText.includes("llm") ||
       searchText.includes("gpt") ||
       searchText.includes("agent") ||
@@ -726,7 +724,7 @@ export class TechNewsApiService {
       "Vercel",
     ];
     const foundCompanies = potentialCompanies.filter((c) =>
-      searchText.includes(c.toLowerCase().split(" ")[0])
+      (c === "Amazon / AWS" ? /\b(amazon|aws)\b/ : new RegExp(`\\b${c.toLowerCase()}\\b`)).test(searchText)
     );
     if (foundCompanies.length === 0) {
       foundCompanies.push(raw.sourceName, "Cloud Infrastructure Teams", "Enterprise Adopters");

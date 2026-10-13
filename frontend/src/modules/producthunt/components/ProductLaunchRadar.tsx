@@ -31,7 +31,7 @@ export const ProductLaunchRadar: React.FC<ProductLaunchRadarProps> = ({
           </div>
           <div>
             <h2 className="font-display font-extrabold text-base sm:text-lg text-[var(--foreground)] tracking-tight flex items-center gap-2">
-              Launch Radar — Today's #1 Trending Products
+              Launch Radar — Today&apos;s #1 Trending Products
             </h2>
             <p className="text-xs text-[var(--muted)]">
               Real-time upvotes & AI architecture breakdowns of top Product Hunt launches

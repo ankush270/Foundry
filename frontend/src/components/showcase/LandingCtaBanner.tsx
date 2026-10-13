@@ -7,10 +7,10 @@ import GsapMagnetic from "@/components/animations/GsapMagnetic";
 
 export default function LandingCtaBanner() {
   return (
-    <div className="relative rounded-2xl bg-gradient-to-r from-[#263D5B] via-slate-900 to-[#111827] p-6 sm:p-8 text-white border-4 border-[#263D5B] dark:border-[#49B6E5] shadow-[6px_6px_0px_0px_#263D5B] dark:shadow-[6px_6px_0px_0px_#49B6E5] overflow-hidden">
+    <div className="relative rounded-2xl bg-gradient-to-r from-[#263D5B] via-slate-900 to-[#111827] p-6 sm:p-8 text-white border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm overflow-hidden">
       <div className="relative z-10 max-w-3xl space-y-4">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#49B6E5] text-[#263D5B] text-xs font-extrabold doodle-font border-2 border-[#263D5B]">
-          <Sparkles className="w-3.5 h-3.5 text-[#263D5B]" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#49B6E5] text-[var(--foreground)] text-xs font-extrabold doodle-font border border-[var(--border-color)]">
+          <Sparkles className="w-3.5 h-3.5 text-[var(--foreground)]" />
           START RESEARCHING NOW — NO SIGNUP REQUIRED
         </div>
 
@@ -26,7 +26,7 @@ export default function LandingCtaBanner() {
           <GsapMagnetic strength={0.3}>
             <Link
               href="/yc"
-              className="doodle-btn px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 text-[#263D5B] bg-[#49B6E5] border-2 border-[#263D5B] shadow-[3px_3px_0px_0px_#263D5B] hover:scale-105 transition-all"
+              className="doodle-btn px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 text-[var(--foreground)] bg-[#49B6E5] border border-[var(--border-color)] shadow-sm hover:scale-105 transition-all"
             >
               <Building2 className="w-3.5 h-3.5" />
               <span>Explore YC Startups</span>
@@ -37,7 +37,7 @@ export default function LandingCtaBanner() {
           <GsapMagnetic strength={0.25}>
             <Link
               href="/producthunt"
-              className="doodle-btn px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 text-white bg-[#D97706] border-2 border-[#263D5B] shadow-[3px_3px_0px_0px_#263D5B] hover:scale-105 transition-all"
+              className="doodle-btn px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 text-white bg-[#D97706] border border-[var(--border-color)] shadow-sm hover:scale-105 transition-all"
             >
               <Rocket className="w-3.5 h-3.5" />
               Product Hunt Feed
@@ -47,7 +47,7 @@ export default function LandingCtaBanner() {
           <GsapMagnetic strength={0.25}>
             <Link
               href="/githuboss"
-              className="doodle-btn px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 text-white bg-[#16A34A] border-2 border-[#263D5B] shadow-[3px_3px_0px_0px_#263D5B] hover:scale-105 transition-all"
+              className="doodle-btn px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 text-white bg-[#16A34A] border border-[var(--border-color)] shadow-sm hover:scale-105 transition-all"
             >
               <Code2 className="w-3.5 h-3.5" />
               GitHub GitRadar

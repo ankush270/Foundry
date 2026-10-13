@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shuffle, Sparkles, Building2, Zap, Briefcase, ChevronRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { isAIStartup } from "@/lib/startup-classification";
 import { startups } from "@/data/startups";
 import { emptyFilters } from "@/data/types";
 import type { Filters } from "@/data/types";
@@ -24,12 +25,12 @@ export default function ExplorerView() {
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    const qParam = searchParams ? (searchParams.get("search") || searchParams.get("q") || "") : "";
-    if (qParam) {
-      setQuery(qParam);
-    }
-  }, [searchParams]);
+  const [previousQuery, setPreviousQuery] = useState(initialQuery);
+  if (previousQuery !== initialQuery) {
+    setPreviousQuery(initialQuery);
+    setQuery(initialQuery);
+    setPage(1);
+  }
 
   const debouncedQuery = useDebounce(query, 200);
   const searched = useFuzzySearch(startups, debouncedQuery);
@@ -76,9 +77,9 @@ export default function ExplorerView() {
 
     // 8. AI Category filter
     if (filters.hasAI === true) {
-      result = result.filter((s) => s.industries.includes("AI") || s.tags.includes("AI"));
+      result = result.filter((s) => isAIStartup(s));
     } else if (filters.hasAI === false) {
-      result = result.filter((s) => !s.industries.includes("AI") && !s.tags.includes("AI"));
+      result = result.filter((s) => !isAIStartup(s));
     }
 
     // 9. Sorting
@@ -121,21 +122,21 @@ export default function ExplorerView() {
   }, [filtered, router]);
 
   const totalActive = useMemo(() => startups.filter((s) => s.status === "Active").length, []);
-  const aiCount = useMemo(() => startups.filter((s) => s.industries.includes("AI") || s.tags.includes("AI")).length, []);
+  const aiCount = useMemo(() => startups.filter((s) => isAIStartup(s)).length, []);
   const hiringCount = useMemo(() => startups.filter((s) => s.isHiring || (s.jobs && s.jobs.length > 0)).length, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden pt-6">
       <section className="relative z-10 pt-4 pb-6 max-w-[1440px] mx-auto px-4 sm:px-6">
         {/* Dedicated YC Header Banner */}
-        <div className="rounded-3xl bg-[#FAF8F5] dark:bg-[#111827] border-4 border-[#263D5B] dark:border-[#49B6E5] p-6 sm:p-10 shadow-[6px_6px_0px_0px_#263D5B] dark:shadow-[6px_6px_0px_0px_#49B6E5] mb-8">
+        <div className="rounded-3xl bg-[var(--surface)] dark:bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] p-6 sm:p-10 shadow-sm shadow-sm mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b-2 border-dashed border-[#263D5B]/20">
             <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#49B6E5] text-[#263D5B] border-2 border-[#263D5B] text-xs font-bold doodle-font mb-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#49B6E5] text-[var(--foreground)] border border-[var(--border-color)] text-xs font-bold doodle-font mb-2">
                 <Building2 className="w-4 h-4" /> Y COMBINATOR EXPLORER
               </div>
-              <h1 className="doodle-font font-black text-3xl sm:text-5xl text-[#263D5B] dark:text-[#49B6E5]">
-                3,400+ YC Startups Database
+              <h1 className="doodle-font font-black text-3xl sm:text-5xl text-[var(--foreground)] dark:text-[var(--accent)]">
+                {startups.length.toLocaleString("en-US")} YC Startups Database
               </h1>
               <p className="text-xs sm:text-sm text-[var(--muted)] max-w-2xl mt-1">
                 Deep dive into Y Combinator batch histories (S05-W26), founder details, hiring status, and AI domain breakdowns.
@@ -154,25 +155,25 @@ export default function ExplorerView() {
 
           {/* Quick Metrics Chips */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
-            <div className="p-3 rounded-2xl bg-white dark:bg-[#1F2937] border-2 border-[#263D5B] dark:border-[#49B6E5]">
+            <div className="p-3 rounded-2xl bg-white dark:bg-[#1F2937] border border-[var(--border-color)] dark:border-[var(--border-color)]">
               <span className="text-[10px] font-mono font-bold text-[var(--muted)] uppercase block">Total Startups</span>
-              <span className="doodle-font font-extrabold text-xl text-[#263D5B] dark:text-white">
+              <span className="doodle-font font-extrabold text-xl text-[var(--foreground)] dark:text-white">
                 <GsapCounter value={startups.length} />
               </span>
             </div>
-            <div className="p-3 rounded-2xl bg-white dark:bg-[#1F2937] border-2 border-[#263D5B] dark:border-[#49B6E5]">
+            <div className="p-3 rounded-2xl bg-white dark:bg-[#1F2937] border border-[var(--border-color)] dark:border-[var(--border-color)]">
               <span className="text-[10px] font-mono font-bold text-[var(--muted)] uppercase block">Active Hiring</span>
               <span className="doodle-font font-extrabold text-xl text-[#16A34A]">
-                <GsapCounter value={hiringCount} /> Jobs
+                <GsapCounter value={hiringCount} /> Companies
               </span>
             </div>
-            <div className="p-3 rounded-2xl bg-white dark:bg-[#1F2937] border-2 border-[#263D5B] dark:border-[#49B6E5]">
+            <div className="p-3 rounded-2xl bg-white dark:bg-[#1F2937] border border-[var(--border-color)] dark:border-[var(--border-color)]">
               <span className="text-[10px] font-mono font-bold text-[var(--muted)] uppercase block">AI Companies</span>
-              <span className="doodle-font font-extrabold text-xl text-[#49B6E5]">
+              <span className="doodle-font font-extrabold text-xl text-[var(--accent)]">
                 <GsapCounter value={aiCount} />
               </span>
             </div>
-            <div className="p-3 rounded-2xl bg-white dark:bg-[#1F2937] border-2 border-[#263D5B] dark:border-[#49B6E5]">
+            <div className="p-3 rounded-2xl bg-white dark:bg-[#1F2937] border border-[var(--border-color)] dark:border-[var(--border-color)]">
               <span className="text-[10px] font-mono font-bold text-[var(--muted)] uppercase block">Active Companies</span>
               <span className="doodle-font font-extrabold text-xl text-[#D97706]">
                 <GsapCounter value={totalActive} />
@@ -182,7 +183,7 @@ export default function ExplorerView() {
         </div>
 
         {/* YC Search & Filter Toolbar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-[#111827] border-2 border-[#263D5B] dark:border-[#49B6E5] p-4 rounded-2xl shadow-[4px_4px_0px_0px_#263D5B] dark:shadow-[4px_4px_0px_0px_#49B6E5] mb-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] p-4 rounded-2xl shadow-sm shadow-sm mb-6">
           <div className="w-full sm:flex-1">
             <SearchBar value={query} onChange={(v) => { setQuery(v); setPage(1); }} />
           </div>
@@ -200,7 +201,7 @@ export default function ExplorerView() {
             <span className="font-bold text-[var(--foreground)]">{filtered.length}</span> startups
           </p>
 
-          {(filters.industries.length > 0 || filters.batches.length > 0 || filters.statuses.length > 0 || query) && (
+          {(JSON.stringify(filters) !== JSON.stringify(emptyFilters) || query) && (
             <button
               onClick={() => { setQuery(""); setFilters(emptyFilters); setPage(1); }}
               className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"

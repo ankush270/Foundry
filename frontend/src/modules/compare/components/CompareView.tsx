@@ -1,5 +1,6 @@
 "use client";
 
+import type { Startup } from "@/data/types";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { X, ExternalLink, GitCompareArrows, Sparkles, Trash2 } from "lucide-react";
@@ -12,16 +13,16 @@ import GsapTiltCard from "@/components/animations/GsapTiltCard";
 import { GsapTextReveal, GsapStaggerList } from "@/components/animations/GsapTextReveal";
 
 const fields = [
-  { label: "Batch", get: (s: any) => s.batch },
-  { label: "Year", get: (s: any) => String(s.year) },
-  { label: "Status", get: (s: any) => s.status },
-  { label: "Industries", get: (s: any) => s.industries.join(", ") },
-  { label: "Location", get: (s: any) => s.location },
-  { label: "Country", get: (s: any) => s.country },
-  { label: "Team Size", get: (s: any) => s.teamSize || "Not Available" },
-  { label: "Funding Stage", get: (s: any) => s.fundingStage || "Not Available" },
-  { label: "Founders", get: (s: any) => s.founders.map((f: any) => `${f.name} (${f.title || "Founder"})`).join(", ") },
-  { label: "Tags", get: (s: any) => s.tags.slice(0, 5).join(", ") },
+  { label: "Batch", get: (s: Startup) => s.batch },
+  { label: "Year", get: (s: Startup) => String(s.year) },
+  { label: "Status", get: (s: Startup) => s.status },
+  { label: "Industries", get: (s: Startup) => s.industries.join(", ") },
+  { label: "Location", get: (s: Startup) => s.location },
+  { label: "Country", get: (s: Startup) => s.country },
+  { label: "Team Size", get: (s: Startup) => s.teamSize || "Not Available" },
+  { label: "Funding Stage", get: (s: Startup) => s.fundingStage || "Not Available" },
+  { label: "Founders", get: (s: Startup) => s.founders.map((f) => `${f.name} (${f.title || "Founder"})`).join(", ") },
+  { label: "Tags", get: (s: Startup) => s.tags.slice(0, 5).join(", ") },
 ];
 
 export default function CompareView() {

@@ -29,12 +29,12 @@ export default function SarvamRiskReadinessGauge({ item }: SarvamRiskReadinessGa
   const progressPercent = Math.round((completedItems.length / actionItems.length) * 100);
 
   return (
-    <div className="doodle-card p-6 bg-white dark:bg-[#1E293B] border-2 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] dark:shadow-[4px_4px_0px_0px_#49B6E5] space-y-5">
-      <h3 className="doodle-font font-black text-lg text-[#263D5B] dark:text-white flex items-center justify-between border-b-2 border-dashed border-[#263D5B]/20 pb-3">
+    <div className="doodle-card p-6 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm space-y-5">
+      <h3 className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-white flex items-center justify-between border-b-2 border-dashed border-[#263D5B]/20 pb-3">
         <span className="flex items-center gap-2">
           <Award className="w-5 h-5 text-[#F97316]" /> Sarvam AI Readiness & Impact Gauges
         </span>
-        <span className="doodle-badge text-xs bg-[#49B6E5] text-[#263D5B] px-3 py-1 rounded-full border border-[#263D5B]">
+        <span className="doodle-badge text-xs bg-[#49B6E5] text-[var(--foreground)] px-3 py-1 rounded-full border border-[#263D5B]">
           Audit Matrix
         </span>
       </h3>
@@ -42,11 +42,11 @@ export default function SarvamRiskReadinessGauge({ item }: SarvamRiskReadinessGa
       {/* 3 Neobrutalist Gauge Scorecards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Gauge 1: Technical Readiness */}
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border-2 border-[#263D5B] space-y-1 text-center">
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-[var(--border-color)] space-y-1 text-center">
           <div className="flex items-center justify-center gap-1.5 text-xs font-black text-emerald-700 dark:text-emerald-400">
             <ShieldCheck className="w-4 h-4" /> Readiness Score
           </div>
-          <div className="doodle-font font-black text-2xl text-[#263D5B] dark:text-white">
+          <div className="doodle-font font-black text-2xl text-[var(--foreground)] dark:text-white">
             88 <span className="text-xs text-slate-500">/100</span>
           </div>
           <span className="doodle-badge text-[9px] bg-[#16A34A] text-white px-2 py-0.2 rounded-full inline-block">
@@ -55,24 +55,24 @@ export default function SarvamRiskReadinessGauge({ item }: SarvamRiskReadinessGa
         </div>
 
         {/* Gauge 2: Disruption Velocity */}
-        <div className="p-4 rounded-2xl bg-[#49B6E5]/10 border-2 border-[#263D5B] space-y-1 text-center">
-          <div className="flex items-center justify-center gap-1.5 text-xs font-black text-[#263D5B] dark:text-[#49B6E5]">
+        <div className="p-4 rounded-2xl bg-[#49B6E5]/10 border border-[var(--border-color)] space-y-1 text-center">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-black text-[var(--foreground)] dark:text-[var(--accent)]">
             <Zap className="w-4 h-4 text-[#F97316]" /> Disruption Speed
           </div>
-          <div className="doodle-font font-black text-lg text-[#263D5B] dark:text-white">
+          <div className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-white">
             Ultra-Fast
           </div>
-          <span className="doodle-badge text-[9px] bg-[#49B6E5] text-[#263D5B] px-2 py-0.2 rounded-full inline-block">
+          <span className="doodle-badge text-[9px] bg-[#49B6E5] text-[var(--foreground)] px-2 py-0.2 rounded-full inline-block">
             Immediate Horizon
           </span>
         </div>
 
         {/* Gauge 3: Market Risk */}
-        <div className="p-4 rounded-2xl bg-[#F97316]/10 border-2 border-[#263D5B] space-y-1 text-center">
+        <div className="p-4 rounded-2xl bg-[#F97316]/10 border border-[var(--border-color)] space-y-1 text-center">
           <div className="flex items-center justify-center gap-1.5 text-xs font-black text-[#F97316]">
             <AlertTriangle className="w-4 h-4" /> Market Risk Level
           </div>
-          <div className="doodle-font font-black text-lg text-[#263D5B] dark:text-white">
+          <div className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-white">
             Moderate
           </div>
           <span className="doodle-badge text-[9px] bg-[#F97316] text-white px-2 py-0.2 rounded-full inline-block">
@@ -82,12 +82,12 @@ export default function SarvamRiskReadinessGauge({ item }: SarvamRiskReadinessGa
       </div>
 
       {/* Interactive Developer Checklist */}
-      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-2 border-[#263D5B]/20 space-y-3">
+      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-[var(--border-color)]/20 space-y-3">
         <div className="flex items-center justify-between">
-          <h4 className="doodle-font text-xs font-black uppercase text-[#263D5B] dark:text-white">
+          <h4 className="doodle-font text-xs font-black uppercase text-[var(--foreground)] dark:text-white">
             Founder & Architect Action Checklist
           </h4>
-          <span className="doodle-font text-xs font-black text-[#49B6E5]">
+          <span className="doodle-font text-xs font-black text-[var(--accent)]">
             {completedItems.length} / {actionItems.length} Done ({progressPercent}%)
           </span>
         </div>

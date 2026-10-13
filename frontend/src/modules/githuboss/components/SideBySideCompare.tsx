@@ -80,7 +80,7 @@ export const SideBySideCompare: React.FC<SideBySideCompareProps> = ({
                     {/* Quality Score Badge */}
                     <div className="mb-4">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono ${badgeStyle.bg} ${badgeStyle.text} border ${badgeStyle.border}`}>
-                        <Sparkles className="w-3.5 h-3.5" /> Quality {repo.qualityScore} / 100
+                        <Sparkles className="w-3.5 h-3.5" /> Estimated quality {repo.qualityScore} / 100
                       </span>
                     </div>
 
@@ -94,7 +94,7 @@ export const SideBySideCompare: React.FC<SideBySideCompareProps> = ({
                       </div>
                       <div>
                         <span className="text-zinc-500 block text-[10px]">Commit Velocity</span>
-                        <span className="text-zinc-200 font-bold">{repo.monthlyCommitVelocity} / mo</span>
+                        <span className="text-zinc-200 font-bold">~{repo.monthlyCommitVelocity} / mo (estimate)</span>
                       </div>
                       <div>
                         <span className="text-zinc-500 block text-[10px]">License</span>

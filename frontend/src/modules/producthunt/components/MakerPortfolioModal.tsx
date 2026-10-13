@@ -280,7 +280,7 @@ export default function MakerPortfolioModal({
       )
       .force("charge", d3.forceManyBody().strength(-1000))
       .force("center", d3.forceCenter(centerX, centerY))
-      .force("collision", d3.forceCollide().radius((d: any) => d.val + 48));
+      .force("collision", d3.forceCollide<GraphNode>().radius((d) => d.val + 48));
 
     // Render Link Lines
     const link = container
@@ -290,9 +290,9 @@ export default function MakerPortfolioModal({
       .data(simLinks)
       .join("line")
       .attr("stroke-width", 2)
-      .attr("stroke", (d: any) => (d.source.type === "maker" ? "#f43f5e" : "#6366f1"))
+      .attr("stroke", (d) => ((d.source as GraphNode).type === "maker" ? "#f43f5e" : "#6366f1"))
       .attr("stroke-opacity", 0.4)
-      .attr("stroke-dasharray", (d: any) => (d.target.type === "tech" ? "5 5" : "none"));
+      .attr("stroke-dasharray", (d) => ((d.target as GraphNode).type === "tech" ? "5 5" : "none"));
 
     // Render Link Badge Pills (Clean hoverable badges)
     const linkBadgeGroup = container
@@ -466,18 +466,18 @@ export default function MakerPortfolioModal({
     // Simulation Tick Update
     simulation.on("tick", () => {
       link
-        .attr("x1", (d: any) => d.source.x)
-        .attr("y1", (d: any) => d.source.y)
-        .attr("x2", (d: any) => d.target.x)
-        .attr("y2", (d: any) => d.target.y);
+        .attr("x1", (d) => (d.source as GraphNode).x ?? 0)
+        .attr("y1", (d) => (d.source as GraphNode).y ?? 0)
+        .attr("x2", (d) => (d.target as GraphNode).x ?? 0)
+        .attr("y2", (d) => (d.target as GraphNode).y ?? 0);
 
-      linkBadgeGroup.attr("transform", (d: any) => {
-        const x = (d.source.x + d.target.x) / 2;
-        const y = (d.source.y + d.target.y) / 2;
+      linkBadgeGroup.attr("transform", (d) => {
+        const x = (((d.source as GraphNode).x ?? 0) + ((d.target as GraphNode).x ?? 0)) / 2;
+        const y = (((d.source as GraphNode).y ?? 0) + ((d.target as GraphNode).y ?? 0)) / 2;
         return `translate(${x},${y})`;
       });
 
-      node.attr("transform", (d: any) => `translate(${d.x},${d.y})`);
+      node.attr("transform", (d) => `translate(${d.x},${d.y})`);
     });
 
     return () => {
@@ -863,7 +863,7 @@ export default function MakerPortfolioModal({
                     🛠️ Tech Stack & Infrastructure Radar
                   </h3>
                   <p className="text-xs text-[var(--muted)] font-mono">
-                    Technologies utilized across {maker.name}'s products on Product Hunt.
+                    Technologies utilized across {maker.name}&apos;s products on Product Hunt.
                   </p>
                 </div>
 

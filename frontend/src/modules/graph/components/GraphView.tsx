@@ -66,6 +66,8 @@ export interface GraphNode extends d3.SimulationNodeDatum {
 }
 
 export interface GraphLink extends d3.SimulationLinkDatum<GraphNode> {
+  source: string | GraphNode;
+  target: string | GraphNode;
   type: string;
 }
 
@@ -174,7 +176,7 @@ function buildGraph(): { nodes: GraphNode[]; links: GraphLink[] } {
           color: GRAPH_NODE_COLORS.founder,
           details: {
             founderTitle: f.title,
-            founderAvatar: f.avatar,
+            founderAvatar: f.avatar?.includes("X-Amz-") ? undefined : f.avatar,
             founderLinkedin: f.linkedin,
             linkedStartup: { id: s.id, name: s.name },
             coFounders,
@@ -190,8 +192,8 @@ function buildGraph(): { nodes: GraphNode[]; links: GraphLink[] } {
   // Calculate degree for each node
   const degreeMap = new Map<string, number>();
   links.forEach((l) => {
-    const sId = typeof l.source === "string" ? l.source : (l.source as any).id;
-    const tId = typeof l.target === "string" ? l.target : (l.target as any).id;
+    const sId = typeof l.source === "string" ? l.source : (l.source as GraphNode).id;
+    const tId = typeof l.target === "string" ? l.target : (l.target as GraphNode).id;
     degreeMap.set(sId, (degreeMap.get(sId) || 0) + 1);
     degreeMap.set(tId, (degreeMap.get(tId) || 0) + 1);
   });
@@ -307,7 +309,8 @@ export default function GraphView() {
 
   // Filtered dataset
   const filteredGraph = useMemo(() => {
-    let { nodes, links } = allGraphData;
+    let { nodes } = allGraphData;
+    const { links } = allGraphData;
 
     // Filter by type
     if (filterType !== "all") {
@@ -539,12 +542,12 @@ export default function GraphView() {
 
       sim
         .force("charge", d3.forceManyBody().strength(-120))
-        .force("x", d3.forceX((d: any) => {
+        .force("x", d3.forceX<GraphNode>((d) => {
           const node = d as GraphNode;
           if (node.type === "industry" && centers.has(node.id)) return centers.get(node.id)!.x;
           return width / 2;
         }).strength(0.2))
-        .force("y", d3.forceY((d: any) => {
+        .force("y", d3.forceY<GraphNode>((d) => {
           const node = d as GraphNode;
           if (node.type === "industry" && centers.has(node.id)) return centers.get(node.id)!.y;
           return height / 2;
@@ -559,13 +562,13 @@ export default function GraphView() {
       };
       sim
         .force("charge", d3.forceManyBody().strength(-180))
-        .force("r", d3.forceRadial((d: any) => typeRadius[(d as GraphNode).type] || 200, width / 2, height / 2).strength(0.8));
+        .force("r", d3.forceRadial<GraphNode>((d) => typeRadius[(d as GraphNode).type] || 200, width / 2, height / 2).strength(0.8));
     } else {
       // Default organic force
       sim
         .force("charge", d3.forceManyBody().strength(-220))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collision", d3.forceCollide().radius((d: any) => getNodeRadius(d as GraphNode) + 6));
+        .force("collision", d3.forceCollide<GraphNode>().radius((d) => getNodeRadius(d as GraphNode) + 6));
     }
 
     simRef.current = sim;
@@ -629,17 +632,17 @@ export default function GraphView() {
       .on("mouseover", function (event, d) {
         d3.select(this).select("circle").transition().duration(200).attr("r", getNodeRadius(d) * 1.4);
         linkSelection
-          .attr("stroke-opacity", (l: any) => {
+          .attr("stroke-opacity", (l: GraphLink) => {
             const sId = typeof l.source === "object" ? l.source.id : l.source;
             const tId = typeof l.target === "object" ? l.target.id : l.target;
             return sId === d.id || tId === d.id ? 0.85 : 0.08;
           })
-          .attr("stroke-width", (l: any) => {
+          .attr("stroke-width", (l: GraphLink) => {
             const sId = typeof l.source === "object" ? l.source.id : l.source;
             const tId = typeof l.target === "object" ? l.target.id : l.target;
             return sId === d.id || tId === d.id ? 2.5 : 1;
           })
-          .attr("stroke", (l: any) => {
+          .attr("stroke", (l: GraphLink) => {
             const sId = typeof l.source === "object" ? l.source.id : l.source;
             const tId = typeof l.target === "object" ? l.target.id : l.target;
             return sId === d.id || tId === d.id ? getNodeColor(d) : "var(--border-color)";
@@ -667,10 +670,10 @@ export default function GraphView() {
 
     sim.on("tick", () => {
       linkSelection
-        .attr("x1", (d: any) => d.source.x)
-        .attr("y1", (d: any) => d.source.y)
-        .attr("x2", (d: any) => d.target.x)
-        .attr("y2", (d: any) => d.target.y);
+        .attr("x1", (d) => (d.source as GraphNode).x ?? 0)
+        .attr("y1", (d) => (d.source as GraphNode).y ?? 0)
+        .attr("x2", (d) => (d.target as GraphNode).x ?? 0)
+        .attr("y2", (d) => (d.target as GraphNode).y ?? 0);
       nodeSelection.attr("transform", (d) => `translate(${d.x},${d.y})`);
     });
 
@@ -708,17 +711,17 @@ export default function GraphView() {
       linkSel
         .transition()
         .duration(300)
-        .attr("stroke-opacity", (l: any) => {
+        .attr("stroke-opacity", (l: GraphLink) => {
           const sId = typeof l.source === "object" ? l.source.id : l.source;
           const tId = typeof l.target === "object" ? l.target.id : l.target;
           return linkPairs.has(`${sId}---${tId}`) ? 1 : 0.05;
         })
-        .attr("stroke-width", (l: any) => {
+        .attr("stroke-width", (l: GraphLink) => {
           const sId = typeof l.source === "object" ? l.source.id : l.source;
           const tId = typeof l.target === "object" ? l.target.id : l.target;
           return linkPairs.has(`${sId}---${tId}`) ? 3.5 : 0.5;
         })
-        .attr("stroke", (l: any) => {
+        .attr("stroke", (l: GraphLink) => {
           const sId = typeof l.source === "object" ? l.source.id : l.source;
           const tId = typeof l.target === "object" ? l.target.id : l.target;
           return linkPairs.has(`${sId}---${tId}`) ? "#ec4899" : "var(--border-color)";
@@ -777,12 +780,12 @@ export default function GraphView() {
     linkSel
       .transition()
       .duration(200)
-      .attr("stroke-opacity", (l: any) => {
+      .attr("stroke-opacity", (l: GraphLink) => {
         const sId = typeof l.source === "object" ? l.source.id : l.source;
         const tId = typeof l.target === "object" ? l.target.id : l.target;
         return matchingIds.has(sId) || matchingIds.has(tId) ? 0.7 : 0.05;
       })
-      .attr("stroke-width", (l: any) => {
+      .attr("stroke-width", (l: GraphLink) => {
         const sId = typeof l.source === "object" ? l.source.id : l.source;
         const tId = typeof l.target === "object" ? l.target.id : l.target;
         return matchingIds.has(sId) || matchingIds.has(tId) ? 2 : 0.5;

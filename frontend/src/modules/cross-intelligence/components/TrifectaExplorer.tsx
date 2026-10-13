@@ -64,19 +64,19 @@ Generated via Foundry Trifecta Engine`;
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] dark:bg-[#111827] text-[#263D5B] dark:text-slate-100 font-sans pt-24 pb-16 px-4 sm:px-6">
+    <div className="min-h-screen bg-[var(--surface)] dark:bg-[#111827] text-[var(--foreground)] dark:text-slate-100 font-sans pt-24 pb-16 px-4 sm:px-6">
       <div className="max-w-[1400px] mx-auto space-y-8">
 
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl border-4 border-[#263D5B] dark:border-[#49B6E5] bg-white dark:bg-[#1F2937] p-6 sm:p-10 shadow-[8px_8px_0px_0px_#263D5B] dark:shadow-[8px_8px_0px_0px_#49B6E5]">
+        <div className="relative overflow-hidden rounded-3xl border border-[var(--border-color)] dark:border-[var(--border-color)] bg-white dark:bg-[#1F2937] p-6 sm:p-10 shadow-sm shadow-sm">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-4 max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#49B6E5]/20 border border-[#49B6E5] text-[#263D5B] dark:text-[#49B6E5] text-xs font-mono font-black uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#49B6E5]/20 border border-[#49B6E5] text-[var(--foreground)] dark:text-[var(--accent)] text-xs font-mono font-black uppercase tracking-wider">
                 <Workflow className="w-3.5 h-3.5" /> 3-Way Interconnected Ecosystem Hub
               </div>
               
-              <h1 className="doodle-font text-3xl sm:text-5xl font-black tracking-tight text-[#263D5B] dark:text-[#49B6E5] leading-none">
-                THE TRIFECTA <span className="text-[#49B6E5] dark:text-white">FLYWHEEL</span>
+              <h1 className="doodle-font text-3xl sm:text-5xl font-black tracking-tight text-[var(--foreground)] dark:text-[var(--accent)] leading-none">
+                THE TRIFECTA <span className="text-[var(--accent)] dark:text-white">FLYWHEEL</span>
               </h1>
 
               <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
@@ -87,14 +87,14 @@ Generated via Foundry Trifecta Engine`;
             <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
               <button
                 onClick={() => setHubModalOpen(true)}
-                className="doodle-btn flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-black shadow-[4px_4px_0px_0px_#263D5B]"
+                className="doodle-btn flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-black shadow-sm"
               >
                 <Zap className="w-5 h-5" /> Launch Interactive Hub
               </button>
 
               <button
                 onClick={handleCopyPlaybook}
-                className="px-5 py-3 rounded-2xl bg-white dark:bg-[#111827] border-2 border-[#263D5B] dark:border-[#49B6E5] text-[#263D5B] dark:text-[#49B6E5] font-bold text-xs flex items-center justify-center gap-2 hover:bg-[#49B6E5]/10 transition-all shadow-[2px_2px_0px_0px_#263D5B]"
+                className="px-5 py-3 rounded-2xl bg-white dark:bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] text-[var(--foreground)] dark:text-[var(--accent)] font-bold text-xs flex items-center justify-center gap-2 hover:bg-[#49B6E5]/10 transition-all shadow-sm"
               >
                 {copiedPlaybook ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
                 {copiedPlaybook ? "Blueprint Copied!" : "Export Builder Blueprint"}
@@ -149,15 +149,16 @@ Generated via Foundry Trifecta Engine`;
         </div>
 
         {/* Live Active Trifecta Display */}
+        {!pair && <p role="status" className="p-6">No suitable three-way match found. Select a matching combination below.</p>}
         {pair && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="doodle-font text-xl font-black text-[#263D5B] dark:text-[#49B6E5] uppercase flex items-center gap-2">
-                <Workflow className="w-5 h-5 text-[#49B6E5]" /> Active Ecosystem Trifecta Node
+              <h2 className="doodle-font text-xl font-black text-[var(--foreground)] dark:text-[var(--accent)] uppercase flex items-center gap-2">
+                <Workflow className="w-5 h-5 text-[var(--accent)]" /> Active Ecosystem Trifecta Node
               </h2>
 
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full text-xs font-mono font-black bg-[#49B6E5] text-[#263D5B]">
+                <span className="px-3 py-1 rounded-full text-xs font-mono font-black bg-[#49B6E5] text-[var(--foreground)]">
                   ⚡ Synergy Score: {pair.synergyScore}%
                 </span>
               </div>
@@ -167,9 +168,9 @@ Generated via Foundry Trifecta Engine`;
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* YC Startup */}
-              <div className="p-6 rounded-3xl bg-white dark:bg-[#1F2937] border-4 border-amber-500/60 shadow-[6px_6px_0px_0px_#263D5B] dark:shadow-[6px_6px_0px_0px_#49B6E5] space-y-4">
+              <div className="p-6 rounded-3xl bg-white dark:bg-[#1F2937] border-4 border-amber-500/60 shadow-sm shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-xl bg-amber-500 text-white font-black text-xs flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#263D5B]">
+                  <span className="px-3 py-1 rounded-xl bg-amber-500 text-white font-black text-xs flex items-center gap-1.5 shadow-sm">
                     <Building2 className="w-4 h-4" /> YC BUSINESS
                   </span>
                   <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">
@@ -178,11 +179,11 @@ Generated via Foundry Trifecta Engine`;
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="doodle-font text-2xl font-black text-[#263D5B] dark:text-white">
+                  <h3 className="doodle-font text-2xl font-black text-[var(--foreground)] dark:text-white">
                     {pair.ycStartup.name}
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                    "{pair.ycStartup.oneLiner}"
+                    &quot;{pair.ycStartup.oneLiner}&quot;
                   </p>
                 </div>
 
@@ -204,9 +205,9 @@ Generated via Foundry Trifecta Engine`;
               </div>
 
               {/* GitHub OSS */}
-              <div className="p-6 rounded-3xl bg-white dark:bg-[#1F2937] border-4 border-emerald-500/60 shadow-[6px_6px_0px_0px_#263D5B] dark:shadow-[6px_6px_0px_0px_#49B6E5] space-y-4">
+              <div className="p-6 rounded-3xl bg-white dark:bg-[#1F2937] border-4 border-emerald-500/60 shadow-sm shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-xl bg-emerald-600 text-white font-black text-xs flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#263D5B]">
+                  <span className="px-3 py-1 rounded-xl bg-emerald-600 text-white font-black text-xs flex items-center gap-1.5 shadow-sm">
                     <Code2 className="w-4 h-4" /> GITHUB CODE
                   </span>
                   <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400">
@@ -215,7 +216,7 @@ Generated via Foundry Trifecta Engine`;
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="doodle-font text-2xl font-black text-[#263D5B] dark:text-white">
+                  <h3 className="doodle-font text-2xl font-black text-[var(--foreground)] dark:text-white">
                     {pair.githubRepo.name}
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
@@ -241,9 +242,9 @@ Generated via Foundry Trifecta Engine`;
               </div>
 
               {/* Product Hunt */}
-              <div className="p-6 rounded-3xl bg-white dark:bg-[#1F2937] border-4 border-rose-500/60 shadow-[6px_6px_0px_0px_#263D5B] dark:shadow-[6px_6px_0px_0px_#49B6E5] space-y-4">
+              <div className="p-6 rounded-3xl bg-white dark:bg-[#1F2937] border-4 border-rose-500/60 shadow-sm shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-xl bg-rose-600 text-white font-black text-xs flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#263D5B]">
+                  <span className="px-3 py-1 rounded-xl bg-rose-600 text-white font-black text-xs flex items-center gap-1.5 shadow-sm">
                     <Rocket className="w-4 h-4" /> PRODUCT HUNT GTM
                   </span>
                   <span className="text-xs font-mono font-bold text-rose-700 dark:text-rose-400">
@@ -252,11 +253,11 @@ Generated via Foundry Trifecta Engine`;
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="doodle-font text-2xl font-black text-[#263D5B] dark:text-white">
+                  <h3 className="doodle-font text-2xl font-black text-[var(--foreground)] dark:text-white">
                     {pair.productHuntProduct.name}
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                    "{pair.productHuntProduct.tagline}"
+                    &quot;{pair.productHuntProduct.tagline}&quot;
                   </p>
                 </div>
 
@@ -282,7 +283,7 @@ Generated via Foundry Trifecta Engine`;
 
         {/* Curated Trifectas Grid */}
         <div className="space-y-4 pt-4">
-          <h2 className="doodle-font text-xl font-black text-[#263D5B] dark:text-[#49B6E5] uppercase flex items-center gap-2">
+          <h2 className="doodle-font text-xl font-black text-[var(--foreground)] dark:text-[var(--accent)] uppercase flex items-center gap-2">
             <Flame className="w-5 h-5 text-amber-500" /> Curated Ecosystem Trifectas
           </h2>
 
@@ -291,13 +292,13 @@ Generated via Foundry Trifecta Engine`;
               <div
                 key={tf.id}
                 onClick={() => handleSelectTrifecta(tf)}
-                className="group p-5 rounded-3xl bg-white dark:bg-[#1F2937] border-3 border-[#263D5B] dark:border-[#49B6E5] shadow-[4px_4px_0px_0px_#263D5B] dark:shadow-[4px_4px_0px_0px_#49B6E5] hover:-translate-y-1 cursor-pointer transition-all duration-200 space-y-3"
+                className="group p-5 rounded-3xl bg-white dark:bg-[#1F2937] border-3 border-[#263D5B] dark:border-[var(--border-color)] shadow-sm shadow-sm hover:-translate-y-1 cursor-pointer transition-all duration-200 space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-black bg-[#49B6E5] text-[#263D5B]">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-black bg-[#49B6E5] text-[var(--foreground)]">
                     ⚡ {tf.synergyScore}% Synergy
                   </span>
-                  <span className="text-xs font-bold text-[#49B6E5] group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                  <span className="text-xs font-bold text-[var(--accent)] group-hover:translate-x-1 transition-transform flex items-center gap-1">
                     Select <ChevronRight className="w-3.5 h-3.5" />
                   </span>
                 </div>

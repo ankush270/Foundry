@@ -75,18 +75,18 @@ function ChartCard({ children, title, subtitle, icon: Icon, iconColor, className
   );
 }
 
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; label?: string | number; payload?: readonly { name?: string | number; value?: string | number; color?: string; fill?: string }[] }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="px-3.5 py-2.5 rounded-2xl bg-slate-900/95 border border-white/20 shadow-2xl backdrop-blur-md text-xs z-50">
       <p className="font-bold text-white border-b border-white/10 pb-1 mb-1.5">{label}</p>
-      {payload.map((p: any) => (
+      {payload.map((p) => (
         <div key={p.name} className="flex items-center justify-between gap-4 py-0.5">
           <span className="flex items-center gap-1.5" style={{ color: p.color || p.fill }}>
             <span className="w-2 h-2 rounded-full" style={{ background: p.color || p.fill }} />
             {p.name}:
           </span>
-          <span className="font-mono font-bold text-white">{p.value.toLocaleString()}</span>
+          <span className="font-mono font-bold text-white">{p.value?.toLocaleString()}</span>
         </div>
       ))}
     </div>

@@ -22,12 +22,12 @@ const faqs: FaqItem[] = [
   {
     question: "Is Foundry free to use for founders and developers?",
     answer:
-      "Yes! Foundry provides free access to search, filter, and analyze all 3,400+ YC startups, Product Hunt launch feeds, and GitHub open-source repositories.",
+      "Yes! Foundry provides free access to search, filter, and analyze the available YC startups, Product Hunt launch feeds, and GitHub open-source repositories.",
   },
   {
     question: "How often is the startup and product launch data updated?",
     answer:
-      "Data is synchronized daily. Product Hunt upvotes and GitHub repository stars & velocity metrics are refreshed continuously.",
+      "YC and Product Hunt use curated snapshots. GitHub and news request live data when available and fall back to curated data. GitHub quality and velocity figures are estimates.",
   },
   {
     question: "Can I compare multiple startups or tech stacks side-by-side?",
@@ -44,17 +44,17 @@ export default function LandingFaqAccordion() {
   };
 
   return (
-    <div className="space-y-4 doodle-card p-5 sm:p-6 bg-[#FAF8F5] dark:bg-[#111827]">
+    <div className="space-y-4 doodle-card p-5 sm:p-6 bg-[var(--surface)] dark:bg-[#111827]">
       <div className="flex items-center justify-between border-b-2 border-dashed border-[#263D5B]/20 pb-3">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#49B6E5] text-[#263D5B] border-2 border-[#263D5B] shadow-[2px_2px_0px_0px_#263D5B] flex items-center justify-center font-bold">
+          <div className="w-7 h-7 rounded-lg bg-[#49B6E5] text-[var(--foreground)] border border-[var(--border-color)] shadow-sm flex items-center justify-center font-bold">
             <HelpCircle className="w-4 h-4" />
           </div>
-          <h2 className="doodle-font font-black text-xl text-[#263D5B] dark:text-[#49B6E5]">
+          <h2 className="doodle-font font-black text-xl text-[var(--foreground)] dark:text-[var(--accent)]">
             Frequently Asked Questions
           </h2>
         </div>
-        <span className="doodle-badge text-[10px] bg-white text-[#263D5B] dark:bg-[#1F2937] dark:text-[#49B6E5]">
+        <span className="doodle-badge text-[10px] bg-white text-[var(--foreground)] dark:bg-[#1F2937] dark:text-[var(--accent)]">
           Quick Reference
         </span>
       </div>
@@ -67,7 +67,7 @@ export default function LandingFaqAccordion() {
               key={index}
               className={`doodle-card transition-all overflow-hidden ${
                 isOpen
-                  ? "bg-white dark:bg-[#1F2937] border-2 border-[#49B6E5] shadow-[3px_3px_0px_0px_#49B6E5]"
+                  ? "bg-white dark:bg-[#1F2937] border-2 border-[#49B6E5] shadow-sm"
                   : "bg-white/90 dark:bg-[#1F2937]/80"
               }`}
             >
@@ -75,11 +75,11 @@ export default function LandingFaqAccordion() {
                 onClick={() => toggleFaq(index)}
                 className="w-full px-4 py-3 flex items-center justify-between text-left gap-3 select-none"
               >
-                <span className="doodle-font font-extrabold text-sm text-[#263D5B] dark:text-white">
+                <span className="doodle-font font-extrabold text-sm text-[var(--foreground)] dark:text-white">
                   {faq.question}
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 text-[#49B6E5] shrink-0 transition-transform duration-200 ${
+                  className={`w-4 h-4 text-[var(--accent)] shrink-0 transition-transform duration-200 ${
                     isOpen ? "rotate-180" : ""
                   }`}
                 />
