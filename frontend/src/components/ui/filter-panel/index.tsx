@@ -144,12 +144,12 @@ export default function FilterPanel({ filters, onChange, totalFilteredCount }: P
   // Render Portal Modal content
   const modalContent = open ? (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
+      className="mobile-filter-overlay fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
       onClick={() => setOpen(false)}
       data-lenis-prevent
     >
       <div
-        className="w-full max-w-4xl h-[85vh] sm:h-[620px] max-h-[90vh] rounded-3xl border border-white/15 bg-[#0F1626] text-white shadow-2xl flex flex-col overflow-hidden relative"
+        className="mobile-filter-dialog w-full max-w-4xl h-[85vh] sm:h-[620px] max-h-[90vh] rounded-3xl border border-white/15 bg-[#0F1626] text-white shadow-2xl flex flex-col overflow-hidden relative"
         onClick={(e) => e.stopPropagation()}
         data-lenis-prevent
       >
@@ -177,7 +177,7 @@ export default function FilterPanel({ filters, onChange, totalFilteredCount }: P
 
             <button
               onClick={() => { setOpen(false); setSearchTerm(""); }}
-              className="p-2 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition-all"
+              aria-label="Close filters" className="p-2 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition-all"
             >
               <X className="w-5 h-5" />
             </button>
@@ -186,9 +186,12 @@ export default function FilterPanel({ filters, onChange, totalFilteredCount }: P
 
         {/* Modal Body: Sidebar + Main Content Grid */}
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-h-0">
+          <label className="md:hidden px-4 py-3 text-sm font-semibold">Filter group
+            <select aria-label="Filter group" value={activeTab} onChange={event => {setActiveTab(event.target.value as TabType); setSearchTerm("");}} className="mt-2 w-full p-3 rounded-xl bg-slate-800 text-white border border-white/20">{tabs.map(tab => <option key={tab.id} value={tab.id}>{tab.label}{tab.count ? ` (${tab.count})` : ""}</option>)}</select>
+          </label>
           {/* Left Sidebar Navigation */}
           <div
-            className="w-full md:w-64 border-r border-white/10 bg-black/20 p-3 space-y-1 shrink-0 overflow-x-auto md:overflow-y-auto flex md:flex-col"
+            className="w-full md:w-64 border-r border-white/10 bg-black/20 p-3 space-y-1 shrink-0 overflow-x-auto md:overflow-y-auto hidden md:flex md:flex-col"
             data-lenis-prevent
           >
             {tabs.map((tab) => {
@@ -435,7 +438,7 @@ export default function FilterPanel({ filters, onChange, totalFilteredCount }: P
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="px-6 py-4 border-t border-white/10 bg-white/5 flex items-center justify-between shrink-0">
+        <div className="px-4 py-3 border-t border-white/10 bg-white/5 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div className="text-xs text-slate-400">
             {activeCount > 0 ? (
               <span className="text-[#FF6600] font-bold">{activeCount} active filter criteria applied</span>

@@ -32,7 +32,7 @@ export default function SarvamRiskReadinessGauge({ item }: SarvamRiskReadinessGa
     <div className="doodle-card p-6 bg-white dark:bg-[#1E293B] border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm space-y-5">
       <h3 className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-white flex items-center justify-between border-b-2 border-dashed border-[#263D5B]/20 pb-3">
         <span className="flex items-center gap-2">
-          <Award className="w-5 h-5 text-[#F97316]" /> Sarvam AI Readiness & Impact Gauges
+          <Award className="w-5 h-5 text-[#F97316]" /> Readiness & Impact Evidence
         </span>
         <span className="doodle-badge text-xs bg-[#49B6E5] text-[var(--foreground)] px-3 py-1 rounded-full border border-[#263D5B]">
           Audit Matrix
@@ -47,10 +47,10 @@ export default function SarvamRiskReadinessGauge({ item }: SarvamRiskReadinessGa
             <ShieldCheck className="w-4 h-4" /> Readiness Score
           </div>
           <div className="doodle-font font-black text-2xl text-[var(--foreground)] dark:text-white">
-            88 <span className="text-xs text-slate-500">/100</span>
+            Not assessed
           </div>
           <span className="doodle-badge text-[9px] bg-[#16A34A] text-white px-2 py-0.2 rounded-full inline-block">
-            Production Ready
+            Evidence required
           </span>
         </div>
 
@@ -60,10 +60,10 @@ export default function SarvamRiskReadinessGauge({ item }: SarvamRiskReadinessGa
             <Zap className="w-4 h-4 text-[#F97316]" /> Disruption Speed
           </div>
           <div className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-white">
-            Ultra-Fast
+            Not assessed
           </div>
           <span className="doodle-badge text-[9px] bg-[#49B6E5] text-[var(--foreground)] px-2 py-0.2 rounded-full inline-block">
-            Immediate Horizon
+            No measured timeline
           </span>
         </div>
 
@@ -73,10 +73,10 @@ export default function SarvamRiskReadinessGauge({ item }: SarvamRiskReadinessGa
             <AlertTriangle className="w-4 h-4" /> Market Risk Level
           </div>
           <div className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-white">
-            Moderate
+            Not assessed
           </div>
           <span className="doodle-badge text-[9px] bg-[#F97316] text-white px-2 py-0.2 rounded-full inline-block">
-            Strategic Shift
+            No risk assessment
           </span>
         </div>
       </div>

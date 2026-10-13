@@ -1,5 +1,5 @@
 import { OssRepository, DomainCategory } from "@/modules/githuboss/types";
-import { calculateQualityScore } from "@/lib/oss-quality-score";
+
 import { SAMPLE_OSS_REPOSITORIES } from "@/data/githuboss-repos";
 
 const GITHUB_SEARCH_API = "https://api.github.com/search/repositories";
@@ -20,7 +20,7 @@ export class GithubApiService {
       const localToken = localStorage.getItem("GITHUB_TOKEN")?.trim();
       if (localToken && localToken.length > 5) return localToken;
     }
-    const envToken = process.env.NEXT_PUBLIC_GITHUB_TOKEN?.trim() || process.env.GITHUB_TOKEN?.trim();
+    const envToken = process.env.GITHUB_TOKEN?.trim();
     if (envToken && envToken.length > 5 && !envToken.includes("your_github_token")) {
       return envToken;
     }
@@ -182,15 +182,16 @@ export class GithubApiService {
       const sortQuery = sortParam ? `&sort=${sortParam}&order=${orderParam}` : "";
       console.log(`[GitHub API] Fetching live data (Page ${page}, perPage ${perPage}) for query: "${searchTerms}"`);
       const url = `${GITHUB_SEARCH_API}?q=${encodeURIComponent(searchTerms)}${sortQuery}&page=${page}&per_page=${perPage}`;
-      
-      const response = await fetch(url, { headers });
+
+      const requestUrl = typeof window !== "undefined" && !token ? `/api/github?${new URL(url).searchParams}` : url;
+      const response = await fetch(requestUrl, { headers, cache: "no-store", signal: AbortSignal.timeout(12000) });
 
       if (response.ok) {
         const data = await response.json();
         const totalCount = data.total_count || 0;
         console.log(`[GitHub API] Live Success: Received ${data.items?.length || 0} items of ${totalCount} total`);
 
-        if (Array.isArray(data.items) && data.items.length > 0) {
+        if (Array.isArray(data.items)) {
           const mappedRepos: OssRepository[] = data.items.map((item: GitHubItem) => this.mapGithubItemToRepo(item, domain));
           const hasMore = page * perPage < Math.min(totalCount, 1000);
           return { repos: mappedRepos, isLive: true, totalCount, hasMore };
@@ -199,10 +200,10 @@ export class GithubApiService {
         const errText = await response.text();
         console.warn(`[GitHub API] Rate limit or API error (${response.status}):`, errText);
         if (response.status === 403 || response.status === 429) {
-          return { 
-            repos: this.filterFallbackRepos(options), 
-            isLive: false, 
-            error: "GitHub API rate limit reached. Add a free GitHub Token for higher limits (5,000 req/hr)." 
+          return {
+            repos: [], totalCount: 0, hasMore: false,
+            isLive: false,
+            error: "GitHub API rate limit reached. Add a free GitHub Token for higher limits (5,000 req/hr)."
           };
         }
       }
@@ -211,7 +212,7 @@ export class GithubApiService {
     }
 
     // Smooth fallback to local curated dataset if offline or rate-limited
-    return { repos: this.filterFallbackRepos(options), isLive: false };
+    return { repos: [], isLive: false, totalCount: 0, hasMore: false, error: "Live GitHub data unavailable. Please retry; saved sample data is not shown." };
   }
 
   /**
@@ -220,20 +221,10 @@ export class GithubApiService {
   private static mapGithubItemToRepo(item: GitHubItem, selectedDomain: DomainCategory | "All"): OssRepository {
     const stars = item.stargazers_count || 0;
     const openIssues = item.open_issues_count || 0;
-    const closedIssues = Math.round(openIssues * 4.2);
-    const lastCommitDate = item.pushed_at || item.updated_at || new Date().toISOString();
-    const monthlyVelocity = Math.max(8, Math.min(120, Math.round(stars / 400 + openIssues / 5)));
-    const starGrowthRate = Math.max(5, Math.round(stars / 150));
-
-    // Dynamic Quality Score Calculation
-    const qualityResult = calculateQualityScore({
-      stars,
-      openIssues,
-      closedIssues,
-      lastCommitDate,
-      monthlyCommitVelocity: monthlyVelocity,
-      starGrowthRate,
-    });
+    const closedIssues = 0; // Not returned by repository search; unavailable.
+    const lastCommitDate = item.pushed_at || item.updated_at || "";
+    const monthlyVelocity = 0; // Requires a separate history query.
+    const starGrowthRate = 0; // Requires historical snapshots.
 
     const primaryLanguage = item.language || "Unknown";
     const topics: string[] = item.topics || [];
@@ -291,13 +282,13 @@ export class GithubApiService {
     let relevanceScore = 90;
     let relevanceMatchBadge = "⚡ Related Solution";
     if (matchCount >= 3) {
-      relevanceScore = 98;
+      relevanceScore = Math.min(100, matchCount * 10);
       relevanceMatchBadge = `🎯 Direct ${domainCategory} Fit`;
     } else if (matchCount >= 1) {
-      relevanceScore = 92;
+      relevanceScore = matchCount * 10;
       relevanceMatchBadge = `⚡ Related ${domainCategory} Tooling`;
     } else {
-      relevanceScore = 82;
+      relevanceScore = 0;
       relevanceMatchBadge = `🧩 Stack Component`;
     }
 
@@ -321,24 +312,21 @@ export class GithubApiService {
       language: primaryLanguage,
       domainCategory,
       tags: topics.length > 0 ? topics.slice(0, 6) : [primaryLanguage.toLowerCase(), "open-source", domainCategory.toLowerCase()],
-      communityUseCases: [
-        `Integrated ${item.name} into production ${domainCategory} architecture`,
-        `Automated core business workflow using ${primaryLanguage}`,
-        `Scaled infrastructure with ${stars.toLocaleString()} star repository`
-      ],
-      qualityScore: qualityResult.score,
-      isUnderrated: qualityResult.isUnderrated,
-      maintainerHealth: qualityResult.healthLabel,
+      communityUseCases: [],
+      qualityScore: 0,
+      metricsAvailable: false,
+      isUnderrated: false,
+      maintainerHealth: "Not assessed",
       monthlyCommitVelocity: monthlyVelocity,
       starGrowthRate,
       relevanceMatchBadge,
       relevanceScore,
       sarvamExplainer: {
-        whatItSolves: `${desc} Provides modular ${primaryLanguage} primitives and active maintainer updates.`,
+        whatItSolves: `${desc} Implementation and maintenance have not been assessed.`,
         techStack: [primaryLanguage, ...topics.slice(0, 3)],
-        maturity: stars > 10000 ? "Battle-Tested" : stars > 2000 ? "Production Viable" : "Emerging",
+        maturity: "Not assessed",
         whyRelevantToSearch: `Live GitHub result matched against ${domainCategory} domain query with ${stars.toLocaleString()} stargazers.`,
-        pros: ["100% verified GitHub repository", `Backed by ${stars.toLocaleString()} GitHub stargazers`, "Free open-source license"],
+        pros: ["100% verified GitHub repository", `Backed by ${stars.toLocaleString()} GitHub stargazers`, "Review the repository license before use"],
         cons: ["Inspect open issues before deploying to core production pipelines"],
         recommendedUseCases: [
           `Production ${domainCategory} infrastructure`,
@@ -355,12 +343,12 @@ export class GithubApiService {
           `3. Trigger Sarvam AI for automatic telemetry & report generation`,
           `4. Deliver automated user alerts`
         ],
-        estimatedBuildTime: "3 to 5 Days",
-        monetizationModel: "Subscription ($29/month per active seat)",
+        estimatedBuildTime: "Not estimated — define scope first",
+        monetizationModel: "Not validated — requires customer research",
         missingComponentsToBuild: ["Next.js Dashboard UI", "Stripe Checkout Integration"]
       },
       integrationGuide: {
-        installCommand: primaryLanguage.toLowerCase() === "python" ? `pip install ${item.name}` : `npm install ${item.name}`,
+        installCommand: `git clone ${item.html_url}.git`,
         configSteps: [
           `Clone repository: git clone ${item.html_url}.git`,
           `Install dependencies using ${primaryLanguage} package manager`,
@@ -369,7 +357,7 @@ export class GithubApiService {
         minimalSnippet: {
           title: `quickstart.${primaryLanguage.toLowerCase() === "python" ? "py" : "ts"}`,
           language: primaryLanguage.toLowerCase(),
-          code: `# Live GitHub Repository Setup: ${item.full_name}\n# GitHub Stars: ${stars.toLocaleString()}\n# License: ${item.license?.spdx_id || "MIT"}\n\n// Import & initialize ${item.name}\nconsole.log("Loaded ${item.full_name} from live GitHub REST API!");`
+          code: `# Live GitHub Repository Setup: ${item.full_name}\n# GitHub Stars: ${stars.toLocaleString()}\n# License: ${item.license?.spdx_id || "Not specified"}\n\n// Import & initialize ${item.name}\nconsole.log("Loaded ${item.full_name} from live GitHub REST API!");`
         }
       },
       readmeMarkdown: `# ${item.full_name}\n\n${desc}\n\n[View Repository on GitHub](${item.html_url})`
@@ -453,7 +441,7 @@ export class GithubApiService {
     } else if (sortBy === "updated") {
       filtered = filtered.sort((a, b) => new Date(b.lastCommitDate).getTime() - new Date(a.lastCommitDate).getTime());
     } else if (sortBy === "relevance") {
-      filtered = filtered.sort((a, b) => b.qualityScore - a.qualityScore);
+      filtered = filtered.sort((a, b) => (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0));
     } else {
       // Default stars
       filtered = filtered.sort((a, b) => b.stars - a.stars);

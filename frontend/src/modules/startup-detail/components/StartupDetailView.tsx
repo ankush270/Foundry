@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import {
   ExternalLink, MapPin, Calendar, Users, Heart,
   GitCompareArrows, Globe, Building2, Sparkles, StickyNote,
-  Trash2, Send, Briefcase, Newspaper, Code2, Bot, ChevronRight, Zap
+  Trash2, Send, Briefcase, Newspaper, Code2, Bot, ChevronRight, ChevronDown, ChevronUp, Zap
 } from "lucide-react";
 import TechStackLinker from "@/modules/cross-intelligence/components/TechStackLinker";
 import TrifectaBadgeBanner from "@/modules/cross-intelligence/components/TrifectaBadgeBanner";
@@ -24,7 +24,27 @@ import GsapMagnetic from "@/components/animations/GsapMagnetic";
 
 export default function StartupDetailView({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const startup = getStartupBySlug(slug);
+  const savedStartup = getStartupBySlug(slug);
+  const [liveStartup, setLiveStartup] = useState<typeof savedStartup>(undefined);
+  const [freshnessError, setFreshnessError] = useState("");
+  const startup = liveStartup?.slug === slug ? liveStartup : savedStartup;
+  useEffect(() => {
+    const controller = new AbortController();
+    const refresh = async () => {
+      if (document.hidden) return;
+      try {
+        const response = await fetch(`/api/startups/${encodeURIComponent(slug)}`, {cache:"no-store", signal:controller.signal});
+        if (!response.ok) throw new Error("YC refresh unavailable; saved profile may be out of date.");
+        const payload = await response.json();
+        if (!controller.signal.aborted) { setLiveStartup(payload.data); setFreshnessError(""); }
+      } catch(error) { if (!controller.signal.aborted) setFreshnessError(error instanceof Error ? error.message : "Refresh unavailable"); }
+    };
+    void refresh();
+    const interval = setInterval(refresh, 5 * 60 * 1000);
+    const visible = () => { if (!document.hidden) void refresh(); };
+    document.addEventListener("visibilitychange", visible);
+    return () => {controller.abort(); clearInterval(interval); document.removeEventListener("visibilitychange", visible);};
+  }, [slug]);
   const searchParams = useSearchParams();
   const tabParam = searchParams ? searchParams.get("tab") : null;
   const validTabs = ["overview", "ai-builder", "jobs", "news", "notes", "similar", "oss"];
@@ -35,6 +55,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
   const { toggle, ids } = useWatchlistStore();
   const { addNote, deleteNote, notes } = useNotesStore();
   const [noteText, setNoteText] = useState("");
+  const [tabsExpanded, setTabsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "ai-builder" | "jobs" | "news" | "notes" | "similar" | "oss">(initialTab);
 
   const [previousTab, setPreviousTab] = useState(tabParam);
@@ -49,8 +70,8 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
       <div className="min-h-[60vh] flex items-center justify-center p-6">
         <div className="text-center doodle-card p-8 bg-white dark:bg-[#111827]">
           <h1 className="text-2xl font-bold doodle-font mb-2 text-[var(--foreground)] dark:text-[var(--accent)]">Startup Not Found</h1>
-          <p className="text-[var(--muted)] mb-4 text-xs">The startup you&apos;re looking for doesn&apos;t exist in our database.</p>
-          <Link href="/yc" className="doodle-btn px-4 py-2 text-xs inline-block">← Back to YC Explorer</Link>
+          <p className="text-[var(--muted)] mb-4 text-sm">The startup you&apos;re looking for doesn&apos;t exist in our database.</p>
+          <Link href="/yc" className="doodle-btn px-4 py-2 text-sm inline-block">← Back to YC Explorer</Link>
         </div>
       </div>
     );
@@ -70,13 +91,14 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
   const parsedTeamSize = startup.teamSize ? parseInt(startup.teamSize, 10) : 0;
 
   return (
-    <div className="min-h-screen pb-16 pt-3 font-sans">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 space-y-5">
+    <div className="startup-detail-page min-h-screen pb-16 pt-3 font-sans">
+      <div className="max-w-[1680px] mx-auto px-4 sm:px-8 space-y-5">
         <BackLink />
+        <p role="status" className="text-sm text-[var(--muted)]">{freshnessError || (startup.sourceCheckedAt ? `YC profile checked: ${startup.sourceCheckedAt.replace("T", " ").replace(/\.\d{3}Z$/, " UTC")}. Source-available fields only.` : "Checking YC source; saved profile is not yet verified as current.")}</p>
 
         {/* Top Header Banner & Startup Title Card */}
         <div className="doodle-card p-6 sm:p-7 bg-[var(--surface)] dark:bg-[#111827] space-y-5">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-5">
             <div className="flex items-start gap-4">
               <img
                 src={startup.logo}
@@ -90,11 +112,11 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                   <h1 className="text-2xl sm:text-4xl font-black doodle-font text-[var(--foreground)] dark:text-white">
                     {startup.name}
                   </h1>
-                  <span className={`text-xs font-bold px-3 py-0.5 rounded-full border border-[var(--border-color)] doodle-badge ${STATUS_COLORS[startup.status] || "bg-[#49B6E5] text-[var(--foreground)]"}`}>
+                  <span className={`text-sm font-bold px-3 py-0.5 rounded-full border border-[var(--border-color)] doodle-badge ${STATUS_COLORS[startup.status] || "bg-[#49B6E5] text-[var(--foreground)]"}`}>
                     {startup.status}
                   </span>
                   {startup.isHiring && (
-                    <span className="doodle-badge text-xs bg-[#16A34A] text-white">
+                    <span className="doodle-badge text-sm bg-[#16A34A] text-white">
                       Hiring ({startup.jobCount || (startup.jobs?.length || 1)} roles)
                     </span>
                   )}
@@ -106,10 +128,10 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
             </div>
 
             {/* Header Action CTAs */}
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <div className="startup-header-actions flex flex-wrap items-center gap-2.5 min-w-0">
               <Link
                 href={`/startup/${startup.slug}/ecosystem`}
-                className="doodle-btn px-4 py-2.5 text-xs font-extrabold flex items-center gap-2 bg-emerald-600 text-white shadow-sm hover:bg-emerald-500 transition-colors"
+                className="doodle-btn px-4 py-2.5 text-sm font-extrabold flex items-center gap-2 bg-emerald-600 text-white shadow-sm hover:bg-emerald-500 transition-colors"
               >
                 <Code2 className="w-4 h-4" /> Startup + GitHub Connection →
               </Link>
@@ -117,7 +139,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
               <GsapMagnetic strength={0.25}>
                 <button
                   onClick={() => setActiveTab("ai-builder")}
-                  className="doodle-btn px-4 py-2.5 text-xs font-extrabold flex items-center gap-2 bg-[#49B6E5] text-[var(--foreground)]"
+                  className="doodle-btn px-4 py-2.5 text-sm font-extrabold flex items-center gap-2 bg-[#49B6E5] text-[var(--foreground)]"
                 >
                   <Bot className="w-4 h-4" /> Ask AI How to Build {startup.name}
                 </button>
@@ -126,7 +148,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
               <GsapMagnetic strength={0.25}>
                 <button
                   onClick={() => toggle(startup.id)}
-                  className={`doodle-btn px-4 py-2.5 text-xs font-extrabold flex items-center gap-1.5 ${
+                  className={`doodle-btn px-4 py-2.5 text-sm font-extrabold flex items-center gap-1.5 ${
                     watched ? "bg-[#D97706] text-white" : "bg-white dark:bg-[#1F2937] text-[var(--foreground)] dark:text-white"
                   }`}
                 >
@@ -138,7 +160,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
               <GsapMagnetic strength={0.25}>
                 <button
                   onClick={() => comparing ? remove(startup.id) : add(startup)}
-                  className={`doodle-btn px-4 py-2.5 text-xs font-extrabold flex items-center gap-1.5 ${
+                  className={`doodle-btn px-4 py-2.5 text-sm font-extrabold flex items-center gap-1.5 ${
                     comparing ? "bg-[#D97706] text-white" : "bg-white dark:bg-[#1F2937] text-[var(--foreground)] dark:text-white"
                   }`}
                 >
@@ -153,7 +175,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                     href={startup.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="doodle-btn px-4 py-2.5 text-xs font-extrabold flex items-center gap-1.5 bg-[#263D5B] text-white dark:bg-[#49B6E5] dark:text-[var(--foreground)]"
+                    className="doodle-btn px-4 py-2.5 text-sm font-extrabold flex items-center gap-1.5 bg-[#263D5B] text-white dark:bg-[#49B6E5] dark:text-[var(--foreground)]"
                   >
                     <Globe className="w-4 h-4" /> Website <ExternalLink className="w-3 h-3" />
                   </a>
@@ -169,7 +191,8 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
           {/* LEFT COLUMN (Main Content - 8 cols) */}
           <div className="lg:col-span-8 space-y-5">
             {/* Tab Navigation Bar */}
-            <div className="flex gap-1.5 border-b-2 border-dashed border-[#263D5B]/20 pb-3 overflow-x-auto custom-scrollbar" data-lenis-prevent>
+            <div className="border-b border-[var(--border-color)] pb-3">
+            <div id="startup-section-navigation" className="flex flex-wrap gap-2" role="group" aria-label="Startup sections">
               {[
                 { id: "overview", label: "Overview", icon: Building2 },
                 { id: "ai-builder", label: "🤖 AI Build Assistant", icon: Bot },
@@ -177,25 +200,37 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                 { id: "jobs", label: `Jobs (${startup.jobs?.length || 0})`, icon: Briefcase },
                 { id: "news", label: `News (${startup.news?.length || 0})`, icon: Newspaper },
                 { id: "notes", label: `Notes (${startupNotes.length})`, icon: StickyNote },
-                { id: "similar", label: "Similar Startups", icon: Sparkles },
-              ].map((tab) => {
+                { id: "similar", label: "Related Companies", icon: Sparkles },
+              ].filter((tab, index) => tabsExpanded || index < 3 || tab.id === activeTab).map((tab) => {
                 const Icon = tab.icon;
                 const active = activeTab === tab.id;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as Tab)}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold doodle-font whitespace-nowrap transition-all ${
+                    aria-pressed={active}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-extrabold doodle-font max-w-full text-left transition-all ${
                       active
                         ? "bg-[#49B6E5] text-[var(--foreground)] border border-[var(--border-color)] shadow-sm"
                         : "text-[var(--muted)] hover:text-[var(--foreground)] dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800"
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
                     {tab.label}
                   </button>
                 );
               })}
+            </div>
+            <button
+              type="button"
+              aria-expanded={tabsExpanded}
+              aria-controls="startup-section-navigation"
+              onClick={() => setTabsExpanded(expanded => !expanded)}
+              className="mt-3 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[var(--accent)] hover:bg-[var(--surface-hover)]"
+            >
+              {tabsExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {tabsExpanded ? "Show less" : "Show more sections"}
+            </button>
             </div>
 
             {/* TAB CONTENT: Overview */}
@@ -206,18 +241,18 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                   <h3 className="doodle-font font-black text-lg text-[var(--foreground)] dark:text-[var(--accent)] flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-[var(--accent)]" /> About {startup.name}
                   </h3>
-                  <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed whitespace-pre-line">
+                  <p className="text-sm sm:text-sm text-[var(--muted)] leading-relaxed whitespace-pre-line">
                     {startup.longDescription || startup.oneLiner}
                   </p>
 
                   <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                     {startup.industries.map((ind) => (
-                      <span key={ind} className="doodle-badge text-[11px] bg-[#49B6E5]/15 text-[var(--foreground)] dark:text-[var(--accent)]">
+                      <span key={ind} className="doodle-badge text-xs bg-[#49B6E5]/15 text-[var(--foreground)] dark:text-[var(--accent)]">
                         {ind}
                       </span>
                     ))}
                     {startup.tags.map((tag) => (
-                      <span key={tag} className="px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[11px] font-mono font-semibold text-[var(--muted)]">
+                      <span key={tag} className="px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-mono font-semibold text-[var(--muted)]">
                         #{tag}
                       </span>
                     ))}
@@ -245,9 +280,9 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                             <p className="doodle-font font-extrabold text-sm text-[var(--foreground)] dark:text-white truncate">
                               {f.name}
                             </p>
-                            <p className="text-xs font-bold text-[#D97706]">{f.title || "Founder"}</p>
+                            <p className="text-sm font-bold text-[#D97706]">{f.title || "Founder"}</p>
                             {f.bio && (
-                              <p className="text-xs text-[var(--muted)] mt-1 leading-snug line-clamp-2">
+                              <p className="text-sm text-[var(--muted)] mt-1 leading-snug line-clamp-2">
                                 {f.bio}
                               </p>
                             )}
@@ -264,20 +299,20 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                     <h4 className="doodle-font font-black text-sm text-[var(--foreground)] dark:text-white flex items-center gap-2">
                       <Code2 className="w-4 h-4 text-emerald-500" /> Business + GitHub Ecosystem Connection
                     </h4>
-                    <p className="text-xs text-[var(--muted)]">
+                    <p className="text-sm text-[var(--muted)]">
                       View officially associated codebases, algorithmically inferred open source projects, and tech stack tree for {startup.name}.
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/startup/${startup.slug}/ecosystem`}
-                      className="doodle-btn px-4 py-2 text-xs font-bold bg-emerald-600 text-white flex items-center gap-1.5 hover:bg-emerald-500"
+                      className="doodle-btn px-4 py-2 text-sm font-bold bg-emerald-600 text-white flex items-center gap-1.5 hover:bg-emerald-500"
                     >
                       <Code2 className="w-3.5 h-3.5" /> Open Ecosystem Tree →
                     </Link>
                     <button
                       onClick={() => setIsOssModalOpen(true)}
-                      className="doodle-btn px-3 py-2 text-xs font-bold bg-slate-200 dark:bg-slate-800 text-[var(--foreground)] dark:text-white flex items-center gap-1.5"
+                      className="doodle-btn px-3 py-2 text-sm font-bold bg-slate-200 dark:bg-slate-800 text-[var(--foreground)] dark:text-white flex items-center gap-1.5"
                     >
                       Stack Modal
                     </button>
@@ -300,7 +335,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                       <div key={job.id} className="doodle-card p-4 bg-white dark:bg-[#1F2937] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div>
                           <h4 className="doodle-font font-bold text-sm text-[var(--foreground)] dark:text-white mb-1">{job.title || job.role}</h4>
-                          <div className="flex flex-wrap gap-2 text-xs text-[var(--muted)]">
+                          <div className="flex flex-wrap gap-2 text-sm text-[var(--muted)]">
                             {job.location && <span>📍 {job.location}</span>}
                             {job.type && <span>💼 {job.type}</span>}
                             {job.salaryRange && <span>💰 {job.salaryRange}</span>}
@@ -310,7 +345,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                           href={job.url || startup.website}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="doodle-btn px-3.5 py-1.5 bg-[#49B6E5] text-[var(--foreground)] text-xs font-bold shrink-0"
+                          className="doodle-btn px-3.5 py-1.5 bg-[#49B6E5] text-[var(--foreground)] text-sm font-bold shrink-0"
                         >
                           Apply Now →
                         </a>
@@ -319,7 +354,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                   </div>
                 ) : (
                   <div className="text-center py-10 doodle-card bg-white dark:bg-[#1F2937]">
-                    <p className="text-xs text-[var(--muted)]">No active job listings published at the moment.</p>
+                    <p className="text-sm text-[var(--muted)]">No active job listings published at the moment.</p>
                   </div>
                 )}
               </div>
@@ -339,8 +374,8 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                         className="doodle-card p-3.5 bg-white dark:bg-[#1F2937] flex items-center justify-between gap-3 group"
                       >
                         <div>
-                          <p className="doodle-font font-bold text-xs sm:text-sm text-[var(--foreground)] dark:text-white group-hover:text-[var(--accent)] transition-colors">{item.title}</p>
-                          {item.date && <p className="text-[10px] text-[var(--muted)] mt-0.5">{item.date}</p>}
+                          <p className="doodle-font font-bold text-sm sm:text-sm text-[var(--foreground)] dark:text-white group-hover:text-[var(--accent)] transition-colors">{item.title}</p>
+                          {item.date && <p className="text-xs text-[var(--muted)] mt-0.5">{item.date}</p>}
                         </div>
                         <ExternalLink className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
                       </a>
@@ -348,7 +383,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                   </div>
                 ) : (
                   <div className="text-center py-10 doodle-card bg-white dark:bg-[#1F2937]">
-                    <p className="text-xs text-[var(--muted)]">No recent news articles logged for this startup.</p>
+                    <p className="text-sm text-[var(--muted)]">No recent news articles logged for this startup.</p>
                   </div>
                 )}
               </div>
@@ -358,15 +393,15 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
             {activeTab === "notes" && (
               <div className="space-y-4">
                 <div className="doodle-card p-4 bg-white dark:bg-[#1F2937]">
-                  <h4 className="doodle-font font-bold text-xs text-[var(--foreground)] dark:text-white mb-2">Add Private Note</h4>
+                  <h4 className="doodle-font font-bold text-sm text-[var(--foreground)] dark:text-white mb-2">Add Private Note</h4>
                   <textarea
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
                     placeholder="Write investment notes or founder thesis..."
-                    className="w-full h-20 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-[var(--border-color)] text-xs focus:outline-none"
+                    className="w-full h-20 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-[var(--border-color)] text-sm focus:outline-none"
                   />
                   <div className="flex justify-end mt-2">
-                    <button onClick={handleAddNote} className="doodle-btn px-4 py-1.5 text-xs font-bold flex items-center gap-1.5">
+                    <button onClick={handleAddNote} className="doodle-btn px-4 py-1.5 text-sm font-bold flex items-center gap-1.5">
                       <Send className="w-3 h-3" /> Save Note
                     </button>
                   </div>
@@ -376,8 +411,8 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                   {startupNotes.map((note) => (
                     <div key={note.id} className="doodle-card p-3.5 bg-white dark:bg-[#1F2937] flex justify-between gap-3">
                       <div>
-                        <p className="text-xs text-[var(--foreground)] dark:text-white whitespace-pre-line">{note.content}</p>
-                        <p className="text-[10px] font-mono text-[var(--muted)] mt-1">{new Date(note.createdAt).toLocaleDateString()}</p>
+                        <p className="text-sm text-[var(--foreground)] dark:text-white whitespace-pre-line">{note.content}</p>
+                        <p className="text-xs font-mono text-[var(--muted)] mt-1">{new Date(note.createdAt).toLocaleDateString()}</p>
                       </div>
                       <button onClick={() => deleteNote(note.id)} className="text-rose-500 p-1">
                         <Trash2 className="w-3.5 h-3.5" />
@@ -396,6 +431,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
             {/* TAB CONTENT: Similar Startups */}
             {activeTab === "similar" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {similar.length === 0 && <p className="text-sm text-[var(--muted)]">No sufficiently related companies found in this dataset.</p>}
                 {similar.map((s, i) => (
                   <StartupCard key={s.id} startup={s} index={i} />
                 ))}
@@ -411,7 +447,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                 Company Intelligence Specs
               </h3>
 
-              <div className="space-y-3 text-xs">
+              <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--muted)] font-mono flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-[var(--accent)]" /> Batch / Year
@@ -452,7 +488,7 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
 
             {/* 360 Trifecta Ecosystem Banner Widget */}
             <div className="space-y-2">
-              <h4 className="doodle-font font-bold text-xs text-[var(--foreground)] dark:text-white flex items-center gap-1.5">
+              <h4 className="doodle-font font-bold text-sm text-[var(--foreground)] dark:text-white flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5 text-[var(--accent)]" /> Ecosystem Synergy Matrix
               </h4>
               <TrifectaBadgeBanner ycStartup={startup} />
@@ -461,10 +497,12 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
             {/* Similar Startups Sidebar Widget */}
             <div className="doodle-card p-4 bg-white dark:bg-[#1F2937] space-y-3">
               <h3 className="doodle-font font-black text-sm text-[var(--foreground)] dark:text-white flex items-center justify-between">
-                <span>Similar YC Companies</span>
-                <Link href="/yc" className="text-[10px] font-mono text-[var(--accent)] hover:underline">View All →</Link>
+                <span>Related companies by description</span>
+                <Link href="/yc" className="text-xs font-mono text-[var(--accent)] hover:underline">View All →</Link>
               </h3>
 
+              <p className="text-xs text-[var(--muted)]">Shared product-description terms; not verified competitors.</p>
+              {similar.length === 0 && <p className="text-sm text-[var(--muted)]">No sufficiently related companies found.</p>}
               <div className="space-y-2">
                 {similar.map((s) => (
                   <Link
@@ -475,10 +513,10 @@ export default function StartupDetailView({ params }: { params: Promise<{ slug: 
                     <div className="flex items-center gap-2.5 min-w-0">
                       <img src={s.logo} alt={s.name} className="w-7 h-7 rounded-lg border border-[#263D5B] object-contain p-0.5 bg-white shrink-0" />
                       <div className="min-w-0">
-                        <p className="doodle-font font-bold text-xs text-[var(--foreground)] dark:text-white group-hover:text-[var(--accent)] truncate">
+                        <p className="doodle-font font-bold text-sm text-[var(--foreground)] dark:text-white group-hover:text-[var(--accent)] truncate">
                           {s.name}
                         </p>
-                        <p className="text-[10px] text-[var(--muted)] font-mono truncate">{s.batch}</p>
+                        <p className="text-xs text-[var(--muted)] font-mono truncate">{s.batch}</p>
                       </div>
                     </div>
                     <ChevronRight className="w-3.5 h-3.5 text-[var(--muted)] group-hover:translate-x-0.5 transition-transform shrink-0" />

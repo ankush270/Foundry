@@ -32,15 +32,14 @@ const categoryIcons: Record<string, typeof Trophy> = {
 };
 
 const TRIVIA_FACTS = [
-  "Stripe (S10) reached a $95B+ valuation, making it the most valuable YC company in history.",
-  "GitLab (W15) went from YC Demo Day to a public Nasdaq IPO in just 6 years!",
-  "OpenAI (W16) started at YC and revolutionized generative AI with ChatGPT and GPT-4o.",
-  "Twitch (S07) was originally founded as Justin.tv before pivoting to game streaming and acquiring by Amazon for $970M.",
-  "DoorDash (S13) went public in 2020 at a $50B+ market cap, processing over 2 billion deliveries.",
+  "Explore company profiles to compare the dataset's batch, location and product descriptions.",
+  "This gallery is manually curated. Its ordering does not represent a current valuation ranking.",
+  "Company status and team sizes reflect a saved dataset, not a live company registry."
+
 ];
 
 export default function HallOfFameView() {
-  const leaderboards = useMemo(() => getHallOfFame(), []);
+  const leaderboards = useMemo(() => getHallOfFame().map(board => ({ ...board, entries: board.entries.map(entry => ({ ...entry, metric: "Historical figure — unverified" })) })), []);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [triviaIndex, setTriviaIndex] = useState<number>(0);
 
@@ -61,13 +60,13 @@ export default function HallOfFameView() {
       {/* Background Glow */}
       <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-br from-amber-500/10 via-purple-500/5 to-indigo-500/10 -z-10 blur-3xl pointer-events-none" />
 
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8">
+      <div className="max-w-[1680px] mx-auto px-4 sm:px-6 pt-8">
         <BackLink />
 
         <PageHeader
-          badgeText="Prestige Leaderboard"
+          badgeText="Curated historical examples"
           title="YC Hall of Fame & Wall of Champions"
-          subtitle="Celebrating the most legendary startups in Y Combinator history, ranked by valuation, speed to IPO, mega acquisitions, and AI leadership."
+          subtitle="Manually curated examples, not a current market ranking. Historical figures lack verified as-of dates and should not be used as current valuations."
           icon={Crown}
         />
 
@@ -102,7 +101,7 @@ export default function HallOfFameView() {
                     />
                     <h3 className="font-extrabold text-lg text-[var(--foreground)]">{topChampions[1].name}</h3>
                     <p className="text-xs text-[var(--muted)] truncate mt-0.5">{topChampions[1].oneLiner}</p>
-                    <div className="mt-3 inline-block px-3 py-1 rounded-full bg-slate-300/15 border border-slate-300/30 text-slate-200 text-xs font-mono font-bold">
+                    <div className="mt-3 inline-block px-3 py-1 rounded-full bg-slate-300/15 border border-slate-300/30 text-[var(--foreground)] text-xs font-mono font-bold">
                       {topChampions[1].metric}
                     </div>
                     <p className="text-[11px] text-[var(--muted)] mt-2 font-medium">
@@ -110,7 +109,7 @@ export default function HallOfFameView() {
                     </p>
                     <Link
                       href={`/startup/${topChampions[1].startupSlug}`}
-                      className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white transition-colors"
+                      className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
                     >
                       View Legend <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
@@ -288,7 +287,7 @@ export default function HallOfFameView() {
                         <Link
                           key={entry.startupSlug}
                           href={`/startup/${entry.startupSlug}`}
-                          className="flex items-center gap-4 px-6 py-4 hover:bg-white/5 transition-all group"
+                          className="flex flex-wrap items-center gap-3 px-4 py-4 hover:bg-white/5 transition-all group"
                         >
                           {/* Rank Badge */}
                           <div
@@ -324,7 +323,7 @@ export default function HallOfFameView() {
                           </div>
 
                           {/* Metric Tag */}
-                          <div className="text-right shrink-0">
+                          <div className="w-full sm:w-auto sm:max-w-[45%] text-left sm:text-right">
                             <span className="text-xs font-mono font-bold text-indigo-400 px-3 py-1 rounded-xl bg-indigo-500/10 border border-indigo-500/20 block">
                               {entry.metric}
                             </span>

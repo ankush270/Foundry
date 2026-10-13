@@ -1,4 +1,5 @@
 "use client";
+import { useRefreshTick } from "@/hooks/useRefreshTick";
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -89,7 +90,7 @@ export const ProductHuntExplorer: React.FC = () => {
         try {
           const saved = readStored("PH_BOOKMARKS", (value): value is { id: string }[] => Array.isArray(value) && value.every((item) => item && typeof item.id === "string"), []);
           if (saved) {
-            setBookmarkedProducts(SAMPLE_PRODUCTHUNT_PRODUCTS.filter((product) => saved.some((item) => item.id === product.id)));
+            setBookmarkedProducts(saved.filter((item): item is ProductHuntProduct => typeof (item as ProductHuntProduct).slug === "string" && typeof (item as ProductHuntProduct).name === "string"));
           }
 
         } catch (err) {
@@ -143,6 +144,7 @@ export const ProductHuntExplorer: React.FC = () => {
   const endIndex = Math.min(startIndex + itemsPerPage, products.length);
   const currentProducts = products.slice(startIndex, endIndex);
 
+  const refreshTick = useRefreshTick();
   // Fetch Products Effect
   const loadProducts = async (forceRefresh: boolean = false) => {
     const request = ++latestRequest.current;
@@ -186,6 +188,8 @@ export const ProductHuntExplorer: React.FC = () => {
       cursor: endCursor,
     };
     const res = await ProductHuntApiService.fetchProducts(options);
+    setEndCursor(res.endCursor || null);
+    setHasNextPage(res.hasNextPage || false);
     if (res.products.length > 0) {
       setProducts((prev) => {
         const existingIds = new Set(prev.map((p) => p.id));
@@ -258,10 +262,10 @@ export const ProductHuntExplorer: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => { void loadProducts(); }, 0);
     return () => { clearTimeout(timer); latestRequest.current++; };
-  }, [searchQuery, selectedCategory, selectedPricing, timeframe, sortBy]);
+  }, [searchQuery, selectedCategory, selectedPricing, timeframe, sortBy, refreshTick]);
 
   return (
-    <div className="min-h-screen bg-[var(--background)] pt-24 pb-20 px-3 sm:px-6 max-w-[1440px] mx-auto text-[var(--foreground)] transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--background)] pt-24 pb-20 px-3 sm:px-6 max-w-[1680px] mx-auto text-[var(--foreground)] transition-colors duration-300">
       {/* Hero Banner Section (Product Hunt Theme) */}
       <div className="relative rounded-3xl bg-[#FF6154] text-white p-6 sm:p-10 border-2 border-[#DA552F] shadow-sm overflow-hidden mb-8">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
@@ -276,7 +280,7 @@ export const ProductHuntExplorer: React.FC = () => {
             {/* Live Data Badge */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 text-xs font-mono font-bold text-emerald-200 border border-emerald-300/40">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              {isLive ? "🟢 LIVE Product Hunt Feed" : "🟡 Curated Dataset"}
+              {isLive ? "🟢 LIVE Product Hunt Feed" : "Live feed unavailable"}
             </div>
           </div>
 
@@ -387,7 +391,8 @@ export const ProductHuntExplorer: React.FC = () => {
         {/* Filter Chips & Selectors Row */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
           {/* Categories Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+          <label className="sm:hidden w-full text-sm font-semibold">Category<select aria-label="Product category" value={selectedCategory} onChange={event => setSelectedCategory(event.target.value as typeof selectedCategory)} className="mobile-category-select">{CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select></label>
+          <div className="hidden sm:flex items-center gap-1.5 flex-wrap pb-1 max-w-full">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
@@ -404,7 +409,7 @@ export const ProductHuntExplorer: React.FC = () => {
           </div>
 
           {/* Pricing & Timeframe Selectors */}
-          <div className="flex items-center gap-2">
+          <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto min-w-0">
             <select
               value={selectedPricing}
               onChange={(e) => setSelectedPricing(e.target.value as PricingModel | "All")}
@@ -425,7 +430,7 @@ export const ProductHuntExplorer: React.FC = () => {
               <option value="votes">Most Upvoted</option>
               <option value="comments">Most Commented</option>
               <option value="date">Newest Launch</option>
-              <option value="relevance">Featured Launches</option>
+              <option value="relevance">Search Relevance</option>
             </select>
           </div>
         </div>
@@ -587,8 +592,8 @@ export const ProductHuntExplorer: React.FC = () => {
       {showTokenModal && (
         <div role="dialog" aria-label="Product Hunt data source" className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
           <div className="rounded-2xl bg-[var(--surface)] p-6 max-w-md">
-            <h2 className="font-bold">Curated Product Hunt dataset</h2>
-            <p className="my-4">This deployment uses a curated snapshot. API tokens and refresh do not enable a live feed.</p>
+            <h2 className="font-bold">Live Product Hunt connection</h2>
+            <p className="my-4">The server uses PRODUCTHUNT_TOKEN to request live launches. Automatic refresh runs every five minutes while this page is visible. Filters and counts describe loaded pages, not the complete Product Hunt catalog.</p>
             <button onClick={() => setShowTokenModal(false)}>Close</button>
           </div>
         </div>

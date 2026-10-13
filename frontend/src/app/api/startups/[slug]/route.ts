@@ -1,21 +1,11 @@
 import { NextResponse } from "next/server";
-export const dynamic = "force-static";
-import { getStartupBySlug, getSimilarStartups } from "@/lib/utils";
-
-export async function generateStaticParams() {
-  return [{ slug: "demo" }];
-}
-
-
-export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  const { slug } = await params;
-  const startup = getStartupBySlug(slug);
-  if (!startup) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-  const similar = getSimilarStartups(startup, 4);
-  return NextResponse.json({ data: startup, similar });
+import { getStartupBySlug } from "@/lib/utils";
+import { refreshYCProfile } from "@/lib/yc-refresh";
+export const dynamic = "force-dynamic";
+export async function GET(_req: Request, { params }: { params: Promise<{slug: string}> }) {
+  const {slug} = await params;
+  const previous = getStartupBySlug(slug);
+  if (!previous) return NextResponse.json({error:"Not found"}, {status:404});
+  try { return NextResponse.json({data:await refreshYCProfile(previous), isLive:true}, {headers:{"Cache-Control":"no-store"}}); }
+  catch { return NextResponse.json({error:"YC source unavailable. The saved profile is not verified as current.", isLive:false}, {status:503}); }
 }

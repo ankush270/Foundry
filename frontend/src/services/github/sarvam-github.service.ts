@@ -154,7 +154,7 @@ export class SarvamGithubService {
 
     if (qLower.includes("performance") || qLower.includes("scale") || qLower.includes("fast")) {
       return {
-        answer: `${repo.name} is written in **${repo.language}** with a quality score of **${repo.qualityScore}/100**. Its maintenance velocity is ${repo.maintainerHealth.toLowerCase()} with ${repo.monthlyCommitVelocity} commits/month.`,
+        answer: repo.metricsAvailable === false ? `${repo.name} uses ${repo.language}. Commit history, issue resolution and growth have not been measured; quality and health are not assessed.` : `${repo.name} is written in **${repo.language}** with a quality score of **${repo.qualityScore}/100**. Its maintenance velocity is ${repo.maintainerHealth.toLowerCase()} with ${repo.monthlyCommitVelocity} commits/month.`,
       };
     }
 

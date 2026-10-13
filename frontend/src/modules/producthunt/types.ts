@@ -8,7 +8,7 @@ export type ProductCategory =
   | "Marketing & Sales"
   | "No-Code & Mobile";
 
-export type PricingModel = "Free" | "Freemium" | "Paid" | "Open Source";
+export type PricingModel = "Free" | "Freemium" | "Paid" | "Open Source" | "Unknown";
 
 export interface ProductMaker {
   name: string;

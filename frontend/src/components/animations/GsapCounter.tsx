@@ -58,7 +58,7 @@ export default function GsapCounter({
     return () => ctx.revert();
   }, [value, duration, prefix, suffix, decimals]);
 
-  const initialFormatted = (0).toLocaleString(undefined, {
+  const initialFormatted = value.toLocaleString("en-US", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });

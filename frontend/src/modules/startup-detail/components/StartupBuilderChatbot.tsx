@@ -29,7 +29,7 @@ export default function StartupBuilderChatbot({ startup }: Props) {
     {
       id: "initial-welcome",
       sender: "bot",
-      text: `👋 **Welcome!** I am your **AI System Architect for ${startup.name}**.\n\nI have loaded the full system blueprint, database entities, third-party APIs, and engineering bottlenecks for **${startup.name}** (*${startup.oneLiner}*).\n\nYou can ask me **anything** about how to build a clone or competitor — tech stack decisions, database schemas, double-booking prevention, payment payouts, map integration, or code examples!\n\n👇 **Select a quick prompt or type your question below:**`,
+      text: `👋 **Welcome!** I am a **template-based architecture helper for ${startup.name}**.\n\nThese are illustrative suggestions, not verified internal architecture or a live AI response for **${startup.name}** (*${startup.oneLiner}*).\n\nYou can ask me **anything** about how to build a clone or competitor — tech stack decisions, database schemas, double-booking prevention, payment payouts, map integration, or code examples!\n\n👇 **Select a quick prompt or type your question below:**`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -121,11 +121,11 @@ export default function StartupBuilderChatbot({ startup }: Props) {
                   Build {startup.name} Clone
                 </h2>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  <Bot className="w-3.5 h-3.5 text-indigo-400" /> AI System Architect
+                  <Bot className="w-3.5 h-3.5 text-indigo-400" /> Architecture Planning Helper
                 </span>
               </div>
               <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
-                Complete technical blueprint & AI conversational assistant to build, scale, and launch a system like <strong className="text-white">{startup.name}</strong>.
+                Template-based implementation ideas, not verified architecture or delivery estimates, for <strong className="text-white">{startup.name}</strong>.
               </p>
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function StartupBuilderChatbot({ startup }: Props) {
       {/* Navigation Sub-Tabs */}
       <div className="flex gap-2 border-b border-white/10 pb-3 overflow-x-auto scrollbar-none" data-lenis-prevent>
         {[
-          { id: "chat", label: "💬 AI Q&A Assistant", icon: Sparkles },
+          { id: "chat", label: "💬 Template Q&A", icon: Sparkles },
           { id: "stack", label: "🏗️ Tech Stack", icon: Layers, count: blueprint.techStack.length },
           { id: "apis", label: "🔌 Essential APIs", icon: Wrench, count: blueprint.essentialApis.length },
           { id: "schema", label: "𝌰 Database Schema", icon: Database, count: blueprint.dbSchema.length },

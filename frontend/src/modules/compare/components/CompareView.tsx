@@ -40,7 +40,7 @@ export default function CompareView() {
           <p className="text-sm text-[var(--muted)] mb-6">Select 2-3 startups from the explorer cards to compare their metrics side-by-side.</p>
           <GsapMagnetic strength={0.3}>
             <Link
-              href="/"
+              href="/yc"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition-all"
             >
               <Sparkles className="w-4 h-4" /> Go to Startup Explorer
@@ -56,7 +56,7 @@ export default function CompareView() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-96 bg-gradient-to-b from-indigo-500/10 via-purple-600/5 to-transparent blur-[120px] pointer-events-none" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-20 relative z-10">
         <BackLink />
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <PageHeader
             badgeText="Head-to-Head Comparison"
             title="Startup Matrix Compare"
@@ -71,6 +71,14 @@ export default function CompareView() {
           </button>
         </div>
 
+        <div className="sm:hidden space-y-5">
+          {selected.map(s => <section key={s.id} className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-4">
+            <div className="flex justify-between items-center gap-3 mb-4"><Link href={`/startup/${s.slug}`} className="font-bold text-lg">{s.name}</Link><button aria-label={`Remove ${s.name} from comparison`} onClick={() => remove(s.id)} className="p-2"><X size={18}/></button></div>
+            <dl className="space-y-3">{fields.map(field => <div key={field.label} className="grid grid-cols-[100px_minmax(0,1fr)] gap-3 border-t border-[var(--border-color)] pt-3"><dt className="text-sm text-[var(--muted)]">{field.label}</dt><dd className="text-sm break-words">{field.get(s) || "Not available"}</dd></div>)}</dl>
+          </section>)}
+        </div>
+        <div className="hidden sm:block overflow-x-auto">
+        <div style={{minWidth: 180 + selected.length * 220}}>
         {/* Header cards */}
         <div className="grid gap-4 mb-6" style={{ gridTemplateColumns: `180px repeat(${selected.length}, 1fr)` }}>
           <div className="flex items-end p-4">
@@ -134,6 +142,8 @@ export default function CompareView() {
               </div>
             ))}
           </GsapStaggerList>
+        </div>
+        </div>
         </div>
       </div>
     </div>

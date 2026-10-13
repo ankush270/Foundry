@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import {
   ChevronUp,
@@ -33,18 +33,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onToggleCompare,
   isComparing,
 }) => {
-  const [votes, setVotes] = useState(product.votesCount);
-  const [hasVoted, setHasVoted] = useState(false);
+  const votes = product.votesCount;
+  const hasVoted = false;
 
   const handleVote = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (hasVoted) {
-      setVotes((v) => v - 1);
-      setHasVoted(false);
-    } else {
-      setVotes((v) => v + 1);
-      setHasVoted(true);
-    }
+    if (product?.productHuntUrl) window.open(product.productHuntUrl, "_blank", "noopener,noreferrer");
   };
 
   return (

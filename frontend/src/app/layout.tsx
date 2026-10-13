@@ -1,3 +1,4 @@
+import DataFreshnessNotice from "@/components/layout/DataFreshnessNotice";
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono, Delius_Swash_Caps, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Navbar />
           <main className="flex-1 pt-[68px] sm:pt-20">
+            <DataFreshnessNotice />
             {children}
           </main>
         </Providers>

@@ -65,7 +65,7 @@ export default function TechStackLinker({ startup, isOpen = true, onClose, embed
 
   // Generate recommendation combining live + curated repos
   const recommendation = useMemo<TechStackRecommendation | null>(() => {
-    const allRepos = [...liveRepos, ...SAMPLE_OSS_REPOSITORIES];
+    const allRepos = [...liveRepos];
     const seen = new Set<string>();
     const unique = allRepos.filter(r => {
       const key = r.fullName.toLowerCase();

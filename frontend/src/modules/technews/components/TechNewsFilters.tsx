@@ -89,7 +89,7 @@ export default function TechNewsFilters({
           </div>
 
           {/* Sort Select */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-slate-500 hidden sm:block" />
             <select
               value={filters.sortBy}
@@ -99,14 +99,15 @@ export default function TechNewsFilters({
               <option value="latest">Sort: Latest First</option>
               <option value="impact">Sort: Highest Impact</option>
               <option value="opportunities">Sort: Most Ideas</option>
-              <option value="trending">Sort: Trending</option>
+
             </select>
           </div>
         </div>
       </div>
 
       {/* Category Pills (Doodle Style) */}
-      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
+      <label className="block sm:hidden text-sm font-semibold">Category<select aria-label="News category" value={filters.category} onChange={event => onFilterChange({category: event.target.value as typeof filters.category})} className="mobile-category-select">{CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select></label>
+      <div className="hidden sm:flex flex-wrap items-center gap-2 pb-1">
         {CATEGORIES.map((cat) => {
           const active = filters.category === cat;
           return (
@@ -126,7 +127,7 @@ export default function TechNewsFilters({
       </div>
 
       {/* Impact Level Pills */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="doodle-font text-xs font-black text-[var(--foreground)] dark:text-slate-300 flex items-center gap-1">
           <Flame className="w-3.5 h-3.5 text-[#F97316]" /> Impact:
         </span>

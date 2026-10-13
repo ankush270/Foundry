@@ -6,8 +6,8 @@ import type { Startup } from "@/data/types";
 import type { OssRepository } from "@/modules/githuboss/types";
 import type { ProductHuntProduct } from "@/modules/producthunt/types";
 import { startups } from "@/data/startups";
-import { SAMPLE_OSS_REPOSITORIES } from "@/data/githuboss-repos";
-import { SAMPLE_PRODUCTHUNT_PRODUCTS } from "@/data/producthunt-products";
+import {useLiveResearch} from "@/hooks/useLiveResearch";
+
 import { getThreeWayNodeContext } from "@/lib/cross-intelligence";
 import TrifectaFlywheelHub from "./TrifectaFlywheelHub";
 
@@ -24,6 +24,7 @@ export default function TrifectaBadgeBanner({
   productHuntProduct,
   compact = false,
 }: Props) {
+  const {repos: SAMPLE_OSS_REPOSITORIES, products: SAMPLE_PRODUCTHUNT_PRODUCTS} = useLiveResearch();
   const [modalOpen, setModalOpen] = useState(false);
 
   const primaryType = ycStartup ? "yc" : githubRepo ? "github" : "producthunt";

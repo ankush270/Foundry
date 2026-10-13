@@ -802,7 +802,7 @@ export default function GraphView() {
   return (
     <div className={`min-h-screen ${isFullscreen ? "fixed inset-0 z-50 bg-[var(--background)] p-4 overflow-y-auto" : ""}`}>
       <div className="absolute top-0 left-0 right-0 h-60 bg-gradient-to-br from-pink-500/5 via-transparent to-[var(--accent)]/5 -z-10" />
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-4 pb-16">
+      <div className="max-w-[1680px] mx-auto px-4 sm:px-6 pt-4 pb-16">
         {!isFullscreen && (
           <>
             <BackLink />
@@ -817,7 +817,7 @@ export default function GraphView() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
+          className="grid grid-cols-1 min-[380px]:grid-cols-2 lg:grid-cols-4 gap-3 mb-6"
         >
           <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] flex items-center gap-3 shadow-sm">
             <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500">
@@ -851,7 +851,7 @@ export default function GraphView() {
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] flex items-center justify-between shadow-sm">
+          <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] flex flex-wrap items-center justify-between gap-2 shadow-sm">
             <div className="flex items-center gap-2">
               <button
                 onClick={handleSurpriseMe}
@@ -1052,7 +1052,7 @@ export default function GraphView() {
             </div>
 
             {/* Filter Type Pills */}
-            <div className="flex gap-1 p-1 rounded-xl bg-[var(--surface)] border border-[var(--border-color)]">
+            <div className="flex flex-wrap gap-1 p-1 rounded-xl bg-[var(--surface)] border border-[var(--border-color)]">
               {["all", "startup", "industry", "founder", "batch"].map((t) => (
                 <button
                   key={t}
@@ -1159,7 +1159,7 @@ export default function GraphView() {
         </motion.div>
 
         {/* Node Color Legend (Interactive Filter Buttons) */}
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex flex-wrap items-center gap-2 mb-4">
           {legendItems.map((item) => {
             const active = filterType === item.type;
             return (
@@ -1241,7 +1241,7 @@ export default function GraphView() {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 30, scale: 0.95 }}
                 data-lenis-prevent
-                className="absolute top-4 right-4 w-80 sm:w-96 max-h-[calc(100%-2rem)] p-5 rounded-2xl bg-[var(--surface)]/95 border border-[var(--border-color)] shadow-2xl backdrop-blur-xl z-20 overflow-y-auto"
+                className="absolute top-4 right-4 w-[calc(100%-2rem)] sm:w-96 max-h-[calc(100%-2rem)] p-5 rounded-2xl bg-[var(--surface)]/95 border border-[var(--border-color)] shadow-2xl backdrop-blur-xl z-20 overflow-y-auto"
               >
                 {/* Header Badge & Close Button */}
                 <div className="flex items-center justify-between mb-3">

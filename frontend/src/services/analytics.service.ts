@@ -69,6 +69,7 @@ export function computeAIGrowth(data: Startup[]) {
 
 export function computeTeamSizeDistribution(data: Startup[]) {
   const brackets = [
+    { label: "Unknown", min: -1, max: -1, count: 0 },
     { label: "1-10 employees", min: 1, max: 10, count: 0 },
     { label: "11-50 employees", min: 11, max: 50, count: 0 },
     { label: "51-200 employees", min: 51, max: 200, count: 0 },
@@ -77,8 +78,8 @@ export function computeTeamSizeDistribution(data: Startup[]) {
   ];
 
   data.forEach((s) => {
-    const size = parseInt(s.teamSize || "1", 10);
-    if (!isNaN(size)) {
+    const size = Number(s.teamSize);
+    if (Number.isFinite(size) && size > 0) {
       const match = brackets.find((b) => size >= b.min && size <= b.max);
       if (match) match.count++;
       else brackets[0].count++;
@@ -100,13 +101,13 @@ export function computeBatchSeasonDistribution(data: Startup[]) {
 }
 
 export function computeHiringIntelligence(data: Startup[]) {
-  const hiringStartups = data.filter((s) => s.isHiring || (s.jobCount && s.jobCount > 0));
-  const totalJobs = data.reduce((acc, s) => acc + (s.jobCount || (s.jobs ? s.jobs.length : 0)), 0);
+  const hiringStartups = data.filter((s) => s.isHiring || (s.jobCount ?? s.jobs?.length ?? 0) > 0);
+  const totalJobs = data.reduce((acc, s) => acc + (s.jobCount ?? s.jobs?.length ?? 0), 0);
   
   // Top hiring sectors
   const sectorJobsMap: Record<string, number> = {};
   hiringStartups.forEach((s) => {
-    const count = s.jobCount || (s.jobs ? s.jobs.length : 1);
+    const count = s.jobCount ?? s.jobs?.length ?? 0;
     s.industries?.forEach((ind) => {
       sectorJobsMap[ind] = (sectorJobsMap[ind] || 0) + count;
     });
@@ -129,9 +130,9 @@ export function computeKPIs(data: Startup[]) {
   const active = data.filter((s) => s.status === "Active").length;
   const publicCount = data.filter((s) => s.status === "Public").length;
   const acquired = data.filter((s) => s.status === "Acquired").length;
-  const unicorns = data.filter((s) => s.tags?.some((t) => ["Top Company", "Unicorn", "Public Company"].includes(t))).length;
-  const hiring = data.filter((s) => s.isHiring).length;
-  const totalJobs = data.reduce((acc, s) => acc + (s.jobCount || 0), 0);
+  const unicorns = data.filter((s) => s.tags?.some((t) => t === "Unicorn")).length;
+  const hiring = data.filter((s) => s.isHiring || (s.jobCount ?? s.jobs?.length ?? 0) > 0).length;
+  const totalJobs = data.reduce((acc, s) => acc + (s.jobCount ?? s.jobs?.length ?? 0), 0);
 
   const activePct = total ? Math.round((active / total) * 100) : 0;
   const exitCount = publicCount + acquired;

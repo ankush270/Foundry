@@ -1,4 +1,5 @@
 "use client";
+import { useRefreshTick } from "@/hooks/useRefreshTick";
 
 import { useState, useEffect, useRef } from "react";
 import { TechNewsItem, TechNewsFilters as FilterState, TechNewsStatsSummary } from "@/modules/technews/types";
@@ -43,6 +44,7 @@ export default function TechNewsPage() {
     sortBy: "latest",
   });
 
+  const refreshTick = useRefreshTick();
   const fetchNews = async (currentPage = page, forceRefresh = false) => {
     const currentRequest = ++requestId.current;
     setError(null);
@@ -79,7 +81,7 @@ export default function TechNewsPage() {
         }
       }
     } catch (err) {
-      if (currentRequest === requestId.current) setError(err instanceof Error ? err.message : "News could not be loaded.");
+      if (currentRequest === requestId.current) { setItems([]); setTotalItems(0); setTotalPages(1); setDataSource("Live feed unavailable"); setError(err instanceof Error ? err.message : "News could not be loaded."); }
     } finally {
       if (currentRequest === requestId.current) { setLoading(false); setIsRefreshing(false); }
     }
@@ -88,7 +90,7 @@ export default function TechNewsPage() {
   useEffect(() => {
     const timer = setTimeout(() => { void fetchNews(page); }, 0);
     return () => { clearTimeout(timer); requestId.current++; };
-  }, [filters, page]);
+  }, [filters, page, refreshTick]);
 
   const handleFilterChange = (newFilters: Partial<FilterState>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -141,7 +143,7 @@ export default function TechNewsPage() {
   };
 
   return (
-    <main className="min-h-screen pt-24 pb-16 px-4 sm:px-6 max-w-[1440px] mx-auto font-sans">
+    <main className="min-h-screen pt-24 pb-16 px-4 sm:px-6 max-w-[1680px] mx-auto font-sans">
       {/* Master Doodle Hero Banner */}
       <div className="relative rounded-3xl bg-[#FFFDF5] dark:bg-[#1E293B] p-6 sm:p-8 text-[var(--foreground)] dark:text-white border border-[var(--border-color)] dark:border-[var(--border-color)] shadow-sm shadow-sm z-30 mb-8">
         <div className="relative z-10 max-w-4xl space-y-4">

@@ -2,29 +2,29 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  CATEGORY_TAXONOMIES, 
-  CategoryTaxonomy, 
-  SubCategory 
+import {
+  CATEGORY_TAXONOMIES,
+  CategoryTaxonomy,
+  SubCategory
 } from "../category-taxonomy";
 import { TrendingDiscoveryMode } from "../types";
-import { 
-  Brain, 
-  Layers, 
-  Code2, 
-  Server, 
-  Layout, 
-  Terminal, 
-  Shield, 
-  Database, 
-  BarChart3, 
-  Bot, 
-  Flame, 
-  Gem, 
-  TrendingUp, 
-  Trophy, 
-  Sparkles, 
-  ChevronRight, 
+import {
+  Brain,
+  Layers,
+  Code2,
+  Server,
+  Layout,
+  Terminal,
+  Shield,
+  Database,
+  BarChart3,
+  Bot,
+  Flame,
+  Gem,
+  TrendingUp,
+  Trophy,
+  Sparkles,
+  ChevronRight,
   X,
   Compass,
   Filter
@@ -69,35 +69,35 @@ export const TrendingCategoryBar: React.FC<TrendingCategoryBarProps> = ({
   );
 
   const discoveryModes: { id: TrendingDiscoveryMode; label: string; icon: React.ReactNode; badgeColor: string }[] = [
-    { 
-      id: "all", 
-      label: "All Repos", 
-      icon: <Compass className="w-3.5 h-3.5" />, 
-      badgeColor: "border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-600" 
+    {
+      id: "all",
+      label: "All Repos",
+      icon: <Compass className="w-3.5 h-3.5" />,
+      badgeColor: "border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-600"
     },
-    { 
-      id: "trending", 
-      label: "🔥 Trending Today", 
-      icon: <Flame className="w-3.5 h-3.5 text-amber-400" />, 
-      badgeColor: "border-amber-500/40 bg-amber-500/10 text-amber-300 hover:border-amber-500/60" 
+    {
+      id: "trending",
+      label: "🔥 Trending Today",
+      icon: <Flame className="w-3.5 h-3.5 text-amber-400" />,
+      badgeColor: "border-amber-500/40 bg-amber-500/10 text-amber-300 hover:border-amber-500/60"
     },
-    { 
-      id: "gems", 
-      label: "💎 Hidden Gems (<3k ⭐)", 
-      icon: <Gem className="w-3.5 h-3.5 text-emerald-400" />, 
-      badgeColor: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:border-emerald-500/60" 
+    {
+      id: "gems",
+      label: "💎 100–3,000 Stars (<3k ⭐)",
+      icon: <Gem className="w-3.5 h-3.5 text-emerald-400" />,
+      badgeColor: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:border-emerald-500/60"
     },
-    { 
-      id: "emerging", 
-      label: "🚀 Emerging (3k-20k ⭐)", 
-      icon: <TrendingUp className="w-3.5 h-3.5 text-sky-400" />, 
-      badgeColor: "border-sky-500/40 bg-sky-500/10 text-sky-300 hover:border-sky-500/60" 
+    {
+      id: "emerging",
+      label: "🚀 Emerging (3k-20k ⭐)",
+      icon: <TrendingUp className="w-3.5 h-3.5 text-sky-400" />,
+      badgeColor: "border-sky-500/40 bg-sky-500/10 text-sky-300 hover:border-sky-500/60"
     },
-    { 
-      id: "top", 
-      label: "🏆 Mega Titans (20k+ ⭐)", 
-      icon: <Trophy className="w-3.5 h-3.5 text-indigo-400" />, 
-      badgeColor: "border-indigo-500/40 bg-indigo-500/10 text-indigo-300 hover:border-indigo-500/60" 
+    {
+      id: "top",
+      label: "🏆 Mega Titans (20k+ ⭐)",
+      icon: <Trophy className="w-3.5 h-3.5 text-indigo-400" />,
+      badgeColor: "border-indigo-500/40 bg-indigo-500/10 text-indigo-300 hover:border-indigo-500/60"
     },
   ];
 

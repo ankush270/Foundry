@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 import { getRandomStartup } from "@/lib/utils";
 import { generateHints } from "@/services/quiz.service";
 

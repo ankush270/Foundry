@@ -93,11 +93,11 @@ Full Content: ${item.breakdown.whatHappened}`,
     // Intelligent domain fallback if no API key is provided
     const qLower = question.toLowerCase();
     if (qLower.includes("risk") || qLower.includes("danger") || qLower.includes("problem")) {
-      return `Primary risks identified by Sarvam AI analysis for **${item.title}**:\n1. **Market Overlap**: ${item.breakdown.marketImpact.disruptionVector}\n2. **Execution Velocity**: Rapid adaptation needed for ${item.category}.\n3. **Compliance & Diligence**: Investors will scrutinize unit economics and infrastructure costs.`;
+      return `Template-based considerations (not an AI assessment) for **${item.title}**:\n1. **Market Overlap**: ${item.breakdown.marketImpact.disruptionVector}\n2. **Execution Velocity**: Rapid adaptation needed for ${item.category}.\n3. **Compliance & Diligence**: Investors will scrutinize unit economics and infrastructure costs.`;
     }
 
     if (qLower.includes("startup") || qLower.includes("opportunity") || qLower.includes("build") || qLower.includes("idea")) {
-      return `Sarvam AI recommended startup vectors for **${item.title}**:\n` +
+      return `Saved opportunity notes for **${item.title}**:\n` +
         item.breakdown.startupOpportunities
           .map((opp, idx) => `**${idx + 1}. ${opp.title}**\n• ${opp.description}\n• Target Market: ${opp.targetMarket}`)
           .join("\n\n");
@@ -108,7 +108,7 @@ Full Content: ${item.breakdown.whatHappened}`,
         item.breakdown.newTechnology.keyFeatures.map((f) => `  - ${f}`).join("\n");
     }
 
-    return `Here is Sarvam AI's strategic briefing on **${item.title}**:\n\n` +
+    return `Saved briefing (AI unavailable) for **${item.title}**:\n\n` +
       `• **Core Premise**: ${item.premise}\n` +
       `• **Category**: ${item.category} (${item.impactLevel} Impact)\n` +
       `• **Key Takeaway**: ${item.breakdown.developerImpact.summary}`;
@@ -156,24 +156,7 @@ Full Content: ${item.breakdown.whatHappened}`,
       }
     }
 
-    // Local Indic fallback translations
-    if (targetLang === "hi") {
-      return `[Sarvam AI हिंदी अनुवाद]: ${text}`;
-    }
-    if (targetLang === "hinglish") {
-      return `[Sarvam AI Hinglish Briefing]: ${text} - Is report me main technical updates and market impact highlight kiye gaye hain.`;
-    }
-    if (targetLang === "ta") {
-      return `[Sarvam AI தமிழ் செய்தி சுருக்கம்]: ${text}`;
-    }
-    if (targetLang === "te") {
-      return `[Sarvam AI తెలుగు వార్తల సారాంశం]: ${text}`;
-    }
-    if (targetLang === "bn") {
-      return `[Sarvam AI বাংলা সারাংশ]: ${text}`;
-    }
-
-    return text;
+    throw new Error("Translation unavailable. Configure the AI service or try again; the original text has not been translated.");
   }
 
   /**

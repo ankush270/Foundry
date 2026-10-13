@@ -41,9 +41,9 @@ export default function Navbar() {
         <button className="saas-icon-button" aria-label={resolved === "dark" ? "Switch to light theme" : "Switch to dark theme"} onClick={() => setTheme(resolved === "dark" ? "light" : "dark")}>{resolved === "dark" ? <Sun size={17} /> : <Moon size={17} />}</button>
         <Link href="/watchlist" className="saas-watchlist"><Bookmark size={15} /> Watchlist</Link>
         <Link href="/yc" className="saas-primary saas-nav-cta">Start exploring <ArrowUpRight size={15} /></Link>
-        <button className="saas-mobile-toggle saas-icon-button" aria-label={mobile ? "Close navigation" : "Open navigation"} aria-expanded={mobile} onClick={() => setMobile(!mobile)}>{mobile ? <X size={21} /> : <Menu size={21} />}</button>
+        <button className="saas-mobile-toggle saas-icon-button" aria-label={mobile ? "Close navigation" : "Open navigation"} aria-expanded={mobile} aria-controls="mobile-navigation" onClick={() => setMobile(!mobile)}>{mobile ? <X size={21} /> : <Menu size={21} />}</button>
       </div>
     </div>
-    {mobile && <nav className="saas-mobile-links" aria-label="Mobile navigation">{[...links,...moreNavLinks,{href:"/trifecta",label:"Trifecta"},{href:"/compare",label:"Compare"}].map(link=><Link key={link.href} href={link.href}>{link.label}<ArrowUpRight size={14}/></Link>)}</nav>}
+    {mobile && <nav id="mobile-navigation" className="saas-mobile-links" aria-label="Mobile navigation">{[...links,...moreNavLinks,{href:"/trifecta",label:"Trifecta"},{href:"/compare",label:count ? `Compare (${count})` : "Compare"}].map(link=><Link key={link.href} href={link.href} onClick={() => setMobile(false)}>{link.label}<ArrowUpRight size={14}/></Link>)}</nav>}
   </header>;
 }

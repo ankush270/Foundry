@@ -29,6 +29,8 @@ export interface NewsItem {
 }
 
 export interface Startup {
+  sourceCheckedAt?: string;
+  sourceUrl?: string;
   id: string;
   name: string;
   slug: string;

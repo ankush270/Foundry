@@ -18,7 +18,7 @@ let serverCache: CachedLiveNews = {
   itemsMap: new Map(),
 };
 
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes cache
+const CACHE_TTL_MS = 5 * 60 * 1000; // 10 minutes cache
 
 function normalizeSlug(str: string): string {
   if (!str) return "";
@@ -130,7 +130,7 @@ export class TechNewsApiService {
               a.breakdown.startupOpportunities.length
           );
         } else if (filters.sortBy === "trending") {
-          filtered.sort((a, b) => b.readTimeMinutes - a.readTimeMinutes);
+          filtered.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
         }
       }
     }
@@ -148,7 +148,7 @@ export class TechNewsApiService {
       totalPages,
       hasMore,
       stats,
-      source: pageItems.some((item) => !item.id.startsWith("tn-")) ? "Live source feeds" : "Curated sample dataset",
+      source: pageItems.length ? `Live source feeds — checked ${new Date(serverCache.timestamp).toISOString()}` : "Live feeds unavailable; no sample data shown",
     };
   }
 
@@ -173,13 +173,13 @@ export class TechNewsApiService {
     };
 
     // 1. Check all cached items across all loaded pages
-    for (const [, items] of serverCache.itemsMap.entries()) {
+    for (const [, items] of (Date.now() - serverCache.timestamp < CACHE_TTL_MS ? serverCache.itemsMap : new Map<number, TechNewsItem[]>()).entries()) {
       const match = items.find(isMatch);
       if (match) return match;
     }
 
     // 2. Check SAMPLE_TECH_NEWS curated dataset
-    const sampleMatch = SAMPLE_TECH_NEWS.find(isMatch);
+    const sampleMatch = undefined;
     if (sampleMatch) return sampleMatch;
 
     // 3. Scan live items across pages 1 to 5 to locate item by slug
@@ -276,7 +276,7 @@ export class TechNewsApiService {
       console.warn(`Targeted live fetch error for page ${page}:`, err);
     }
 
-    return SAMPLE_TECH_NEWS;
+    return [];
   }
 
   /**
@@ -436,7 +436,7 @@ export class TechNewsApiService {
       return fetchedItems;
     }
 
-    return SAMPLE_TECH_NEWS;
+    return [];
   }
 
   /**
@@ -650,8 +650,7 @@ export class TechNewsApiService {
       searchText.includes("kubernetes") ||
       searchText.includes("ci/cd") ||
       searchText.includes("ec2") ||
-      searchText.includes("graviton") ||
-      searchText.includes("linux") ||
+            searchText.includes("linux") ||
       searchText.includes("ebs")
     ) {
       category = "DevTools & Cloud Native";
@@ -691,16 +690,16 @@ export class TechNewsApiService {
     }
 
     // 2. Determine Impact Level
-    let impactLevel: ImpactLevel = "High";
+    let impactLevel: ImpactLevel = "Medium";
     if (
-      searchText.includes("introducing") ||
-      searchText.includes("announcing") ||
-      searchText.includes("open-source") ||
-      searchText.includes("billion") ||
+      false ||
+      false ||
+      false ||
+      false ||
       searchText.includes("critical") ||
       searchText.includes("graviton") ||
-      searchText.includes("ships") ||
-      searchText.includes("breakthrough")
+      false ||
+      searchText.includes("actively exploited")
     ) {
       impactLevel = "Critical";
     } else if (searchText.includes("update") || searchText.includes("release") || searchText.includes("preview")) {
@@ -727,7 +726,7 @@ export class TechNewsApiService {
       (c === "Amazon / AWS" ? /\b(amazon|aws)\b/ : new RegExp(`\\b${c.toLowerCase()}\\b`)).test(searchText)
     );
     if (foundCompanies.length === 0) {
-      foundCompanies.push(raw.sourceName, "Cloud Infrastructure Teams", "Enterprise Adopters");
+      // No company mentioned: retain an empty list.
     }
 
     // 4. Generate Dynamic 100% Unique Article-Specific Breakdown
@@ -786,39 +785,9 @@ export class TechNewsApiService {
     ];
     const paradigmShift = `Transitioning from traditional ${category} models toward ${primaryKeyword}-driven ${secondaryKeyword} execution.`;
 
-    const startupOpps: {
-      title: string;
-      description: string;
-      targetMarket: string;
-      potentialValue: "High" | "Massive" | "Very High";
-    }[] = [
-      {
-        title: `White-Space Platform for ${cleanTitle.slice(0, 38)}`,
-        description: `Build specialized automation, orchestration, or analytics tooling tailored around ${cleanTitle.slice(0, 45)}. ${s1}`,
-        targetMarket: `${category} Leaders & Engineering Teams`,
-        potentialValue: "Massive",
-      },
-      {
-        title: `Developer Integration Kit for ${secondaryKeyword} ${tertiaryKeyword}`,
-        description: `Abstract operational primitives from ${raw.sourceName}'s update on ${cleanTitle.slice(0, 35)} into an accessible API/SDK for engineering teams. ${s2}`,
-        targetMarket: `Technical Founders & ${category} Architects`,
-        potentialValue: "Very High",
-      },
-    ];
-
-    const roles = [
-      `${primaryKeyword} Systems Architect`,
-      `${secondaryKeyword} Lead Engineer`,
-      `${category.split(" ")[0]} Strategist`
-    ];
-
-    const skills = [
-      primaryKeyword,
-      secondaryKeyword,
-      tertiaryKeyword,
-      `${category.split(" ")[0]} Engineering`,
-      "System Architecture"
-    ];
+    const startupOpps: TechNewsItem["breakdown"]["startupOpportunities"] = [];
+    const roles: string[] = [];
+    const skills: string[] = [];
 
     return {
       id: raw.id,
@@ -833,25 +802,25 @@ export class TechNewsApiService {
         url: raw.url,
       },
       publishedAt: raw.publishedAt,
-      readTimeMinutes: Math.max(4, Math.ceil(raw.title.length / 14)),
+      readTimeMinutes: Math.max(1, Math.ceil(bodyClean.split(/\s+/).length / 200)),
       tags: raw.categories && raw.categories.length > 0 ? raw.categories.slice(0, 3) : [raw.sourceName, category.split(" ")[0]],
       breakdown: {
         whatHappened,
         companiesInvolved: foundCompanies,
         newTechnology: {
           title: techTitle,
-          architecture: techArch,
-          keyFeatures: techFeatures
+          architecture: "Not verified; consult the original report",
+          keyFeatures: []
         },
         marketImpact: {
           summary: marketSummary,
           affectedSectors: [category, "Enterprise Systems", "Technology Sector"],
-          disruptionVector: disruptionVector
+          disruptionVector: "Not assessed from the available source text"
         },
         developerImpact: {
           summary: devSummary,
-          workflowChanges: workflowChanges,
-          paradigmShift: paradigmShift
+          workflowChanges: [],
+          paradigmShift: "Not assessed"
         },
         startupOpportunities: startupOpps,
         // Real Open Source GitHub Repos (only include if real GitHub URL is detected)

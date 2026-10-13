@@ -11,8 +11,8 @@ import type { OssRepository } from "@/modules/githuboss/types";
 import type { ProductHuntProduct } from "@/modules/producthunt/types";
 import type { ThreeWayNodeContext, TrifectaMatch } from "../types";
 import { startups } from "@/data/startups";
-import { SAMPLE_OSS_REPOSITORIES } from "@/data/githuboss-repos";
-import { SAMPLE_PRODUCTHUNT_PRODUCTS } from "@/data/producthunt-products";
+import {useLiveResearch} from "@/hooks/useLiveResearch";
+
 import { getThreeWayNodeContext, generateTrifectaMatches } from "@/lib/cross-intelligence";
 import GsapMagnetic from "@/components/animations/GsapMagnetic";
 
@@ -27,13 +27,14 @@ export default function TrifectaFlywheelHub({
   isOpen,
   onClose,
 }: Props) {
+  const {repos: SAMPLE_OSS_REPOSITORIES, products: SAMPLE_PRODUCTHUNT_PRODUCTS} = useLiveResearch();
   const [selectedYc, setSelectedYc] = useState<Startup>(
     initialNodeContext?.ycStartup || startups[0]
   );
-  const [selectedGithub, setSelectedGithub] = useState<OssRepository>(
+  const [selectedGithub, setSelectedGithub] = useState<OssRepository | undefined>(
     initialNodeContext?.githubRepo || SAMPLE_OSS_REPOSITORIES[0]
   );
-  const [selectedPh, setSelectedPh] = useState<ProductHuntProduct>(
+  const [selectedPh, setSelectedPh] = useState<ProductHuntProduct | undefined>(
     initialNodeContext?.productHuntProduct || SAMPLE_PRODUCTHUNT_PRODUCTS[0]
   );
 
@@ -46,20 +47,20 @@ export default function TrifectaFlywheelHub({
     return getThreeWayNodeContext({
       primaryType: "yc",
       ycStartup: selectedYc,
-      githubRepo: selectedGithub,
-      productHuntProduct: selectedPh,
+      githubRepo: SAMPLE_OSS_REPOSITORIES.find(r => r.id === selectedGithub?.id),
+      productHuntProduct: SAMPLE_PRODUCTHUNT_PRODUCTS.find(p => p.id === selectedPh?.id),
       allYc: startups,
       allGithub: SAMPLE_OSS_REPOSITORIES,
       allPh: SAMPLE_PRODUCTHUNT_PRODUCTS,
     });
-  }, [selectedYc, selectedGithub, selectedPh]);
+  }, [selectedYc, selectedGithub, selectedPh, SAMPLE_OSS_REPOSITORIES, SAMPLE_PRODUCTHUNT_PRODUCTS]);
 
   const pair = nodeContext.bestTrifectaPair;
 
   // Generate top featured ecosystem trifectas
   const topTrifectas = useMemo(() => {
     return generateTrifectaMatches(startups, SAMPLE_OSS_REPOSITORIES, SAMPLE_PRODUCTHUNT_PRODUCTS);
-  }, []);
+  }, [SAMPLE_OSS_REPOSITORIES, SAMPLE_PRODUCTHUNT_PRODUCTS]);
 
   // Filtered lists for quick selection
   const filteredYc = useMemo(() => {
@@ -214,7 +215,7 @@ Generated via Foundry Trifecta Engine`;
                       2. Select GitHub OSS (Code):
                     </label>
                     <select
-                      value={selectedGithub.id}
+                      value={selectedGithub?.id || ""}
                       onChange={(e) => {
                         const found = SAMPLE_OSS_REPOSITORIES.find((r) => r.id === e.target.value);
                         if (found) setSelectedGithub(found);
@@ -235,7 +236,7 @@ Generated via Foundry Trifecta Engine`;
                       3. Select Product Hunt (GTM):
                     </label>
                     <select
-                      value={selectedPh.id}
+                      value={selectedPh?.id || ""}
                       onChange={(e) => {
                         const found = SAMPLE_PRODUCTHUNT_PRODUCTS.find((p) => p.id === e.target.value);
                         if (found) setSelectedPh(found);

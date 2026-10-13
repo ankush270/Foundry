@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import * as d3 from "d3";
 import type { ProductMaker, ProductHuntProduct } from "../types";
-import { SAMPLE_PRODUCTHUNT_PRODUCTS } from "@/data/producthunt-products";
+import {useLiveResearch} from "@/hooks/useLiveResearch";
 
 interface MakerPortfolioModalProps {
   maker: ProductMaker | null;
@@ -63,6 +63,7 @@ export default function MakerPortfolioModal({
   onClose,
   onSelectProduct,
 }: MakerPortfolioModalProps) {
+  const {products: SAMPLE_PRODUCTHUNT_PRODUCTS} = useLiveResearch();
   const [activeTab, setActiveTab] = useState<"graph" | "list" | "tech">("graph");
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
@@ -90,7 +91,7 @@ export default function MakerPortfolioModal({
     const matches = SAMPLE_PRODUCTHUNT_PRODUCTS.filter((p) =>
       p.makers.some(
         (m) =>
-          m.name.toLowerCase() === maker.name.toLowerCase() ||
+
           (m.username && maker.username && m.username.toLowerCase() === maker.username.toLowerCase())
       )
     );
@@ -100,7 +101,7 @@ export default function MakerPortfolioModal({
     }
 
     return matches;
-  }, [maker, currentProduct]);
+  }, [maker, currentProduct, SAMPLE_PRODUCTHUNT_PRODUCTS]);
 
   // Total metrics
   const totalUpvotes = useMemo(() => {

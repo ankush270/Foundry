@@ -48,7 +48,7 @@ import GsapTiltCard from "@/components/animations/GsapTiltCard";
 import { GsapTextReveal, GsapScrollGrid } from "@/components/animations/GsapTextReveal";
 import { ProductCard } from "./ProductCard";
 import MakerPortfolioModal from "./MakerPortfolioModal";
-import { SAMPLE_PRODUCTHUNT_PRODUCTS } from "@/data/producthunt-products";
+import {useLiveResearch} from "@/hooks/useLiveResearch";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -56,8 +56,10 @@ interface Props {
 
 export default function ProductHuntDetailView({ params }: Props) {
   const { id } = use(params);
+  const {products: availableProducts} = useLiveResearch();
   const [product, setProduct] = useState<ProductHuntProduct | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState("");
 
   // Interaction States
   const [votes, setVotes] = useState<number>(0);
@@ -90,7 +92,7 @@ export default function ProductHuntDetailView({ params }: Props) {
           setChatMessages([
             {
               sender: "ai",
-              text: `Hello! I am your Product Hunt AI Architect. Ask me anything about ${found.name}'s technology stack, architecture, pricing model, or MVP clone blueprint.`,
+              text: `This metadata helper summarizes available fields for ${found.name}'s technology stack, architecture, pricing model, or MVP clone blueprint.`,
             },
           ]);
 
@@ -110,7 +112,7 @@ export default function ProductHuntDetailView({ params }: Props) {
         setLoading(false);
       }
     }
-    loadData();
+    loadData().catch(() => { if (isMounted) { setProduct(null); setLoading(false); setLoadError("Live Product Hunt is unavailable. Please retry shortly."); } });
     return () => {
       isMounted = false;
     };
@@ -118,13 +120,7 @@ export default function ProductHuntDetailView({ params }: Props) {
 
   const handleVote = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (hasVoted) {
-      setVotes((v) => v - 1);
-      setHasVoted(false);
-    } else {
-      setVotes((v) => v + 1);
-      setHasVoted(true);
-    }
+    if (product?.productHuntUrl) window.open(product.productHuntUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleToggleBookmark = () => {
@@ -163,7 +159,7 @@ export default function ProductHuntDetailView({ params }: Props) {
     setIsTyping(true);
 
     setTimeout(() => {
-      let aiReply = `Based on technical analysis of ${product.name}, here is what you need to know:\n\n`;
+      let aiReply = `Saved product metadata (not a live AI assessment) for ${product.name}, here is what you need to know:\n\n`;
 
       const qLower = userText.toLowerCase();
       if (qLower.includes("tech") || qLower.includes("stack") || qLower.includes("build")) {
@@ -195,9 +191,9 @@ export default function ProductHuntDetailView({ params }: Props) {
       <div className="min-h-screen flex items-center justify-center pt-24 pb-16">
         <div className="text-center max-w-md p-8 doodle-card rounded-3xl">
           <Flame className="w-12 h-12 text-rose-500 mx-auto mb-3 opacity-50" />
-          <h1 className="text-2xl font-bold mb-2 text-[var(--foreground)] doodle-font">Product Not Found</h1>
+          <h1 className="text-2xl font-bold mb-2 text-[var(--foreground)] doodle-font">{loadError || "Product Not Found"}</h1>
           <p className="text-[var(--muted)] text-sm mb-6 font-mono">
-            The Product Hunt product you are looking for does not exist or has expired.
+            {loadError ? "The source could not be reached. This is not a confirmed missing product." : "No matching product was returned by Product Hunt."}
           </p>
           <Link
             href="/producthunt"
@@ -210,13 +206,13 @@ export default function ProductHuntDetailView({ params }: Props) {
     );
   }
 
-  const similarProducts = SAMPLE_PRODUCTHUNT_PRODUCTS.filter(
-    (p) => p.id !== product.id && (p.category === product.category || p.pricingModel === product.pricingModel)
+  const similarProducts = availableProducts.filter(
+    (p) => p.id !== product.id && p.topics.filter(t => product.topics.includes(t)).length >= 2
   ).slice(0, 4);
 
   return (
     <div className="min-h-screen relative overflow-hidden text-[var(--foreground)] bg-[var(--background)]">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+      <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         <BackLink href="/producthunt" label="Back to Product Hunt Explorer" />
 
         <div className="mb-6">

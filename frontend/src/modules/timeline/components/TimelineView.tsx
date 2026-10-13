@@ -245,7 +245,7 @@ export default function TimelineView() {
       {/* Dynamic Background Glow */}
       <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-br from-indigo-600/10 via-purple-500/5 to-pink-500/10 -z-10 blur-3xl pointer-events-none" />
       
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8">
+      <div className="max-w-[1680px] mx-auto px-4 sm:px-6 pt-8">
         <BackLink />
         <PageHeader
           badgeText="Historical Timeline Explorer"
@@ -692,6 +692,8 @@ export default function TimelineView() {
                       className="p-3 rounded-2xl glass-card border border-white/10 hover:border-amber-500/50 transition-all flex items-center gap-3 group"
                     >
                       <img
+                        ref={image => { if (image?.complete && image.naturalWidth === 0) image.src = "/founder-placeholder.svg"; }}
+                        onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/founder-placeholder.svg"; }}
                         src={s.logo}
                         alt={s.name}
                         className="w-9 h-9 rounded-xl object-contain bg-white/5 p-1 ring-1 ring-amber-500/30"
@@ -878,6 +880,8 @@ export default function TimelineView() {
                     className="timeline-startup-item flex items-center gap-3.5 p-4 rounded-2xl glass-card border border-white/10 hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all group"
                   >
                     <img
+                        ref={image => { if (image?.complete && image.naturalWidth === 0) image.src = "/founder-placeholder.svg"; }}
+                        onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/founder-placeholder.svg"; }}
                       src={s.logo}
                       alt={s.name}
                       className="w-11 h-11 rounded-xl ring-1 ring-white/10 object-contain p-1 bg-white/5 shrink-0"

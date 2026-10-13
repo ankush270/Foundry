@@ -127,7 +127,7 @@ export default function AnalyticsView() {
       {/* Background Glow */}
       <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-br from-indigo-600/10 via-purple-500/5 to-pink-500/10 -z-10 blur-3xl pointer-events-none" />
 
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8">
+      <div className="max-w-[1680px] mx-auto px-4 sm:px-6 pt-8">
         <BackLink />
         <PageHeader
           badgeText="Live Data Intelligence"
@@ -150,7 +150,7 @@ export default function AnalyticsView() {
 
             <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
               {/* Era selector */}
-              <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 p-1 text-xs overflow-x-auto max-w-full">
+              <div className="flex flex-wrap items-center bg-white/5 rounded-2xl border border-white/10 p-1 text-xs max-w-full">
                 {ERA_FILTERS.map((era, idx) => (
                   <button
                     key={era.label}

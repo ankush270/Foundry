@@ -144,7 +144,7 @@ export default function TechNewsDetailClient({ params }: PageProps) {
   const hasRepos = breakdown.openSourceProjects && breakdown.openSourceProjects.length > 0;
 
   return (
-    <main className="min-h-screen pt-20 pb-16 px-4 sm:px-8 max-w-[1440px] mx-auto font-sans space-y-6">
+    <main className="min-h-screen pt-20 pb-16 px-4 sm:px-8 max-w-[1680px] mx-auto font-sans space-y-6">
       {/* Top Back Navigation Bar */}
       <div className="flex items-center justify-between gap-4">
         <Link

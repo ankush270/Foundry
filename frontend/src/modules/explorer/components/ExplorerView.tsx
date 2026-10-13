@@ -127,7 +127,7 @@ export default function ExplorerView() {
 
   return (
     <div className="min-h-screen relative overflow-hidden pt-6">
-      <section className="relative z-10 pt-4 pb-6 max-w-[1440px] mx-auto px-4 sm:px-6">
+      <section className="relative z-10 pt-4 pb-6 max-w-[1680px] mx-auto px-4 sm:px-6">
         {/* Dedicated YC Header Banner */}
         <div className="rounded-3xl bg-[var(--surface)] dark:bg-[#111827] border border-[var(--border-color)] dark:border-[var(--border-color)] p-6 sm:p-10 shadow-sm shadow-sm mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b-2 border-dashed border-[#263D5B]/20">
@@ -194,7 +194,7 @@ export default function ExplorerView() {
       </section>
 
       {/* Startup Grid Section */}
-      <section id="startup-grid" className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 pb-20 pt-4">
+      <section id="startup-grid" className="relative z-10 max-w-[1680px] mx-auto px-4 sm:px-6 pb-20 pt-4">
         <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
           <p className="text-xs sm:text-sm font-medium text-[var(--muted)]">
             Showing <span className="font-bold text-[var(--foreground)]">{paginated.length}</span> of{" "}

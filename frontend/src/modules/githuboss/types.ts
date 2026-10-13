@@ -22,7 +22,7 @@ export type DomainCategory =
 
 export type TrendingDiscoveryMode = "all" | "trending" | "gems" | "emerging" | "top";
 
-export type MaturityLevel = "Battle-Tested" | "Production Viable" | "Emerging" | "Experimental";
+export type MaturityLevel = "Battle-Tested" | "Production Viable" | "Emerging" | "Experimental" | "Not assessed";
 
 export interface CodeSnippet {
   title: string;
@@ -71,9 +71,10 @@ export interface OssRepository {
   communityUseCases: string[];
   
   // Health & Quality Metrics
+  metricsAvailable?: boolean;
   qualityScore: number; // 0 - 100
   isUnderrated: boolean; // low stars (<1500) but high quality (>75)
-  maintainerHealth: "Excellent" | "Good" | "Needs Attention" | "Inactive";
+  maintainerHealth: "Excellent" | "Good" | "Needs Attention" | "Inactive" | "Not assessed";
   monthlyCommitVelocity: number;
   starGrowthRate: number; // stars added per week
   relevanceMatchBadge?: string; // e.g. "🎯 Fintech Match (95%)"

@@ -499,9 +499,7 @@ export function generateTechStackRecommendation(
 
   const layerCount = buildWithRepos.length;
   const estimatedBuildTime =
-    layerCount <= 2 ? "1-2 Weeks" :
-    layerCount <= 4 ? "2-4 Weeks" :
-    layerCount <= 6 ? "1-2 Months" : "2-3 Months";
+    "Not estimated — repository matches do not establish implementation scope";
 
   return {
     startup,
@@ -588,13 +586,12 @@ function scorePhToYc(startup: Startup, ph: ProductHuntProduct): number {
   const pKw = extractKeywords(pText);
   let overlaps = 0;
   for (const [w] of sKw) {
-    if (pKw.has(w)) overlaps++;
+    if (!GENERIC_META_WORDS.has(w) && pKw.has(w)) overlaps++;
   }
 
   score += Math.min(40, overlaps * 6);
 
-  // Hiring / Tech match bonus
-  if (ph.votesCount > 1000) score += 10;
+
 
   return Math.min(100, Math.max(0, score));
 }

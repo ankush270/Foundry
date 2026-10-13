@@ -1,4 +1,5 @@
 "use client";
+import { useRefreshTick } from "@/hooks/useRefreshTick";
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -50,6 +51,9 @@ export const GithubOssExplorer: React.FC = () => {
   const [totalCount, setTotalCount] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(false);
 
+  const criteriaKey = JSON.stringify([searchQuery, selectedDomain, selectedSubCategory, activeTrendingMode, selectedLanguage, selectedStarRange, selectedSortBy, selectedLicense, onlyUnderrated, onlyAwesome, perPage]);
+  const [previousCriteria, setPreviousCriteria] = useState(criteriaKey);
+  if (previousCriteria !== criteriaKey) { setPreviousCriteria(criteriaKey); setCurrentPage(1); }
   // Live API State
   const [isLoadingLive, setIsLoadingLive] = useState(true);
   const [isLiveApi, setIsLiveApi] = useState(false);
@@ -73,11 +77,11 @@ export const GithubOssExplorer: React.FC = () => {
 
   // Quick Prompt Chips
   const quickPrompts = [
-    "Stock market data with pre-built signals for fintech",
-    "Local LLM in browser with zero API cost",
-    "Fastest serverless backend framework for Cloudflare Workers",
-    "Shopify alternative for custom DTC store",
-    "Medical DICOM image parser & viewer"
+    "stock-market",
+    "web-llm",
+    "cloudflare workers",
+    "headless commerce",
+    "dicom viewer"
   ];
 
   // Sync Token on initial mount
@@ -92,6 +96,7 @@ export const GithubOssExplorer: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const refreshTick = useRefreshTick();
   // Fetch Live GitHub REST API Data
   useEffect(() => {
     let isMounted = true;
@@ -117,8 +122,8 @@ export const GithubOssExplorer: React.FC = () => {
         if (isMounted) {
           setRepos(result.repos);
           setIsLiveApi(result.isLive);
-          if (result.totalCount !== undefined) setTotalCount(result.totalCount);
-          if (result.hasMore !== undefined) setHasMore(result.hasMore);
+          setTotalCount(result.totalCount ?? 0);
+          setHasMore(result.hasMore ?? false);
           if (result.error) {
             setApiError(result.error);
           }
@@ -145,6 +150,7 @@ export const GithubOssExplorer: React.FC = () => {
     selectedLicense,
     onlyUnderrated,
     onlyAwesome,
+    refreshTick,
     githubToken,
     currentPage,
     perPage,
@@ -174,6 +180,8 @@ export const GithubOssExplorer: React.FC = () => {
 
   const handleResetAllFilters = () => {
     setSelectedDomain("All");
+    setSelectedSubCategory(null);
+    setActiveTrendingMode("all");
     setSelectedLanguage("All");
     setSelectedStarRange("All");
     setSelectedLicense("All");
@@ -218,7 +226,7 @@ export const GithubOssExplorer: React.FC = () => {
       }
 
       // Underrated filter
-      if (onlyUnderrated && !repo.isUnderrated) {
+      if (onlyUnderrated && repo.stars >= 2000) {
         return false;
       }
 
@@ -248,7 +256,7 @@ export const GithubOssExplorer: React.FC = () => {
     } else if (selectedSortBy === "updated") {
       result = [...result].sort((a, b) => new Date(b.lastCommitDate).getTime() - new Date(a.lastCommitDate).getTime());
     } else if (selectedSortBy === "relevance") {
-      result = [...result].sort((a, b) => b.qualityScore - a.qualityScore);
+      // Preserve GitHub best-match order; a local domain score is not search relevance.
     } else {
       // Default: Highest Stars First (#1 Top to Bottom)
       result = [...result].sort((a, b) => b.stars - a.stars);
@@ -301,7 +309,7 @@ export const GithubOssExplorer: React.FC = () => {
   return (
     <div className="min-h-screen text-[var(--foreground)] font-sans pb-24 space-y-8">
       {/* Top Banner & Header (In-page Hero Section) */}
-      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl p-6 sm:p-8 bg-[#0D1117] text-white border-2 border-[#30363D] shadow-sm space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#30363D] pb-6">
             <div className="flex items-center gap-3">
@@ -320,7 +328,7 @@ export const GithubOssExplorer: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-400 font-mono mt-0.5">
-                  Live repository metadata with heuristic quality and activity estimates
+                  Live repository metadata; unmeasured quality and activity are not assessed
                 </p>
               </div>
             </div>
@@ -331,7 +339,7 @@ export const GithubOssExplorer: React.FC = () => {
               <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#238636]/20 text-[#3FB950] text-xs font-mono border border-[#238636]/40">
                 <span className={`w-2 h-2 rounded-full ${isLiveApi ? "bg-[#3FB950] animate-pulse" : "bg-amber-500"}`} />
                 <Code2 className="w-3.5 h-3.5 text-[#3FB950]" />
-                <span>{isLiveApi ? "Live GitHub REST API" : "GitHub Sync (Fallback)"}</span>
+                <span>{isLiveApi ? "Live GitHub REST API" : "Live source unavailable"}</span>
               </div>
 
               {/* GitHub Token Config Button */}
@@ -384,7 +392,7 @@ export const GithubOssExplorer: React.FC = () => {
       </header>
 
       {/* Main Body Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* MODE 1: PULL MODE (USE-CASE SEARCH & INTELLIGENCE) */}
         {activeMode === "pull" && (
           <div className="space-y-8">
@@ -396,7 +404,7 @@ export const GithubOssExplorer: React.FC = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Describe your engineering problem in plain language (e.g., 'I need stock market data with pre-built signals for fintech')..."
+                  placeholder="Search repository keywords or GitHub qualifiers (e.g. supabase, topic:database)..."
                   className="w-full pl-12 pr-12 py-4 bg-slate-50 dark:bg-black/60 border border-slate-200 dark:border-white/10 focus:border-emerald-500 dark:focus:border-emerald-500 rounded-2xl text-sm text-[var(--foreground)] placeholder-[var(--muted)] focus:outline-none shadow-xl transition font-mono"
                 />
                 {searchQuery && (
@@ -679,7 +687,7 @@ export const GithubOssExplorer: React.FC = () => {
                           }`}
                         >
                           <Sparkles className={`w-3.5 h-3.5 ${onlyUnderrated ? "animate-pulse text-amber-500" : ""}`} />
-                          <span>Underrated Gems (&lt;2k Stars)</span>
+                          <span>Under 2,000 stars (&lt;2k Stars)</span>
                         </button>
                       </div>
                     </div>

@@ -68,7 +68,7 @@ export const RepoCard: React.FC<RepoCardProps> = ({
             className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${badgeStyle.bg} ${badgeStyle.text} border ${badgeStyle.border} shrink-0 whitespace-nowrap shadow-sm`}
             title="Heuristic estimate using stars and open issues; commit velocity and closed issues are not measured"
           >
-            <span>Est. score {repo.qualityScore}</span>
+            <span>{repo.metricsAvailable === false ? "Quality not assessed" : `Curated score ${repo.qualityScore}`}</span>
           </div>
         </div>
 
@@ -159,7 +159,7 @@ export const RepoCard: React.FC<RepoCardProps> = ({
           </div>
 
           <div className="flex items-center gap-1 justify-end min-w-0" title="Estimated monthly commits, not measured activity">
-            <span className="truncate text-emerald-600 dark:text-emerald-400 font-bold">~{repo.monthlyCommitVelocity}/mo</span>
+            <span className="truncate text-emerald-600 dark:text-emerald-400 font-bold">{repo.metricsAvailable === false ? "Unavailable" : `~${repo.monthlyCommitVelocity}/mo`}</span>
           </div>
         </div>
 

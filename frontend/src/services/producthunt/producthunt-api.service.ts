@@ -47,29 +47,10 @@ export class ProductHuntApiService {
     if (!idOrSlug) return null;
     const decoded = decodeURIComponent(idOrSlug).toLowerCase().trim();
 
-    // 1. Search in live products list first
-    try {
-      const result = await this.fetchProducts({ limit: 150 });
-      const foundLive = result.products.find(
-        (p) =>
-          p.id.toLowerCase() === decoded ||
-          p.slug.toLowerCase() === decoded ||
-          p.id.replace(/^ph-live-|^ph-/, "").toLowerCase() === decoded
-      );
-      if (foundLive) return this.enrichProductDetails(foundLive);
-
-
-    } catch (e) {
-      console.error("[ProductHunt API] Error fetching product by ID from live data:", e);
-    }
-
-    // 2. Search in SAMPLE_PRODUCTHUNT_PRODUCTS fallback
-    const foundSample = SAMPLE_PRODUCTHUNT_PRODUCTS.find(
-      (p) => p.id.toLowerCase() === decoded || p.slug.toLowerCase() === decoded
-    );
-    if (foundSample) return this.enrichProductDetails(foundSample);
-
-    return null;
+    const response = await fetch(`/api/producthunt?slug=${encodeURIComponent(decoded)}`, {cache:"no-store", signal:AbortSignal.timeout(15000)});
+    if (response.status === 404) return null;
+    if (!response.ok) throw new Error("Product Hunt live detail unavailable. Please retry.");
+    return (await response.json()).product || null;
   }
 
   /**
@@ -98,7 +79,7 @@ export class ProductHuntApiService {
       }
 
 
-      const response = await fetch(apiUrl, { cache: "no-store" });
+      const response = await fetch(apiUrl, { cache: "no-store", signal: AbortSignal.timeout(15000) });
       if (response.ok) {
         const json = await response.json();
         if (Array.isArray(json.data)) {
@@ -122,15 +103,7 @@ export class ProductHuntApiService {
       console.warn("[ProductHunt Service] API route fetch failed, trying direct fallback:", err);
     }
 
-    // Fallback to local curated dataset ONLY if network or API failed completely
-    console.log("[ProductHunt Service] Network offline, serving fallback dataset");
-    const fallbackFiltered = this.filterAndSortProducts(SAMPLE_PRODUCTHUNT_PRODUCTS, options);
-    return {
-      products: fallbackFiltered,
-      isLive: false,
-      source: "Offline Curated Dataset",
-      totalCount: fallbackFiltered.length,
-    };
+    return { products: [], isLive: false, source: "Live Product Hunt unavailable — no sample data shown", totalCount: 0, hasNextPage: false, endCursor: null };
   }
 
   /**
@@ -210,7 +183,9 @@ export class ProductHuntApiService {
         (a, b) => new Date(b.launchDate).getTime() - new Date(a.launchDate).getTime()
       );
     } else if (sortBy === "relevance") {
-      filtered = filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+      const terms = (options.query || "").toLowerCase().split(/\s+/).filter(Boolean);
+      const relevance = (p: ProductHuntProduct) => terms.reduce((n, term) => n + (`${p.name} ${p.tagline}`.toLowerCase().includes(term) ? 1 : 0), 0);
+      filtered = filtered.sort((a, b) => relevance(b) - relevance(a));
     }
 
     return filtered;

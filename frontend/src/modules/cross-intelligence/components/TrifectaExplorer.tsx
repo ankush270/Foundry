@@ -6,8 +6,8 @@ import {
   BookOpen, Layers, CheckCircle2, ChevronRight, Copy, Check, Flame, ExternalLink, Filter
 } from "lucide-react";
 import { startups } from "@/data/startups";
-import { SAMPLE_OSS_REPOSITORIES } from "@/data/githuboss-repos";
-import { SAMPLE_PRODUCTHUNT_PRODUCTS } from "@/data/producthunt-products";
+import {useLiveResearch} from "@/hooks/useLiveResearch";
+
 import { generateTrifectaMatches, getThreeWayNodeContext } from "@/lib/cross-intelligence";
 import type { Startup } from "@/data/types";
 import type { OssRepository } from "@/modules/githuboss/types";
@@ -17,9 +17,10 @@ import TrifectaBadgeBanner from "./TrifectaBadgeBanner";
 import TrifectaFlywheelHub from "./TrifectaFlywheelHub";
 
 export default function TrifectaExplorer() {
+  const {repos: SAMPLE_OSS_REPOSITORIES, products: SAMPLE_PRODUCTHUNT_PRODUCTS} = useLiveResearch();
   const [selectedYc, setSelectedYc] = useState<Startup>(startups[0]);
-  const [selectedGithub, setSelectedGithub] = useState<OssRepository>(SAMPLE_OSS_REPOSITORIES[0]);
-  const [selectedPh, setSelectedPh] = useState<ProductHuntProduct>(SAMPLE_PRODUCTHUNT_PRODUCTS[0]);
+  const [selectedGithub, setSelectedGithub] = useState<OssRepository | undefined>(SAMPLE_OSS_REPOSITORIES[0]);
+  const [selectedPh, setSelectedPh] = useState<ProductHuntProduct | undefined>(SAMPLE_PRODUCTHUNT_PRODUCTS[0]);
   
   const [activeTab, setActiveTab] = useState<"flywheel" | "playbook" | "matrix">("flywheel");
   const [copiedPlaybook, setCopiedPlaybook] = useState(false);
@@ -30,20 +31,20 @@ export default function TrifectaExplorer() {
     return getThreeWayNodeContext({
       primaryType: "yc",
       ycStartup: selectedYc,
-      githubRepo: selectedGithub,
-      productHuntProduct: selectedPh,
+      githubRepo: SAMPLE_OSS_REPOSITORIES.find(r => r.id === selectedGithub?.id),
+      productHuntProduct: SAMPLE_PRODUCTHUNT_PRODUCTS.find(p => p.id === selectedPh?.id),
       allYc: startups,
       allGithub: SAMPLE_OSS_REPOSITORIES,
       allPh: SAMPLE_PRODUCTHUNT_PRODUCTS,
     });
-  }, [selectedYc, selectedGithub, selectedPh]);
+  }, [selectedYc, selectedGithub, selectedPh, SAMPLE_OSS_REPOSITORIES, SAMPLE_PRODUCTHUNT_PRODUCTS]);
 
   const pair = nodeContext.bestTrifectaPair;
 
   // Curated ecosystem trifectas
   const topTrifectas = useMemo(() => {
     return generateTrifectaMatches(startups, SAMPLE_OSS_REPOSITORIES, SAMPLE_PRODUCTHUNT_PRODUCTS);
-  }, []);
+  }, [SAMPLE_OSS_REPOSITORIES, SAMPLE_PRODUCTHUNT_PRODUCTS]);
 
   const handleSelectTrifecta = (tf: TrifectaMatch) => {
     setSelectedYc(tf.ycStartup);
@@ -65,7 +66,7 @@ Generated via Foundry Trifecta Engine`;
 
   return (
     <div className="min-h-screen bg-[var(--surface)] dark:bg-[#111827] text-[var(--foreground)] dark:text-slate-100 font-sans pt-24 pb-16 px-4 sm:px-6">
-      <div className="max-w-[1400px] mx-auto space-y-8">
+      <div className="max-w-[1680px] mx-auto space-y-8">
 
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-3xl border border-[var(--border-color)] dark:border-[var(--border-color)] bg-white dark:bg-[#1F2937] p-6 sm:p-10 shadow-sm shadow-sm">

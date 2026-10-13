@@ -15,6 +15,7 @@ export default function SarvamIndicTranslator({
 }: SarvamIndicTranslatorProps) {
   const [selectedLang, setSelectedLang] = useState<"en" | "hi" | "hinglish" | "ta" | "te" | "bn">("en");
   const [translatedText, setTranslatedText] = useState<string>("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const languages = [
@@ -28,6 +29,8 @@ export default function SarvamIndicTranslator({
 
   const handleLanguageSelect = async (code: typeof selectedLang) => {
     setSelectedLang(code);
+    setError("");
+    setTranslatedText("");
     if (code === "en") {
       setTranslatedText("");
       if (onTranslatedTextChange) onTranslatedTextChange(originalPremise);
@@ -40,7 +43,9 @@ export default function SarvamIndicTranslator({
       setTranslatedText(translated);
       if (onTranslatedTextChange) onTranslatedTextChange(translated);
     } catch (e) {
-      console.error("Translation error:", e);
+      setSelectedLang("en");
+      onTranslatedTextChange?.(originalPremise);
+      setError("Translation unavailable. Showing the original English text.");
     } finally {
       setLoading(false);
     }
@@ -81,6 +86,7 @@ export default function SarvamIndicTranslator({
         ))}
       </div>
 
+      {error && <p role="alert" className="text-sm text-[var(--muted)]">{error}</p>}
       {/* Translated Box Output */}
       {selectedLang !== "en" && translatedText && (
         <div className="p-3.5 rounded-xl bg-[#49B6E5]/10 border border-[#263D5B]/30 font-bold text-xs text-slate-800 dark:text-slate-100 leading-relaxed">

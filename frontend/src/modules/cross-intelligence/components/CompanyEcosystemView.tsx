@@ -56,7 +56,7 @@ export default function CompanyEcosystemView({ startup }: Props) {
 
   // Combine live + sample repositories and generate summary
   const summary = useMemo(() => {
-    const combined = [...liveRepos, ...SAMPLE_OSS_REPOSITORIES];
+    const combined = [...liveRepos];
     const seen = new Set<string>();
     const unique = combined.filter((r) => {
       const key = r.fullName.toLowerCase();
@@ -90,7 +90,7 @@ export default function CompanyEcosystemView({ startup }: Props) {
 
   return (
     <div className="min-h-screen pb-16 pt-4 font-sans text-slate-900 dark:text-slate-100">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 space-y-6">
+      <div className="max-w-[1680px] mx-auto px-4 sm:px-8 space-y-6">
         
         {/* Navigation & Header Breadcrumb */}
         <div className="flex items-center justify-between">

@@ -123,51 +123,20 @@ function calculateCosineSimilarity(mapA: Map<string, number>, mapB: Map<string, 
 }
 
 export function getSimilarStartups(startup: Startup, limit = 5): Startup[] {
-  const targetText = `${startup.oneLiner} ${startup.longDescription} ${startup.industries.join(" ")}`;
-  const targetKeywords = extractKeywords(targetText);
-
-  const targetIndustries = new Set(startup.industries.map(i => i.toLowerCase()));
-  const targetTags = new Set(
-    startup.tags
-      .map(t => t.toLowerCase())
-      .filter(t => !META_TAGS.has(t))
-  );
-
-  return startups
-    .filter((s) => s.id !== startup.id)
-    .map((s) => {
-      let score = 0;
-
-      // 1. Industry Jaccard Similarity (Weight: max 40 pts)
-      const currentIndustries = s.industries.map(i => i.toLowerCase());
-      const industryMatches = currentIndustries.filter(i => targetIndustries.has(i)).length;
-      if (industryMatches > 0 && targetIndustries.size > 0) {
-        const unionSize = new Set([...targetIndustries, ...currentIndustries]).size;
-        const jaccard = industryMatches / unionSize;
-        score += jaccard * 40;
-      }
-
-      // 2. Specific Non-Meta Tags Overlap (Weight: max 20 pts)
-      const currentTags = s.tags
-        .map(t => t.toLowerCase())
-        .filter(t => !META_TAGS.has(t));
-      const tagMatches = currentTags.filter(t => targetTags.has(t)).length;
-      if (tagMatches > 0 && targetTags.size > 0) {
-        const unionSize = new Set([...targetTags, ...currentTags]).size;
-        const tagJaccard = tagMatches / unionSize;
-        score += tagJaccard * 20;
-      }
-
-      // 3. Text & One-Liner Semantic Cosine Similarity (Weight: max 50 pts)
-      const sText = `${s.oneLiner} ${s.longDescription} ${s.industries.join(" ")}`;
-      const sKeywords = extractKeywords(sText);
-      const cosineSim = calculateCosineSimilarity(targetKeywords, sKeywords);
-      score += cosineSim * 50;
-
-      return { ...s, _score: score };
-    })
-    .sort((a, b) => b._score - a._score)
-    .slice(0, limit)
-    .map(({ _score, ...s }) => s as Startup);
+  // Require specific shared product vocabulary, not generic industry labels.
+  const generic = new Set([...STOP_WORDS, 'technology', 'b2b', 'saas', 'software', 'data', 'users', 'customers', 'teams', 'apps', 'app', 'using', 'use', 'new', 'work', 'world', 'make', 'help', 'get', 'one', 'first', 'best', 'online']);
+  const tokens = (s: Startup) => new Set([...extractKeywords(s.oneLiner + ' ' + s.longDescription).keys()].filter(w => !generic.has(w)));
+  const target = tokens(startup);
+  const frequencies = new Map<string, number>();
+  const documents = startups.map(s => ({ startup: s, words: tokens(s) }));
+  for (const { words } of documents) for (const w of words) frequencies.set(w, (frequencies.get(w) || 0) + 1);
+  return documents.filter(d => d.startup.id !== startup.id).map(d => {
+    const shared = [...target].filter(w => d.words.has(w) && (frequencies.get(w) || 0) / startups.length < .12);
+    const weight = (w: string) => Math.log(1 + startups.length / (frequencies.get(w) || 1));
+    const overlap = shared.reduce((sum, w) => sum + weight(w), 0);
+    const total = [...new Set([...target, ...d.words])].reduce((sum, w) => sum + weight(w), 0);
+    return { startup: d.startup, shared, score: total ? overlap / total : 0 };
+  }).filter(d => d.shared.length >= 3 && d.score >= .08)
+    .sort((a,b) => b.score - a.score || a.startup.id.localeCompare(b.startup.id))
+    .slice(0, Math.max(0, limit)).map(d => d.startup);
 }
-

@@ -17,7 +17,7 @@ const faqs: FaqItem[] = [
   {
     question: "How does the AI SaaS Clone & Blueprint Generator work?",
     answer:
-      "Our AI analyzes any startup or launch to generate a complete technical blueprint — including recommended architecture, database schema, required APIs, and execution steps.",
+      "Blueprints are suggested starting points based on available company descriptions and templates. They are not verified company architectures; AI features require an available AI service.",
   },
   {
     question: "Is Foundry free to use for founders and developers?",
@@ -27,12 +27,12 @@ const faqs: FaqItem[] = [
   {
     question: "How often is the startup and product launch data updated?",
     answer:
-      "YC and Product Hunt use curated snapshots. GitHub and news request live data when available and fall back to curated data. GitHub quality and velocity figures are estimates.",
+      "Product Hunt and GitHub request live source data; news refreshes on a five-minute cache. YC profiles are checked when opened, while the directory uses scheduled snapshots with visible check times. Source failures show unavailable rather than demo results. GitHub code quality and growth metrics are not assessed.",
   },
   {
     question: "Can I compare multiple startups or tech stacks side-by-side?",
     answer:
-      "Yes! Use our 3-Way Comparison Engine (/compare) to benchmark up to 3 startups or products side-by-side.",
+      "Yes! Use our 3-Way Comparison Engine (/compare) to benchmark up to 3 startups side-by-side.",
   },
 ];
 

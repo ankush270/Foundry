@@ -13,16 +13,17 @@ export function calculateQualityScore(repo: {
   monthlyCommitVelocity: number;
   starGrowthRate: number;
 }): { score: number; isUnderrated: boolean; healthLabel: "Excellent" | "Good" | "Needs Attention" | "Inactive" } {
+  if (![repo.stars, repo.openIssues, repo.closedIssues, repo.monthlyCommitVelocity, repo.starGrowthRate].every(n => Number.isFinite(n) && n >= 0) || !Number.isFinite(Date.parse(repo.lastCommitDate))) return { score: 0, isUnderrated: false, healthLabel: "Inactive" };
   const now = new Date().getTime();
   const commitTime = new Date(repo.lastCommitDate).getTime();
   const daysSinceCommit = Math.max(0, (now - commitTime) / (1000 * 60 * 60 * 24));
 
   // 1. Recency Decay Score (Exponential decay based on days since last commit)
-  const recencyScore = Math.max(0, 100 * Math.exp(-daysSinceCommit / 60)); // 60 days half-life
+  const recencyScore = Math.max(0, 100 * Math.exp(-daysSinceCommit / 60)); // 60-day exponential time constant
 
   // 2. Issue Resolution Ratio
   const totalIssues = repo.openIssues + repo.closedIssues;
-  const issueResolutionRatio = totalIssues > 0 ? repo.closedIssues / totalIssues : 0.85;
+  const issueResolutionRatio = totalIssues > 0 ? repo.closedIssues / totalIssues : 0;
   const issueScore = Math.min(100, issueResolutionRatio * 100);
 
   // 3. Velocity Score (Commits per month)
@@ -39,7 +40,7 @@ export function calculateQualityScore(repo: {
     growthScore * 0.15
   );
 
-  const boundedScore = Math.min(99, Math.max(12, finalScore));
+  const boundedScore = Math.min(100, Math.max(0, finalScore));
 
   // Health label determination
   let healthLabel: "Excellent" | "Good" | "Needs Attention" | "Inactive" = "Inactive";

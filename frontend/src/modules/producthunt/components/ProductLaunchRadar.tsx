@@ -15,7 +15,7 @@ export const ProductLaunchRadar: React.FC<ProductLaunchRadarProps> = ({
 }) => {
   const topRadarProducts = products
     .filter((p) => p.featured || p.votesCount >= 4000)
-    .slice(0, 5);
+    .sort((a,b) => b.votesCount - a.votesCount).slice(0, 5);
 
   if (topRadarProducts.length === 0) return null;
 
@@ -31,10 +31,10 @@ export const ProductLaunchRadar: React.FC<ProductLaunchRadarProps> = ({
           </div>
           <div>
             <h2 className="font-display font-extrabold text-base sm:text-lg text-[var(--foreground)] tracking-tight flex items-center gap-2">
-              Launch Radar — Today&apos;s #1 Trending Products
+              Launch Radar — Featured & popular in this loaded feed
             </h2>
             <p className="text-xs text-[var(--muted)]">
-              Real-time upvotes & AI architecture breakdowns of top Product Hunt launches
+              Source-reported votes for loaded launches; not a global daily ranking
             </p>
           </div>
         </div>
